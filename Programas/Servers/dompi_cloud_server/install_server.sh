@@ -1,5 +1,5 @@
 #!/bin/sh
-set -x
+
 if [ -f /usr/local/sbin/$1 ]; then
     /usr/sbin/gmon_stop $1
 

@@ -98,6 +98,7 @@ using namespace std;
 
 #include "config.h"
 #include "strfunc.h"
+#include "cpgdb.h"
 
 CGMServerWait *m_pServer;
 DPConfig *pConfig;
@@ -128,8 +129,22 @@ int main(/*int argc, char** argv, char** env*/void)
 	char message[4096];
 	unsigned long message_len;
 
+	char db_host[32];
+	char db_user[32];
+	char db_password[32];
+
+	time_t t;
+	struct tm *p_tm;
+
 	STRFunc Strf;
 	CGMServerBase::GMIOS call_resp;
+	CPgDB *pDB;
+
+    cJSON *json_obj;
+    cJSON *json_System_Key;
+    cJSON *json_Objetos;
+    cJSON *json_arr = NULL;
+
 
 	signal(SIGPIPE, SIG_IGN);
 	signal(SIGKILL, OnClose);
@@ -149,9 +164,22 @@ int main(/*int argc, char** argv, char** env*/void)
 
 	m_pServer->m_pLog->Add(1, "Leyendo configuración...");
 	pConfig = new DPConfig("/etc/dompicloud.config");
-	//pConfig->GetParam("SQLITE_DB_FILENAME", db_filename);
+	pConfig->GetParam("DBHOST", db_host);
+	pConfig->GetParam("DBUSER", db_user);
+	pConfig->GetParam("DBPASSWORD", db_password);
 
 	m_pServer->Suscribe("dompi_web_notif", GM_MSG_TYPE_CR);
+
+	m_pServer->m_pLog->Add(1, "Conectado a la base de datos...");
+	pDB = new CPgDB(db_host, "DB_DOMPICLOUD", db_user, db_password);
+	if(pDB == NULL)
+	{
+		m_pServer->m_pLog->Add(1, "ERROR: Al conectarse a la base de datos.");
+	}
+	if(pDB->Open() != 0)
+	{
+		m_pServer->m_pLog->Add(1, "ERROR: En Open a la base de datos.");
+	}
 
 	m_pServer->m_pLog->Add(1, "Servicios de Domotica inicializados.");
 
@@ -166,12 +194,52 @@ int main(/*int argc, char** argv, char** env*/void)
 			**************************************************************** */
 			if( !strcmp(fn, "dompi_web_notif"))
 			{
-				/* El mensaje vino sin HWID */
+				json_obj = cJSON_Parse(message);
+				json_System_Key = cJSON_GetObjectItemCaseSensitive(json_obj, "System_Key");
+				json_Objetos = cJSON_GetObjectItemCaseSensitive(json_obj, "Objetos");
+
+				if(json_System_Key)
+				{
+					if(json_Objetos)
+					{
+						m_pServer->m_pLog->Add(10, "Objects Update: [%s]", json_System_Key->valuestring);
+
+
+
+					}
+					else
+					{
+						json_arr = cJSON_CreateArray();
+						t = time(&t);
+						p_tm = localtime(&t);
+						m_pServer->m_pLog->Add(10, "Keep Alive: [%s]", json_System_Key->valuestring);
+						rc = pDB->Query(json_arr, "UPDATE TB_DOMCLOUD_ASSIGN "
+													"SET ultimo_update = \'%04i-%02i-%02i %02i:%02i:%02i\' "
+													"WHERE System_Key = \'%s\' AND Id = 0;",
+												p_tm->tm_year+1900, p_tm->tm_mon+1, p_tm->tm_mday,
+												p_tm->tm_hour, p_tm->tm_min, p_tm->tm_sec,
+												json_System_Key->valuestring);
+						if(rc == 0)
+						{
+							rc = pDB->Query(json_arr, "INSERT INTO TB_DOMCLOUD_ASSIGN (System_Key, Id, Ultimo_Update) "
+														"VALUES (\'%s\', 0, \'%04i-%02i-%02i %02i:%02i:%02i\');",
+													json_System_Key->valuestring,
+													p_tm->tm_year+1900, p_tm->tm_mon+1, p_tm->tm_mday,
+													p_tm->tm_hour, p_tm->tm_min, p_tm->tm_sec);
+							if(rc < 0)
+							{
+								m_pServer->m_pLog->Add(10, "ERROR: Al agregar [%s]", json_System_Key->valuestring);
+							}
+						}
+						else if(rc < 0)
+						{
+							m_pServer->m_pLog->Add(10, "ERROR: Al actualizar [%s]", json_System_Key->valuestring);
+						}
+					}
+				}
+
+				/* Siempre responder OK para evitar skimming */
 				strcpy(message, "{\"response\":{\"resp_code\":\"0\", \"resp_msg\":\"Ok\"}}");
-
-
-
-
 
 				m_pServer->m_pLog->Add(50, "%s:(R)[%s]", fn, message);
 				if(m_pServer->Resp(message, strlen(message), GME_OK) != GME_OK)
@@ -179,6 +247,7 @@ int main(/*int argc, char** argv, char** env*/void)
 					/* error al responder */
 					m_pServer->m_pLog->Add(50, "ERROR al responder mensaje [dompi_infoio]");
 				}
+				cJSON_Delete(json_obj);
 			}
 		}
 	}
