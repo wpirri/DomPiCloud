@@ -137,14 +137,26 @@ int main(/*int argc, char** argv, char** env*/void)
 	struct tm *p_tm;
 
 	STRFunc Strf;
-	CGMServerBase::GMIOS call_resp;
 	CPgDB *pDB;
 
     cJSON *json_obj;
+    cJSON *json_un_obj;
     cJSON *json_System_Key;
     cJSON *json_Objetos;
-    cJSON *json_arr = NULL;
-
+    cJSON *json_Id;
+	cJSON *json_Objeto;
+	cJSON *json_Tipo;
+	cJSON *json_Estado;
+	cJSON *json_Icono0;
+	cJSON *json_Icono1;
+	cJSON *json_Grupo_Visual;
+	cJSON *json_Planta;
+	cJSON *json_Cord_x;
+	cJSON *json_Cord_y;
+	cJSON *json_Coeficiente;
+	cJSON *json_Analog_Mult_Div;
+	cJSON *json_Analog_Mult_Div_Valor;
+	cJSON *json_Flags;
 
 	signal(SIGPIPE, SIG_IGN);
 	signal(SIGKILL, OnClose);
@@ -196,32 +208,166 @@ int main(/*int argc, char** argv, char** env*/void)
 			{
 				json_obj = cJSON_Parse(message);
 				json_System_Key = cJSON_GetObjectItemCaseSensitive(json_obj, "System_Key");
-				json_Objetos = cJSON_GetObjectItemCaseSensitive(json_obj, "Objetos");
+				json_Id = cJSON_GetObjectItemCaseSensitive(json_obj, "Id");
+				if(json_Id)
+				{
+					//json_Objeto = cJSON_GetObjectItemCaseSensitive(json_obj, "Objeto");
+					//json_Tipo = cJSON_GetObjectItemCaseSensitive(json_obj, "Tipo");
+					json_Estado = cJSON_GetObjectItemCaseSensitive(json_obj, "Estado");
+					json_Objetos = NULL;
+				}
+				else
+				{
+					json_Objetos = cJSON_GetObjectItemCaseSensitive(json_obj, "Objetos");
+				}
 
 				if(json_System_Key)
 				{
-					if(json_Objetos)
+					if(json_Id && json_Estado)
 					{
-						m_pServer->m_pLog->Add(10, "Objects Update: [%s]", json_System_Key->valuestring);
-
-
-
-					}
-					else
-					{
-						json_arr = cJSON_CreateArray();
+						m_pServer->m_pLog->Add(10, "Status Update: [%s]", json_System_Key->valuestring);
 						t = time(&t);
 						p_tm = localtime(&t);
 						m_pServer->m_pLog->Add(10, "Keep Alive: [%s]", json_System_Key->valuestring);
-						rc = pDB->Query(json_arr, "UPDATE TB_DOMCLOUD_ASSIGN "
-													"SET ultimo_update = \'%04i-%02i-%02i %02i:%02i:%02i\' "
+						rc = pDB->Query(NULL, "UPDATE TB_DOMCLOUD_ASSIGN "
+													"SET Ultimo_Update = \'%04i-%02i-%02i %02i:%02i:%02i\', "
+													"Estado = %s "
+													"WHERE System_Key = \'%s\' AND Id = %s;",
+												p_tm->tm_year+1900, p_tm->tm_mon+1, p_tm->tm_mday,
+												p_tm->tm_hour, p_tm->tm_min, p_tm->tm_sec,
+												json_Estado->valuestring,
+												json_System_Key->valuestring,
+												json_Id->valuestring);
+						if(rc == 0)
+						{
+							rc = pDB->Query(NULL, "INSERT INTO TB_DOMCLOUD_ASSIGN (System_Key, Id, Ultimo_Update, Estado) "
+														"VALUES (\'%s\', %s, \'%04i-%02i-%02i %02i:%02i:%02i\', %s);",
+													json_System_Key->valuestring,
+													json_Id->valuestring,
+													p_tm->tm_year+1900, p_tm->tm_mon+1, p_tm->tm_mday,
+													p_tm->tm_hour, p_tm->tm_min, p_tm->tm_sec,
+													json_Estado->valuestring);
+							if(rc < 0)
+							{
+								m_pServer->m_pLog->Add(10, "ERROR: Al agregar [%s]", json_System_Key->valuestring);
+							}
+						}
+						else if(rc < 0)
+						{
+							m_pServer->m_pLog->Add(10, "ERROR: Al actualizar [%s]", json_System_Key->valuestring);
+						}
+					}
+					else if(json_Objetos)
+					{
+						m_pServer->m_pLog->Add(10, "Objects Update: [%s]", json_System_Key->valuestring);
+						t = time(&t);
+						p_tm = localtime(&t);
+
+						cJSON_ArrayForEach(json_un_obj, json_Objetos)
+						{
+							json_Id = cJSON_GetObjectItemCaseSensitive(json_un_obj, "Id");
+							json_Objeto = cJSON_GetObjectItemCaseSensitive(json_un_obj, "Objeto");
+							json_Tipo = cJSON_GetObjectItemCaseSensitive(json_un_obj, "Tipo");
+							json_Estado = cJSON_GetObjectItemCaseSensitive(json_un_obj, "Estado");
+							json_Icono0 = cJSON_GetObjectItemCaseSensitive(json_un_obj, "Icono0");
+							json_Icono1 = cJSON_GetObjectItemCaseSensitive(json_un_obj, "Icono1");
+							json_Grupo_Visual = cJSON_GetObjectItemCaseSensitive(json_un_obj, "Grupo_Visual");
+							json_Planta = cJSON_GetObjectItemCaseSensitive(json_un_obj, "Planta");
+							json_Cord_x = cJSON_GetObjectItemCaseSensitive(json_un_obj, "Cord_x");
+							json_Cord_y = cJSON_GetObjectItemCaseSensitive(json_un_obj, "Cord_y");
+							json_Coeficiente = cJSON_GetObjectItemCaseSensitive(json_un_obj, "Coeficiente");
+							json_Analog_Mult_Div = cJSON_GetObjectItemCaseSensitive(json_un_obj, "Analog_Mult_Div");
+							json_Analog_Mult_Div_Valor = cJSON_GetObjectItemCaseSensitive(json_un_obj, "Analog_Mult_Div_Valor");
+							json_Flags = cJSON_GetObjectItemCaseSensitive(json_un_obj, "Flags");
+							if(json_Id && json_Objeto && json_Tipo && json_Estado && json_Icono0 && json_Icono1 && 
+								json_Grupo_Visual && json_Planta && json_Cord_x && json_Cord_y && json_Coeficiente && 
+								json_Analog_Mult_Div && json_Analog_Mult_Div_Valor && json_Flags && json_System_Key && json_Id)
+							{
+								/* A pegarle a la base */
+								rc = pDB->Query(NULL, "UPDATE TB_DOMCLOUD_ASSIGN "
+															"SET Ultimo_Update = \'%04i-%02i-%02i %02i:%02i:%02i\', "
+															"Objeto = \'%s\', "
+															"Tipo = %s, "
+															"Estado = %s, "
+															"Icono0 = \'%s\', "
+															"Icono1 = \'%s\', "
+															"Grupo_Visual = %s, "
+															"Planta = %s, "
+															"Cord_x = %s, "
+															"Cord_y = %s, "
+															"Coeficiente = %s, "
+															"Analog_Mult_Div = %s, "
+															"Analog_Mult_Div_Valor = %s, "
+															"Flags = %s "
+															"WHERE System_Key = \'%s\' AND Id = %s;",
+														p_tm->tm_year+1900, p_tm->tm_mon+1, p_tm->tm_mday,
+														p_tm->tm_hour, p_tm->tm_min, p_tm->tm_sec,
+														json_Objeto->valuestring,
+														json_Tipo->valuestring,
+														json_Estado->valuestring,
+														json_Icono0->valuestring,
+														json_Icono1->valuestring,
+														json_Grupo_Visual->valuestring,
+														json_Planta->valuestring,
+														json_Cord_x->valuestring,
+														json_Cord_y->valuestring,
+														json_Coeficiente->valuestring,
+														json_Analog_Mult_Div->valuestring,
+														json_Analog_Mult_Div_Valor->valuestring,
+														json_Flags->valuestring,
+														json_System_Key->valuestring,
+														json_Id->valuestring);
+								if(rc == 0)
+								{
+									rc = pDB->Query(NULL, "INSERT INTO TB_DOMCLOUD_ASSIGN (System_Key, Id, Ultimo_Update, Objeto, Tipo, Estado, Icono0, Icono1, Grupo_Visual, Planta, Cord_x, Cord_y, Coeficiente, Analog_Mult_Div, Analog_Mult_Div_Valor, Flags) "
+																"VALUES (\'%s\', %s, \'%04i-%02i-%02i %02i:%02i:%02i\', \'%s\', %s, %s, \'%s\', \'%s\', %s, %s, %s, %s, %s, %s, %s, %s );",
+															json_System_Key->valuestring,
+															json_Id->valuestring,
+															p_tm->tm_year+1900, p_tm->tm_mon+1, p_tm->tm_mday,
+															p_tm->tm_hour, p_tm->tm_min, p_tm->tm_sec,
+															json_Objeto->valuestring,
+															json_Tipo->valuestring,
+															json_Estado->valuestring,
+															json_Icono0->valuestring,
+															json_Icono1->valuestring,
+															json_Grupo_Visual->valuestring,
+															json_Planta->valuestring,
+															json_Cord_x->valuestring,
+															json_Cord_y->valuestring,
+															json_Coeficiente->valuestring,
+															json_Analog_Mult_Div->valuestring,
+															json_Analog_Mult_Div_Valor->valuestring,
+															json_Flags->valuestring);
+									if(rc < 0)
+									{
+										m_pServer->m_pLog->Add(10, "ERROR: Al agregar [%s de %s]", json_Objeto->valuestring, json_System_Key->valuestring);
+									}
+								}
+								else if(rc < 0)
+								{
+									m_pServer->m_pLog->Add(10, "ERROR: Al actualizar [%s de %s]", json_Objeto->valuestring, json_System_Key->valuestring);
+								}
+							}
+							else
+							{
+								m_pServer->m_pLog->Add(10, "ERROR: Array de datos imcompleto de [%s]", json_System_Key->valuestring);
+							}
+						} /* cJSON_ArrayForEach(...) */
+					}
+					else /* Solo vino la Key */
+					{
+						t = time(&t);
+						p_tm = localtime(&t);
+						m_pServer->m_pLog->Add(10, "Keep Alive: [%s]", json_System_Key->valuestring);
+						rc = pDB->Query(NULL, "UPDATE TB_DOMCLOUD_ASSIGN "
+													"SET Ultimo_Update = \'%04i-%02i-%02i %02i:%02i:%02i\' "
 													"WHERE System_Key = \'%s\' AND Id = 0;",
 												p_tm->tm_year+1900, p_tm->tm_mon+1, p_tm->tm_mday,
 												p_tm->tm_hour, p_tm->tm_min, p_tm->tm_sec,
 												json_System_Key->valuestring);
 						if(rc == 0)
 						{
-							rc = pDB->Query(json_arr, "INSERT INTO TB_DOMCLOUD_ASSIGN (System_Key, Id, Ultimo_Update) "
+							rc = pDB->Query(NULL, "INSERT INTO TB_DOMCLOUD_ASSIGN (System_Key, Id, Ultimo_Update) "
 														"VALUES (\'%s\', 0, \'%04i-%02i-%02i %02i:%02i:%02i\');",
 													json_System_Key->valuestring,
 													p_tm->tm_year+1900, p_tm->tm_mon+1, p_tm->tm_mday,

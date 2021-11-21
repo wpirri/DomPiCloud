@@ -4,6 +4,7 @@ CREATE TABLE IF NOT EXISTS TB_DOMCLOUD_ASSIGN (
 System_Key varchar(256),
 Id integer,
 Objeto varchar(128),
+Tipo integer DEFAULT 0,
 Estado integer DEFAULT 0,
 Icono0 varchar(32),
 Icono1 varchar(32),

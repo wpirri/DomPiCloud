@@ -122,7 +122,7 @@ int CPgDB::Query(cJSON *json_array, const char* query_fmt, ...)
   int rc;
   int line;
   char *rc_line;
-  char query[4096];
+  char query[30000];
   PGresult *pgrc;
 
   if(!IsOpen())
@@ -147,13 +147,16 @@ int CPgDB::Query(cJSON *json_array, const char* query_fmt, ...)
   else if(PQresultStatus(pgrc) == PGRES_TUPLES_OK)
   {
     rc = PQntuples(pgrc);
-    for(line = 0; line < rc; line++)
+    if(json_array)
     {
+      for(line = 0; line < rc; line++)
+      {
+        /* TODO: Falta completar los datos del select */
+
+        rc_line = PQgetvalue(pgrc, line, 0);
 
 
-      rc_line = PQgetvalue(pgrc, line, 0);
-
-
+      }
     }
   }
   else
