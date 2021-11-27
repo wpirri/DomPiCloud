@@ -1,9 +1,10 @@
 #!/usr/bin/make -f
 
-INCLUDE=-I../../Common/
+INCLUDE=-I../../Common/ `mysql_config --cflags`
 CXXFLAGS=-g -Wall -Wextra -MMD -O2
-LIBS=-lgmqw -lgmshared -lstdc++ -lpq -lcjson
-OBJECTS=dompi_cloud_server.o config.o strfunc.o cpgdb.o
+# Para Postgres: -lpq
+LIBS=-lgmqw -lgmshared -lstdc++ -lcjson -lssl -lcrypto `mysql_config --libs`
+OBJECTS=dompi_cloud_server.o config.o strfunc.o cmydb.o
 OUTPUT=dompi_cloud_server
 DEFINE=-D __NO__DEBUG__
 CC=g++
@@ -20,11 +21,14 @@ config.o: ../../Common/config.cc ../../Common/config.h
 	$(CC) $(CFLAGS) $(CXXFLAGS) $(INCLUDE) $(DEFINE) -c ../../Common/config.cc
 strfunc.o: ../../Common/strfunc.cc ../../Common/strfunc.h
 	$(CC) $(CFLAGS) $(CXXFLAGS) $(INCLUDE) $(DEFINE) -c ../../Common/strfunc.cc
-cpgdb.o: ../../Common/cpgdb.cc ../../Common/cpgdb.h
-	$(CC) $(CFLAGS) $(CXXFLAGS) $(INCLUDE) $(DEFINE) -c ../../Common/cpgdb.cc
+# Para Postgres
+#cpgdb.o: ../../Common/cpgdb.cc ../../Common/cpgdb.h
+#	$(CC) $(CFLAGS) $(CXXFLAGS) $(INCLUDE) $(DEFINE) -c ../../Common/cpgdb.cc
+cmydb.o: ../../Common/cmydb.cc ../../Common/cmydb.h
+	$(CC) $(CFLAGS) $(CXXFLAGS) $(INCLUDE) $(DEFINE) -c ../../Common/cmydb.cc
 
 dompi_cloud_server: $(OBJECTS)
-	$(CC) $(CFLAGS) $(CXXFLAGS) $(LFLAGS) $(LIBS) -O $(OBJECTS) -o $(OUTPUT) 
+	$(CC) $(CFLAGS) $(CXXFLAGS) $(LFLAGS) -O $(OBJECTS) $(LIBS) -o $(OUTPUT) 
 
 clean:
 	$(RM) $(OBJECTS) $(OUTPUT) *.d

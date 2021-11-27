@@ -151,7 +151,7 @@ int CPgDB::Query(cJSON *json_array, const char* query_fmt, ...)
     {
       for(line = 0; line < rc; line++)
       {
-        /* TODO: Falta completar los datos del select */
+        /* TODO: Falta trerse los datos y generar el JSON */
 
         rc_line = PQgetvalue(pgrc, line, 0);
 
@@ -179,6 +179,7 @@ int CPgDB::Rollback(void)
 
 char* CPgDB::LastErrorMsg(char* msg)
 {
+  if(msg) strcpy(msg, PQerrorMessage(m_pPGConn));
   return msg;    
 }
 

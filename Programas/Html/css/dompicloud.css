@@ -1,0 +1,67 @@
+/*
+	Colores:
+		black					gray
+		silver				white  	 
+		red					lime
+		blue 	 				yellow
+		aqua					fuchsia 	 
+		maroon				orange
+		olive					purple
+		green					navy
+		teal 	 
+
+*/
+body {
+	font-family: Verdana, Arial, sans-serif;
+	background:black;
+	color: white;
+	margin: 0px auto;
+	padding: 0 0 20px 0;
+	height: 100%;
+	overflow: hidden;
+}
+
+.icon {
+	border: 0px;
+	width: 32px;
+	height: 32px;
+	}
+
+.status_table {
+	width: 100%;
+	border: 1px solid rgb(122, 105, 105);
+	text-align: left;
+	padding: 8px;
+  }
+
+.status_table_td1 {
+	width: 20%;
+	vertical-align: top;
+  }
+
+.status-list-table {
+	width: 100%;
+  }
+
+.status-table-title {
+	font-size: 20px;
+	font-weight: bold;
+}
+
+.client-list {
+	cursor: pointer;
+}
+
+.abm-list-table {
+	width: 100%;
+  }
+
+.action-text {
+	text-align: center;
+	cursor: pointer;
+}
+
+.menu-link {
+	cursor: pointer;
+	font-weight: bold;
+}

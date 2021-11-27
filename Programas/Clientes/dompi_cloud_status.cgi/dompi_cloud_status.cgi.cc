@@ -43,20 +43,22 @@ int main(int /*argc*/, char** /*argv*/, char** env)
   DPConfig *pConfig;
   STRFunc Str;
   int i;
-  
+
   char server_address[16];
   char s_trace[5];
-  
+
   char remote_addr[16];
   char request_uri[4096];
   char request_method[8];
   int content_length;
   char s_content_length[8];
   char post_data[4096];
-  char buffer[4096];
+  char get_data[4096];
   char label[64];
   char value[1024];
   int rc;
+
+  cJSON *json_obj;
 
   signal(SIGALRM, SIG_IGN);
   signal(SIGPIPE, SIG_IGN);
@@ -76,7 +78,7 @@ int main(int /*argc*/, char** /*argv*/, char** env)
     return 0;
   }
 
-  if( pConfig->GetParam("TRACE-CLOUD-NOTIF.CGI", s_trace))
+  if( pConfig->GetParam("TRACE-CLOUD-STATUS.CGI", s_trace))
   {
     trace = atoi(s_trace);
   }
@@ -115,42 +117,60 @@ int main(int /*argc*/, char** /*argv*/, char** env)
   Str.EscapeHttp(request_uri, request_uri);
   Str.EscapeHttp(post_data, post_data);
 
-  if(trace)
-  {
-    openlog("dompi_cloud_notif.cgi", 0, LOG_USER);
-    syslog(LOG_DEBUG, "REMOTE_ADDR=%s REQUEST_URI=%s REQUEST_METHOD=%s CONTENT_LENGTH=%i POST=%s", 
-                remote_addr, request_uri, request_method,content_length, (content_length>0)?post_data:"(vacio)" );
-  }
+    if(trace)
+    {
+        openlog("dompi_cloud_status.cgi", 0, LOG_USER);
+        syslog(LOG_DEBUG, "REMOTE_ADDR=%s REQUEST_URI=%s REQUEST_METHOD=%s CONTENT_LENGTH=%i POST=%s", 
+                    remote_addr, request_uri, request_method,content_length, (content_length>0)?post_data:"(vacio)" );
+    }
 
-  gminit.m_host = server_address;
-  gminit.m_port = 5533;
+    gminit.m_host = server_address;
+    gminit.m_port = 5533;
 
-  pClient = new CGMClient(&gminit);
+    pClient = new CGMClient(&gminit);
 
-  query.Clear();
-  response.Clear();
+    query.Clear();
+    response.Clear();
 
-/*
-  if(strchr(request_uri, '?'))
-  {
-  }
-*/
+    json_obj = cJSON_CreateObject();
 
-  if(content_length > 0)
-  {
-    query = post_data;
-  }
+    if(strchr(request_uri, '?'))
+    {
+        strcpy(get_data, strchr(request_uri, '?')+1);
 
-  if(trace) syslog(LOG_DEBUG, "Call dompi_web_notif [%s]", query.C_Str()); 
-  rc = pClient->Call("dompi_web_notif", query, response, 500);
-  if(rc == 0)
-  {
-    fprintf(stdout, "%s\r\n", response.C_Str());
-  }
-  else
-  {
-    fprintf(stdout, "{ \"rc\":\"%02i\", \"msg\":\"%s\" }\r\n", rc, gmerror.Message(rc).c_str());
-  }
-  delete pClient;
-  return 0;
+        if(trace) syslog(LOG_DEBUG, "GET DATA: [%s]", get_data);
+
+        /* Recorro los parametros del GET */
+        for(i = 0; Str.ParseDataIdx(get_data, label, value, i); i++)
+        {
+            cJSON_AddStringToObject(json_obj, label, value);
+        }
+    }
+
+    if(content_length)
+    {
+        if(trace) syslog(LOG_DEBUG, "POST_DATA: [%s]",post_data);
+
+        /* Recorro los parametros del POST */
+        for(i = 0; Str.ParseDataIdx(post_data, label, value, i); i++)
+        {
+            cJSON_AddStringToObject(json_obj, label, value);
+        }
+    }
+
+    query = cJSON_PrintUnformatted(json_obj);
+    cJSON_Delete(json_obj);
+
+    if(trace) syslog(LOG_DEBUG, "Call dompi_cloud_status [%s]", query.C_Str()); 
+    rc = pClient->Call("dompi_cloud_status", query, response, 500);
+    if(rc == 0)
+    {
+        fprintf(stdout, "%s\r\n", response.C_Str());
+    }
+    else
+    {
+        fprintf(stdout, "{ \"rc\":\"%02i\", \"msg\":\"%s\" }\r\n", rc, gmerror.Message(rc).c_str());
+    }
+    delete pClient;
+    return 0;
 }
