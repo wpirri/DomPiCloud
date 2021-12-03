@@ -7,3 +7,4 @@ ALTER ROLE dompi_cloud
 alter user dompi_cloud with password 'dompi_cloud';
 
 GRANT SELECT, INSERT, UPDATE, DELETE ON TB_DOMCLOUD_ASSIGN TO dompi_cloud;
+GRANT SELECT, INSERT, UPDATE, DELETE ON TB_DOMCLOUD_NOTIF TO dompi_cloud;

@@ -31,7 +31,12 @@
 #include "config.h"
 #include "strfunc.h"
 
+#define MAX_POST_LEN 32767
+#define MAX_GET_LEN 255
+
 int trace;
+int internal_timeout;
+int external_timeout;
 
 int main(int /*argc*/, char** /*argv*/, char** env)
 {
@@ -45,17 +50,18 @@ int main(int /*argc*/, char** /*argv*/, char** env)
   int i;
   
   char server_address[16];
-  char s_trace[5];
+  char s[16];
   
   char remote_addr[16];
-  char request_uri[4096];
+  char request_uri[MAX_GET_LEN+1];
   char request_method[8];
   int content_length;
   char s_content_length[8];
-  char post_data[4096];
-  char buffer[4096];
-  char label[64];
-  char value[1024];
+  char post_data[MAX_POST_LEN+1];
+  //char get_data[MAX_GET_LEN+1];
+  //char buffer[4096];
+  //char label[64];
+  //char value[1024];
   int rc;
 
   signal(SIGALRM, SIG_IGN);
@@ -76,9 +82,21 @@ int main(int /*argc*/, char** /*argv*/, char** env)
     return 0;
   }
 
-  if( pConfig->GetParam("TRACE-CLOUD-NOTIF.CGI", s_trace))
+  if( pConfig->GetParam("TRACE-CLOUD-NOTIF.CGI", s))
   {
-    trace = atoi(s_trace);
+    trace = atoi(s);
+  }
+
+  internal_timeout = 1000;
+  if( pConfig->GetParam("INTERNAL-TIMEOUT", s))
+  {
+    internal_timeout = atoi(s) * 1000;
+  }
+
+  external_timeout = 1000;
+  if( pConfig->GetParam("EXTERNAL-TIMEOUT", s))
+  {
+    external_timeout = atoi(s) * 1000;
   }
 
   for(i = 0; env[i]; i++)
@@ -89,7 +107,7 @@ int main(int /*argc*/, char** /*argv*/, char** env)
     }
     else if( !memcmp(env[i], "REQUEST_URI=", 12))
     {
-      strncpy(request_uri, env[i]+12, 4095);
+      strncpy(request_uri, env[i]+12, MAX_GET_LEN);
     }
     else if( !memcmp(env[i], "REQUEST_METHOD=", 15))
     {
@@ -104,7 +122,7 @@ int main(int /*argc*/, char** /*argv*/, char** env)
 
   if(content_length)
   {
-    fgets(post_data, ((content_length+1)<4096)?(content_length+1):4095, stdin);
+    fgets(post_data, ((content_length+1)<MAX_POST_LEN)?(content_length+1):MAX_POST_LEN, stdin);
   }
 
   fputs("Connection: close\r\n", stdout);
@@ -142,7 +160,7 @@ int main(int /*argc*/, char** /*argv*/, char** env)
   }
 
   if(trace) syslog(LOG_DEBUG, "Call dompi_web_notif [%s]", query.C_Str()); 
-  rc = pClient->Call("dompi_web_notif", query, response, 500);
+  rc = pClient->Call("dompi_web_notif", query, response, external_timeout);
   if(rc == 0)
   {
     fprintf(stdout, "%s\r\n", response.C_Str());

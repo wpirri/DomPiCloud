@@ -1,6 +1,8 @@
 \c DB_DOMPICLOUD
 
+DROP TABLE IF EXISTS TB_DOMCLOUD_NOTIF;
 DROP TABLE IF EXISTS TB_DOMCLOUD_ASSIGN;
+
 
 CREATE TABLE IF NOT EXISTS TB_DOMCLOUD_ASSIGN (
 System_Key varchar(256),
@@ -22,3 +24,10 @@ Flags integer DEFAULT 0,
 PRIMARY KEY (System_Key, Id)
 );
 
+CREATE TABLE TB_DOMCLOUD_NOTIF (
+System_Key varchar(256),
+Time_Stamp bigint,
+Objeto varchar(128),
+Accion varchar(16),
+PRIMARY KEY (System_Key, Time_Stamp)
+);

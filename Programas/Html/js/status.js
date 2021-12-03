@@ -82,11 +82,11 @@ function fillStatusTable(json_list, dst_div, title) {
 	document.getElementById(dst_div).innerHTML = output;
 } 
 
-function fillStatusChangeTable(json_list, dst_div, title, index_label)
+function fillStatusChangeTable(json_list, dst_div, index_label)
 { 
 	// Getting the all column names 
 	var headers = getJsonHeaders(json_list);
-	var output = '<p class=abm-table-title>&nbsp;' + title + '</p>\n<table class=abm-list-table>\n';
+	var output = '<table class=abm-list-table>\n';
 	var i = 0;
 	var j = 0;
 	var index_value = '';

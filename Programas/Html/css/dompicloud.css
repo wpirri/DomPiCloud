@@ -21,11 +21,69 @@ body {
 	overflow: hidden;
 }
 
+.div-main{
+	width: 95%;
+	height: 900px;
+	background-color: gray;
+	margin: 20px 20px 20px 20px ;
+	border:4px inset purple;
+}
+
+.div-head{
+	width: 96%;
+	height: 50px;
+	vertical-align: middle;
+	background-color: black;
+	margin: 20px 20px 20px 20px ;
+	border:4px inset purple;
+}
+
+.div-content{
+	width: 96%;
+	height: 600px;
+	background-color: black;
+	margin: 20px 20px 20px 20px ;
+	border:4px inset purple;
+}
+
+.div-client-list{
+	width: 20%;
+	height: 550px;
+	background-color: black;
+	margin: 20px 20px 20px 20px ;
+	float: left;
+	border:4px inset purple;
+	text-align:left;
+}
+
+.div-title{
+	width: 70%;
+	height: 50px;
+	vertical-align: middle;
+	float: right;
+	background-color: black;
+	margin: 20px 20px 20px 20px ;
+	border:4px inset purple;
+}
+
+.div-status-list{
+	width: 70%;
+	height: 400px;
+	background-color: black;
+	margin: 20px 20px 20px 20px ;
+	float: right;
+	border:4px inset purple;
+	overflow: auto;
+	overflow-x: hidden;
+	text-align:center;
+}
+
 .icon {
 	border: 0px;
 	width: 32px;
 	height: 32px;
 	}
+
 
 .status_table {
 	width: 100%;
@@ -64,4 +122,17 @@ body {
 .menu-link {
 	cursor: pointer;
 	font-weight: bold;
+}
+
+.div-foot{
+	width: 96%;
+	height: 50px;
+	vertical-align: middle;
+	background-color: black;
+	margin: 20px 20px 20px 20px ;
+	border-color: black;
+	border:2px;
+	border:4px inset purple;
+	font-family:Arial;
+	font-size: 10px;
 }

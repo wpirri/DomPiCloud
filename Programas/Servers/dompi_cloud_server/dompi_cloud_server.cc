@@ -101,6 +101,8 @@ using namespace std;
 //#include "cpgdb.h"
 #include "cmydb.h"
 
+#define MAX_BUFFER_LEN 32767
+
 CGMServerWait *m_pServer;
 DPConfig *pConfig;
 
@@ -122,12 +124,31 @@ int power2(int exp)
 
 void OnClose(int sig);
 
+int QueryForNews(CMyDB* db, cJSON *response_array, const char *client_key)
+{
+	int rc;
+
+	m_pServer->m_pLog->Add(50, "[QueryForNews] System_Key = [%s].", client_key);
+	rc = db->Query(response_array, 
+					"SELECT * "
+					"FROM TB_DOMCLOUD_NOTIF "
+					"WHERE System_Key = \'%s\';", client_key);
+	return rc;
+}
+
+void DeleteNotify(CMyDB *db, const char *client_key, time_t t)
+{
+	m_pServer->m_pLog->Add(50, "[DeleteNotify] System_Key = [%s].", client_key);
+	db->Query(NULL, "DELETE FROM TB_DOMCLOUD_NOTIF "
+					"WHERE System_Key = \'%s\' AND Time_Stamp <= %lu;", client_key, t);
+}
+
 int main(/*int argc, char** argv, char** env*/void)
 {
 	int rc;
 	char fn[33];
 	char typ[1];
-	char message[4096];
+	char message[MAX_BUFFER_LEN+1];
 	unsigned long message_len;
 
 	char db_host[32];
@@ -136,6 +157,7 @@ int main(/*int argc, char** argv, char** env*/void)
 
 	time_t t;
 	struct tm *p_tm;
+	char save_client_key[256];
 
 	STRFunc Strf;
 	//CPgDB *pDB;
@@ -160,6 +182,9 @@ int main(/*int argc, char** argv, char** env*/void)
 	cJSON *json_Analog_Mult_Div;
 	cJSON *json_Analog_Mult_Div_Valor;
 	cJSON *json_Flags;
+	cJSON *json_Time_Stamp;
+
+    cJSON *json_Accion;
 
 	signal(SIGPIPE, SIG_IGN);
 	signal(SIGKILL, OnClose);
@@ -199,7 +224,7 @@ int main(/*int argc, char** argv, char** env*/void)
 
 	m_pServer->m_pLog->Add(1, "Servicios de Domotica inicializados.");
 
-	while((rc = m_pServer->Wait(fn, typ, message, 4096, &message_len, 1000 )) >= 0)
+	while((rc = m_pServer->Wait(fn, typ, message, MAX_BUFFER_LEN, &message_len, 1000 )) >= 0)
 	{
 		if(rc > 0)
 		{
@@ -213,6 +238,7 @@ int main(/*int argc, char** argv, char** env*/void)
 				json_obj = cJSON_Parse(message);
 				json_System_Key = cJSON_GetObjectItemCaseSensitive(json_obj, "System_Key");
 				json_Id = cJSON_GetObjectItemCaseSensitive(json_obj, "Id");
+				json_Estado = NULL;
 				if(json_Id)
 				{
 					//json_Objeto = cJSON_GetObjectItemCaseSensitive(json_obj, "Objeto");
@@ -385,10 +411,45 @@ int main(/*int argc, char** argv, char** env*/void)
 							m_pServer->m_pLog->Add(10, "ERROR: Al actualizar [%s]", json_System_Key->valuestring);
 						}
 					}
-				}
 
-				/* Siempre responder OK para evitar skimming */
-				strcpy(message, "{\"response\":{\"resp_code\":\"0\", \"resp_msg\":\"Ok\"}}");
+					/* Me fijo si hay algo para notificar */
+					json_arr = cJSON_CreateArray();
+					strcpy(save_client_key, json_System_Key->valuestring);
+					if(QueryForNews(pDB, json_arr, save_client_key))
+					{
+						cJSON_Delete(json_obj);
+						json_obj = cJSON_CreateObject();
+						cJSON_AddStringToObject(json_obj, "resp_code", "0");
+						cJSON_AddStringToObject(json_obj, "resp_msg", "Ok");
+						cJSON_AddItemToObject(json_obj, "response", json_arr);
+						cJSON_PrintPreallocated(json_obj, message, MAX_BUFFER_LEN, 0);
+
+						t = 0;
+						cJSON_ArrayForEach(json_un_obj, json_arr)
+						{
+							json_Time_Stamp = cJSON_GetObjectItemCaseSensitive(json_un_obj, "Time_Stamp");
+							if(atol(json_Time_Stamp->valuestring) > t)
+							{
+								t = atol(json_Time_Stamp->valuestring);
+							}
+						}
+						if(t > 0)
+						{
+							DeleteNotify(pDB, save_client_key, t);
+						}
+					}
+					else
+					{
+						cJSON_Delete(json_arr);
+						/* Siempre responder OK para evitar skimming */
+						strcpy(message, "{\"response\":{\"resp_code\":\"0\", \"resp_msg\":\"Ok\"}}");
+					}
+				}
+				else
+				{
+					/* Siempre responder OK para evitar skimming */
+					strcpy(message, "{\"response\":{\"resp_code\":\"0\", \"resp_msg\":\"Ok\"}}");
+				}
 
 				m_pServer->m_pLog->Add(50, "%s:(R)[%s]", fn, message);
 				if(m_pServer->Resp(message, strlen(message), GME_OK) != GME_OK)
@@ -398,13 +459,38 @@ int main(/*int argc, char** argv, char** env*/void)
 				}
 				cJSON_Delete(json_obj);
 			}
+			/* ****************************************************************
+			*		dompi_cloud_status - 
+			**************************************************************** */
 			else if( !strcmp(fn, "dompi_cloud_status"))
 			{
 				json_obj = cJSON_Parse(message);
 
 				json_System_Key = cJSON_GetObjectItemCaseSensitive(json_obj, "System_Key");
-
-				if(json_System_Key)
+				json_Accion = cJSON_GetObjectItemCaseSensitive(json_obj, "Accion");
+				if(json_Accion)
+				{
+					json_Objeto = cJSON_GetObjectItemCaseSensitive(json_obj, "Objeto");
+					if(json_Objeto)
+					{
+						t = time(&t);
+						m_pServer->m_pLog->Add(50, "Establecer / Cambiar estado de Objeto: %s de %s",
+							json_Objeto->valuestring,
+							json_System_Key->valuestring);
+						pDB->Query(NULL, "INSERT INTO TB_DOMCLOUD_NOTIF (System_Key, Time_Stamp, Objeto, Accion) "
+											"VALUES (\'%s\', %lu, \'%s\', \'%s\') ",
+											json_System_Key->valuestring,
+											t,
+											json_Objeto->valuestring,
+											json_Accion->valuestring);
+						strcpy(message, "{\"response\":{\"resp_code\":\"0\", \"resp_msg\":\"Ok\"}}");
+					}
+					else
+					{
+						strcpy(message, "{\"response\":{\"resp_code\":\"10\", \"resp_msg\":\"Falta Objeto\"}}");
+					}
+				}
+				else if(json_System_Key)
 				{
 					m_pServer->m_pLog->Add(50, "Estado de Objetos: [%s]", json_System_Key->valuestring);
 					json_arr = cJSON_CreateArray();
@@ -418,7 +504,7 @@ int main(/*int argc, char** argv, char** env*/void)
 						cJSON_AddStringToObject(json_obj, "resp_code", "0");
 						cJSON_AddStringToObject(json_obj, "resp_msg", "Ok");
 						cJSON_AddItemToObject(json_obj, "response", json_arr);
-						cJSON_PrintPreallocated(json_obj, message, 4095, 0);
+						cJSON_PrintPreallocated(json_obj, message, MAX_BUFFER_LEN, 0);
 					}
 					else
 					{
@@ -440,7 +526,7 @@ int main(/*int argc, char** argv, char** env*/void)
 						cJSON_AddStringToObject(json_obj, "resp_code", "0");
 						cJSON_AddStringToObject(json_obj, "resp_msg", "Ok");
 						cJSON_AddItemToObject(json_obj, "response", json_arr);
-						cJSON_PrintPreallocated(json_obj, message, 4095, 0);
+						cJSON_PrintPreallocated(json_obj, message, MAX_BUFFER_LEN, 0);
 					}
 					else
 					{
@@ -452,13 +538,18 @@ int main(/*int argc, char** argv, char** env*/void)
 				if(m_pServer->Resp(message, strlen(message), GME_OK) != GME_OK)
 				{
 					/* error al responder */
-					m_pServer->m_pLog->Add(10, "ERROR al responder mensaje [dompi_infoio]");
+					m_pServer->m_pLog->Add(10, "ERROR al responder mensaje [dompi_cloud_status]");
 				}
 				cJSON_Delete(json_obj);
 			}
 
 
 
+			else
+			{
+				m_pServer->m_pLog->Add(50, "GME_SVC_NOTFOUND");
+				m_pServer->Resp(NULL, 0, GME_SVC_NOTFOUND);
+			}
 		}
 	}
 	m_pServer->m_pLog->Add(10, "ERROR en la espera de mensajes");
@@ -469,8 +560,8 @@ int main(/*int argc, char** argv, char** env*/void)
 void OnClose(int sig)
 {
 	m_pServer->m_pLog->Add(1, "Exit on signal %i", sig);
-
 	m_pServer->UnSuscribe("dompi_web_notif", GM_MSG_TYPE_CR);
+	m_pServer->UnSuscribe("dompi_cloud_status", GM_MSG_TYPE_CR);
 	delete pConfig;
 	delete m_pServer;
 	exit(0);

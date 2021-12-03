@@ -98,7 +98,7 @@ int CMyDB::Query(cJSON *json_array, const char* query_fmt, ...)
     va_list arg;
     int i;
     int rc;
-    char query[30000];
+    char query[32768];
     int num_fields;
     MYSQL_RES *result;
     MYSQL_ROW row;
