@@ -21,118 +21,213 @@ body {
 	overflow: hidden;
 }
 
-.div-main{
-	width: 95%;
-	height: 900px;
-	background-color: gray;
-	margin: 20px 20px 20px 20px ;
-	border:4px inset purple;
-}
-
-.div-head{
-	width: 96%;
-	height: 50px;
-	vertical-align: middle;
-	background-color: black;
-	margin: 20px 20px 20px 20px ;
-	border:4px inset purple;
-}
-
-.div-content{
-	width: 96%;
-	height: 600px;
-	background-color: black;
-	margin: 20px 20px 20px 20px ;
-	border:4px inset purple;
-}
-
-.div-client-list{
-	width: 20%;
-	height: 550px;
-	background-color: black;
-	margin: 20px 20px 20px 20px ;
-	float: left;
-	border:4px inset purple;
-	text-align:left;
-}
-
-.div-title{
-	width: 70%;
-	height: 50px;
-	vertical-align: middle;
-	float: right;
-	background-color: black;
-	margin: 20px 20px 20px 20px ;
-	border:4px inset purple;
-}
-
-.div-status-list{
-	width: 70%;
-	height: 400px;
-	background-color: black;
-	margin: 20px 20px 20px 20px ;
-	float: right;
-	border:4px inset purple;
-	overflow: auto;
-	overflow-x: hidden;
-	text-align:center;
-}
-
-.icon {
+.icon-btn {
 	border: 0px;
 	width: 32px;
 	height: 32px;
 	}
 
+.back-btn {
+	z-index: 10;
+	position: absolute; 
+	left: 10px; 
+	top: 10px; 
+	width: 150px;
+	height: 75px;
+	padding: 2px;
+	border: 1px dotted #fff;
+	background: green;
+	color: white;
+	cursor: pointer;
+	}
 
-.status_table {
+.normal-btn {
+	z-index: 10;
+	position: absolute; 
+	width: 150px;
+	height: 75px;
+	padding: 2px;
+	border: 1px dotted #fff;
+	cursor: pointer;
+	color: white;
+	}
+
+/* Menu */
+#btn-config-sistema {
+	left: 255px; 
+	top: 95px; 
+	background: olive;
+}
+
+#btn-config-usuarios {
+	left: 415px; 
+	top: 95px; 
+	background: red;
+	}
+
+#btn-config-planta {
+	left: 575px; 
+	top: 95px; 
+	background: black;
+	}
+
+
+#btn-config-hard {
+	left: 95px; 
+	top: 180px; 
+	background: navy;
+	}
+
+#btn-config-assign {
+	left: 255px; 
+	top: 180px; 
+	background: maroon;
+	}
+
+#btn-config-groups {
+	left: 415px; 
+	top: 180px; 
+	background: green;
+	}
+
+#btn-config-events {
+	left: 575px; 
+	top: 180px; 
+	background: fuchsia;
+	}
+
+#btn-config-flags {
+	left: 95px; 
+	top: 265px; 
+	background: teal;
+	}
+
+#btn-config-crono {
+	left: 255px; 
+	top: 265px; 
+	background: silver;
+	}
+
+#btn-config-alarm {
+	left: 415px; 
+	top: 265px; 
+	background: purple;
+	}
+
+#btn-config-cameras {
+	left: 575px; 
+	top: 265px; 
+	background: orange;
+	}
+
+#btn-config-upload {
+	left: 95px; 
+	top: 350px; 
+	background: maroon;
+}
+
+#btn-config-download {
+	left: 255px; 
+	top: 350px; 
+	background: fuchsia;
+	}
+
+#btn-config-dummy2 {
+	left: 415px; 
+	top: 350px; 
+	background: black;
+	}
+
+#btn-config-dummy3 {
+	left: 575px; 
+	top: 350px; 
+	background: black;
+	}
+
+/* ABM */
+/* == Pantallas de ABM == */
+.abm-div {
+	position: absolute; 
+	left: 255px; 
+	top: 10px; 
+	border: 1px dotted #fff;
+	padding: 2px;
+	color: white;
+	background: black;
+	overflow: auto;
+	overflow-x: hidden;
+	width: 525px;
+	height: 415px;
+	}
+
+  .abm-list-table {
+	background: rgb(145, 145, 145);
+	color: rgb(0, 0, 0);
+	font-family: Arial, Helvetica, sans-serif;
+	border-collapse: collapse;
 	width: 100%;
-	border: 1px solid rgb(122, 105, 105);
+	left: 255px; 
+	top: 10px; 
+  }
+  
+  .abm-list-table td {
+	border: 1px solid rgb(85, 85, 85);
 	text-align: left;
 	padding: 8px;
   }
-
-.status_table_td1 {
-	width: 20%;
-	vertical-align: top;
-  }
-
-.status-list-table {
-	width: 100%;
-  }
-
-.status-table-title {
-	font-size: 20px;
-	font-weight: bold;
-}
-
-.client-list {
-	cursor: pointer;
-}
-
-.abm-list-table {
-	width: 100%;
-  }
-
-.action-text {
+  
+  .abm-list-table tr:nth-child(even){background-color: #686868;}
+  
+  .abm-list-table tr:hover {background-color: rgb(33, 130, 38);}
+  
+  .abm-list-table th {
+	padding-top: 12px;
+	padding-bottom: 12px;
 	text-align: center;
-	cursor: pointer;
-}
+	background-color: #070049;
+	color: white;
+  }
 
-.menu-link {
+  .abm-table th {
+	text-align: left;
+	color: white;
+  }
+
+  .abm-add-btn {
+	z-index: 10;
+	position: absolute; 
+	left: 95px; 
+	top: 350px; 
+	width: 150px;
+	height: 75px;
+	padding: 2px;
+	border: 1px dotted #fff;
+	background: red;
+	color: white;
 	cursor: pointer;
+	}
+
+  .submit-btn {
+	z-index: 10;
+	position: absolute; 
+	left: 95px; 
+	top: 350px; 
+	width: 150px;
+	height: 75px;
+	padding: 2px;
+	border: 1px dotted #fff;
+	background: blue;
+	color: white;
+	cursor: pointer;
+	}
+
+.abm-table-title {
+	text-align: left;
+	font-size: 22px;
 	font-weight: bold;
-}
+	color: orange;	  
+	}
 
-.div-foot{
-	width: 96%;
-	height: 50px;
-	vertical-align: middle;
-	background-color: black;
-	margin: 20px 20px 20px 20px ;
-	border-color: black;
-	border:2px;
-	border:4px inset purple;
-	font-family:Arial;
-	font-size: 10px;
+.abm-edit-input-text {
+	background: darkgrey;
 }

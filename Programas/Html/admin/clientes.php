@@ -38,7 +38,7 @@ if(isset($resp_code) && isset($resp_msg) && isset($sistema))
         <div class="div-main">
 
           <div class="div-head">
-            <p class=menu-link onclick="window.location.replace('../index.php');">&nbsp;&nbsp;<< Volver >>&nbsp;&nbsp;</p>
+            <p class=menu-link onclick="window.location.replace('index.php');">&nbsp;&nbsp;<< Volver&nbsp;&nbsp;</p>
           </div>
 
           <div class="div-content">
