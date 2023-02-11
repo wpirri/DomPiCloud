@@ -20,3 +20,8 @@ install:
 uninstall:
 	rm -rf $(DOCUMENT_ROOT)
 
+reinstall:
+	rm -rf $(DOCUMENT_ROOT)
+	mkdir -p $(DOCUMENT_ROOT)
+	$(CP) * $(DOCUMENT_ROOT)
+
