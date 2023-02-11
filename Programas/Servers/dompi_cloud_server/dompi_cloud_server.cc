@@ -128,7 +128,7 @@ int QueryForNews(CMyDB* db, cJSON *response_array, const char *client_key)
 {
 	int rc;
 
-	m_pServer->m_pLog->Add(50, "[QueryForNews] System_Key = [%s].", client_key);
+	m_pServer->m_pLog->Add(100, "[QueryForNews] System_Key = [%s].", client_key);
 	rc = db->Query(response_array, 
 					"SELECT * "
 					"FROM TB_DOMCLOUD_NOTIF "
@@ -138,7 +138,7 @@ int QueryForNews(CMyDB* db, cJSON *response_array, const char *client_key)
 
 void DeleteNotify(CMyDB *db, const char *client_key, time_t t)
 {
-	m_pServer->m_pLog->Add(50, "[DeleteNotify] System_Key = [%s].", client_key);
+	m_pServer->m_pLog->Add(100, "[DeleteNotify] System_Key = [%s].", client_key);
 	db->Query(NULL, "DELETE FROM TB_DOMCLOUD_NOTIF "
 					"WHERE System_Key = \'%s\' AND Time_Stamp <= %lu;", client_key, t);
 }
@@ -183,6 +183,9 @@ int main(/*int argc, char** argv, char** env*/void)
 	cJSON *json_Analog_Mult_Div_Valor;
 	cJSON *json_Flags;
 	cJSON *json_Time_Stamp;
+	cJSON *json_User;
+	cJSON *json_Password;
+	cJSON *json_Time;
 
     cJSON *json_Accion;
 
@@ -202,7 +205,7 @@ int main(/*int argc, char** argv, char** env*/void)
 	m_pServer->Init("dompi_cloud_server");
 	m_pServer->m_pLog->Add(1, "Iniciando Servidor de Nube de Domotica...");
 
-	m_pServer->m_pLog->Add(1, "Leyendo configuración...");
+	m_pServer->m_pLog->Add(10, "Leyendo configuración...");
 	pConfig = new DPConfig("/etc/dompicloud.config");
 	pConfig->GetParam("DBHOST", db_host);
 	pConfig->GetParam("DBUSER", db_user);
@@ -210,8 +213,9 @@ int main(/*int argc, char** argv, char** env*/void)
 
 	m_pServer->Suscribe("dompi_web_notif", GM_MSG_TYPE_CR);
 	m_pServer->Suscribe("dompi_cloud_status", GM_MSG_TYPE_CR);
+	m_pServer->Suscribe("dompi_check_user", GM_MSG_TYPE_CR);
 
-	m_pServer->m_pLog->Add(1, "Conectado a la base de datos...");
+	m_pServer->m_pLog->Add(10, "Conectado a la base de datos...");
 	pDB = new CMyDB(db_host, "DB_DOMPICLOUD", db_user, db_password);
 	if(pDB == NULL)
 	{
@@ -229,7 +233,7 @@ int main(/*int argc, char** argv, char** env*/void)
 		if(rc > 0)
 		{
 			message[message_len] = 0;
-			m_pServer->m_pLog->Add(50, "%s:(Q)[%s]", fn, message);
+			m_pServer->m_pLog->Add(100, "%s:(Q)[%s]", fn, message);
 			/* ****************************************************************
 			*		dompi_web_notif - 
 			**************************************************************** */
@@ -237,25 +241,20 @@ int main(/*int argc, char** argv, char** env*/void)
 			{
 				json_obj = cJSON_Parse(message);
 				json_System_Key = cJSON_GetObjectItemCaseSensitive(json_obj, "System_Key");
-				json_Id = cJSON_GetObjectItemCaseSensitive(json_obj, "Id");
-				json_Estado = NULL;
-				if(json_Id)
-				{
-					//json_Objeto = cJSON_GetObjectItemCaseSensitive(json_obj, "Objeto");
-					//json_Tipo = cJSON_GetObjectItemCaseSensitive(json_obj, "Tipo");
-					json_Estado = cJSON_GetObjectItemCaseSensitive(json_obj, "Estado");
-					json_Objetos = NULL;
-				}
-				else
-				{
-					json_Objetos = cJSON_GetObjectItemCaseSensitive(json_obj, "Objetos");
-				}
 
 				if(json_System_Key)
 				{
+					json_Estado = cJSON_GetObjectItemCaseSensitive(json_obj, "Estado");
+					json_Objetos = cJSON_GetObjectItemCaseSensitive(json_obj, "Objetos");
+					json_Id = cJSON_GetObjectItemCaseSensitive(json_obj, "ASS_Id");
+					if( !json_Id)
+					{
+						json_Id = cJSON_GetObjectItemCaseSensitive(json_obj, "Id");
+					}
+
 					if(json_Id && json_Estado)
 					{
-						m_pServer->m_pLog->Add(50, "Status Update: [%s]", json_System_Key->valuestring);
+						m_pServer->m_pLog->Add(100, "Status Update: [%s]", json_System_Key->valuestring);
 						t = time(&t);
 						p_tm = localtime(&t);
 						rc = pDB->Query(NULL, "UPDATE TB_DOMCLOUD_ASSIGN "
@@ -278,17 +277,17 @@ int main(/*int argc, char** argv, char** env*/void)
 													json_Estado->valuestring);
 							if(rc < 0)
 							{
-								m_pServer->m_pLog->Add(10, "ERROR: Al agregar [%s]", json_System_Key->valuestring);
+								m_pServer->m_pLog->Add(1, "ERROR: Al agregar [%s]", json_System_Key->valuestring);
 							}
 						}
 						else if(rc < 0)
 						{
-							m_pServer->m_pLog->Add(10, "ERROR: Al actualizar [%s]", json_System_Key->valuestring);
+							m_pServer->m_pLog->Add(1, "ERROR: Al actualizar [%s]", json_System_Key->valuestring);
 						}
 					}
 					else if(json_Objetos)
 					{
-						m_pServer->m_pLog->Add(50, "Objects Update: [%s]", json_System_Key->valuestring);
+						m_pServer->m_pLog->Add(100, "Objects Update: [%s]", json_System_Key->valuestring);
 						t = time(&t);
 						p_tm = localtime(&t);
 
@@ -369,17 +368,17 @@ int main(/*int argc, char** argv, char** env*/void)
 															json_Flags->valuestring);
 									if(rc < 0)
 									{
-										m_pServer->m_pLog->Add(10, "ERROR: Al agregar [%s de %s]", json_Objeto->valuestring, json_System_Key->valuestring);
+										m_pServer->m_pLog->Add(1, "ERROR: Al agregar [%s de %s]", json_Objeto->valuestring, json_System_Key->valuestring);
 									}
 								}
 								else if(rc < 0)
 								{
-									m_pServer->m_pLog->Add(10, "ERROR: Al actualizar [%s de %s]", json_Objeto->valuestring, json_System_Key->valuestring);
+									m_pServer->m_pLog->Add(1, "ERROR: Al actualizar [%s de %s]", json_Objeto->valuestring, json_System_Key->valuestring);
 								}
 							}
 							else
 							{
-								m_pServer->m_pLog->Add(10, "ERROR: Array de datos imcompleto de [%s]", json_System_Key->valuestring);
+								m_pServer->m_pLog->Add(1, "ERROR: Array de datos imcompleto de [%s]", json_System_Key->valuestring);
 							}
 						} /* cJSON_ArrayForEach(...) */
 					}
@@ -387,7 +386,7 @@ int main(/*int argc, char** argv, char** env*/void)
 					{
 						t = time(&t);
 						p_tm = localtime(&t);
-						m_pServer->m_pLog->Add(50, "Keep Alive: [%s]", json_System_Key->valuestring);
+						m_pServer->m_pLog->Add(100, "Keep Alive: [%s]", json_System_Key->valuestring);
 						rc = pDB->Query(NULL, "UPDATE TB_DOMCLOUD_ASSIGN "
 													"SET Ultimo_Update = \'%04i-%02i-%02i %02i:%02i:%02i\' "
 													"WHERE System_Key = \'%s\' AND Id = 0;",
@@ -403,7 +402,7 @@ int main(/*int argc, char** argv, char** env*/void)
 													p_tm->tm_hour, p_tm->tm_min, p_tm->tm_sec);
 							if(rc < 0)
 							{
-								m_pServer->m_pLog->Add(10, "ERROR: Al agregar [%s]", json_System_Key->valuestring);
+								m_pServer->m_pLog->Add(1, "ERROR: Al agregar [%s]", json_System_Key->valuestring);
 							}
 						}
 						else if(rc < 0)
@@ -455,7 +454,7 @@ int main(/*int argc, char** argv, char** env*/void)
 				if(m_pServer->Resp(message, strlen(message), GME_OK) != GME_OK)
 				{
 					/* error al responder */
-					m_pServer->m_pLog->Add(10, "ERROR al responder mensaje [dompi_infoio]");
+					m_pServer->m_pLog->Add(1, "ERROR al responder mensaje [dompi_infoio]");
 				}
 				cJSON_Delete(json_obj);
 			}
@@ -538,10 +537,40 @@ int main(/*int argc, char** argv, char** env*/void)
 				if(m_pServer->Resp(message, strlen(message), GME_OK) != GME_OK)
 				{
 					/* error al responder */
-					m_pServer->m_pLog->Add(10, "ERROR al responder mensaje [dompi_cloud_status]");
+					m_pServer->m_pLog->Add(1, "ERROR al responder mensaje [dompi_cloud_status]");
 				}
 				cJSON_Delete(json_obj);
 			}
+			/* ****************************************************************
+			*		dompi_check_user - 
+			**************************************************************** */
+			else if( !strcmp(fn, "dompi_check_user"))
+			{
+				json_obj = cJSON_Parse(message);
+
+				json_User = cJSON_GetObjectItemCaseSensitive(json_obj, "User");
+				json_Password = cJSON_GetObjectItemCaseSensitive(json_obj, "Password");
+				json_Time = cJSON_GetObjectItemCaseSensitive(json_obj, "Time");
+				if(json_User && json_Password && json_Time)
+				{
+
+					strcpy(message, "{\"response\":{\"resp_code\":\"0\", \"resp_msg\":\"Ok\", \"sistema\":\"0\"}}");				
+				}
+				else
+				{
+					strcpy(message, "{\"response\":{\"resp_code\":\"9999\", \"resp_msg\":\"Auth error\"}}");
+				}
+
+				m_pServer->m_pLog->Add(50, "%s:(R)[%s]", fn, message);
+				if(m_pServer->Resp(message, strlen(message), GME_OK) != GME_OK)
+				{
+					/* error al responder */
+					m_pServer->m_pLog->Add(1, "ERROR al responder mensaje [dompi_check_user]");
+				}
+				cJSON_Delete(json_obj);
+			}
+
+
 
 
 
@@ -552,7 +581,7 @@ int main(/*int argc, char** argv, char** env*/void)
 			}
 		}
 	}
-	m_pServer->m_pLog->Add(10, "ERROR en la espera de mensajes");
+	m_pServer->m_pLog->Add(1, "ERROR en la espera de mensajes");
 	OnClose(0);
 	return 0;
 }
@@ -560,6 +589,7 @@ int main(/*int argc, char** argv, char** env*/void)
 void OnClose(int sig)
 {
 	m_pServer->m_pLog->Add(1, "Exit on signal %i", sig);
+	m_pServer->UnSuscribe("dompi_check_user", GM_MSG_TYPE_CR);
 	m_pServer->UnSuscribe("dompi_web_notif", GM_MSG_TYPE_CR);
 	m_pServer->UnSuscribe("dompi_cloud_status", GM_MSG_TYPE_CR);
 	delete pConfig;
