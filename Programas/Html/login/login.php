@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-<title>DomPi Cloud Login</title>
+<title>DomPiCloud Login</title>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="author" content="Walter Pirri" >
@@ -13,26 +13,29 @@
 <body>
 <form action="go_login.php" method="post">
   <div class="imgcontainer">
-    <img src="../images/img_avatar2.png" alt="Avatar" class="avatar">
+    <img src="../images/home.png" alt="Home" class="avatar">
   </div>
 
   <div class="container">
-    <label for="uname"><b>Username</b></label>
-    <input type="text" placeholder="Enter Username" name="uname" required>
+    <label for="uname"><b>Usuario</b></label>
+    <input type="text" placeholder="Ingrese su nombre de usuario" name="uname" required>
 
-    <label for="psw"><b>Password</b></label>
-    <input type="password" placeholder="Enter Password" name="psw" required>
+    <label for="psw"><b>Clave</b></label>
+    <input type="password" placeholder="Ingrese su clave de acceso" name="psw" required>
 
     <button type="submit">Login</button>
+    <!--
     <label>
-      <input type="checkbox" checked="checked" name="remember"> Remember me
+      <input type="checkbox" checked="checked" name="remember"> Recordar
     </label>
+-->
   </div>
-
+<!--
   <div class="container" style="background-color:#f1f1f1">
-    <button type="button" class="cancelbtn">Cancel</button>
-    <span class="psw">Forgot <a href="#">password?</a></span>
+    <button type="button" class="cancelbtn">Cancelar</button>
+    <span class="psw">Olvid&oacute; su <a href="#">clave de ingreso?</a></span>
   </div>
+-->
 </form>
 
 </body>
