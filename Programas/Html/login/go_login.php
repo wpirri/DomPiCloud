@@ -8,7 +8,7 @@ $auth["User"] = urlencode($_POST["uname"]);
 $auth["Password"] = urlencode($_POST["psw"]);
 $auth["Time"] = time();
 $host = $_SERVER["SERVER_NAME"];
-$script = "/cgi-bin/auth.cgi";
+$script = "/cgi-bin/dompi_cloud_auth.cgi";
 if(isset($_SERVER["HTTPS"]))
 {
     $protocol = "https";
@@ -23,7 +23,7 @@ $result = json_decode(httpPost($url, $auth));
 
 $resp_code = $result->response->resp_code;
 $resp_msg = $result->response->resp_msg;
-$sistema = $result->response->resp_code;
+$sistema = $result->response->sistema;
 
 ?>
 <body>

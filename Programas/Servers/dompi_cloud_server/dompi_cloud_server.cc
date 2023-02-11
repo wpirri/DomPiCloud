@@ -106,6 +106,15 @@ using namespace std;
 CGMServerWait *m_pServer;
 DPConfig *pConfig;
 
+const char *user_columns[] = {
+	"Usuario",
+	"Clave",
+	"Id_Sistema",
+	"Errores",
+	"Ultima_Conexion",
+	"Estado",
+	0};
+
 int power2(int exp)
 {
 	switch(exp)
@@ -149,6 +158,19 @@ void DeleteNotify(CMyDB *db, const char *client_key, time_t t)
 	db->Query(NULL, query);
 }
 
+int ExisteColumna(const char* columna, const char** lista)
+{
+	int i = 0;
+
+	if(!columna || !lista) return 0;
+	while(lista[i])
+	{
+		if( !strcmp(columna, lista[i])) return 1;
+		i++;
+	}
+	return 0;
+}
+
 int main(/*int argc, char** argv, char** env*/void)
 {
 	int rc;
@@ -161,6 +183,9 @@ int main(/*int argc, char** argv, char** env*/void)
 	char db_user[32];
 	char db_password[32];
 	char query[4096];
+	char query_into[1024];
+	char query_values[2048];
+	char query_where[512];
 
 	time_t t;
 	struct tm *p_tm;
@@ -223,7 +248,15 @@ int main(/*int argc, char** argv, char** env*/void)
 
 	m_pServer->Suscribe("dompi_web_notif", GM_MSG_TYPE_CR);
 	m_pServer->Suscribe("dompi_cloud_status", GM_MSG_TYPE_CR);
-	m_pServer->Suscribe("dompi_check_user", GM_MSG_TYPE_CR);
+	m_pServer->Suscribe("dompi_cloud_check_user", GM_MSG_TYPE_CR);
+
+	m_pServer->Suscribe("dompi_cloud_user_list", GM_MSG_TYPE_CR);
+	m_pServer->Suscribe("dompi_cloud_user_list_all", GM_MSG_TYPE_CR);
+	m_pServer->Suscribe("dompi_cloud_user_get", GM_MSG_TYPE_CR);
+	m_pServer->Suscribe("dompi_cloud_user_add", GM_MSG_TYPE_CR);
+	m_pServer->Suscribe("dompi_cloud_user_delete", GM_MSG_TYPE_CR);
+	m_pServer->Suscribe("dompi_cloud_user_update", GM_MSG_TYPE_CR);
+	m_pServer->Suscribe("dompi_cloud_user_check", GM_MSG_TYPE_CR);
 
 	m_pServer->m_pLog->Add(10, "Conectado a la base de datos...");
 	pDB = new CMyDB(db_host, "DB_DOMPICLOUD", db_user, db_password);
@@ -236,7 +269,7 @@ int main(/*int argc, char** argv, char** env*/void)
 		m_pServer->m_pLog->Add(1, "ERROR: En Open a la base de datos.");
 	}
 
-	m_pServer->m_pLog->Add(1, "Servicios de Domotica inicializados.");
+	m_pServer->m_pLog->Add(1, "Servicios de Domotica en la nube inicializados.");
 
 	while((rc = m_pServer->Wait(fn, typ, message, MAX_BUFFER_LEN, &message_len, 1000 )) >= 0)
 	{
@@ -570,9 +603,9 @@ int main(/*int argc, char** argv, char** env*/void)
 				cJSON_Delete(json_obj);
 			}
 			/* ****************************************************************
-			*		dompi_check_user - 
+			*		dompi_cloud_check_user - 
 			**************************************************************** */
-			else if( !strcmp(fn, "dompi_check_user"))
+			else if( !strcmp(fn, "dompi_cloud_check_user"))
 			{
 				json_obj = cJSON_Parse(message);
 
@@ -629,15 +662,294 @@ int main(/*int argc, char** argv, char** env*/void)
 				if(m_pServer->Resp(message, strlen(message), GME_OK) != GME_OK)
 				{
 					/* error al responder */
-					m_pServer->m_pLog->Add(1, "ERROR al responder mensaje [dompi_check_user]");
+					m_pServer->m_pLog->Add(1, "ERROR al responder mensaje [dompi_cloud_check_user]");
 				}
 				cJSON_Delete(json_obj);
 			}
+			/* ****************************************************************
+			*		dompi_cloud_user_list
+			**************************************************************** */
+			else if( !strcmp(fn, "dompi_cloud_user_list"))
+			{
+				message[0] = 0;
 
+				json_arr = cJSON_CreateArray();
+				strcpy(query, "SELECT Usuario, Id_Sistema, Estado, Ultima_Conexion "
+								"FROM TB_DOMCLOUD_USER;");
+				m_pServer->m_pLog->Add(100, "[QUERY][%s]", query);
+				rc = pDB->Query(json_arr, query);
+				if(rc > 0)
+				{
+					json_obj = cJSON_CreateObject();
+					cJSON_AddItemToObject(json_obj, "response", json_arr);
+					cJSON_PrintPreallocated(json_obj, message, MAX_BUFFER_LEN, 0);
+					cJSON_Delete(json_obj);
+				}
+				else
+				{
+					cJSON_Delete(json_arr);
+				}
 
+				m_pServer->m_pLog->Add(90, "%s:(R)[%s]", fn, message);
+				if(m_pServer->Resp(message, strlen(message), GME_OK) != GME_OK)
+				{
+					/* error al responder */
+					m_pServer->m_pLog->Add(1, "ERROR al responder mensaje [%s]", fn);
+				}
+			}
+			/* ****************************************************************
+			*		dompi_cloud_user_list_all
+			**************************************************************** */
+			else if( !strcmp(fn, "dompi_cloud_user_list_all"))
+			{
+				message[0] = 0;
 
+				json_arr = cJSON_CreateArray();
+				strcpy(query, "SELECT * FROM TB_DOMCLOUD_USER;");
+				m_pServer->m_pLog->Add(100, "[QUERY][%s]", query);
+				rc = pDB->Query(json_arr, query);
+				if(rc > 0)
+				{
+					json_obj = cJSON_CreateObject();
+					cJSON_AddItemToObject(json_obj, "response", json_arr);
+					cJSON_PrintPreallocated(json_obj, message, MAX_BUFFER_LEN, 0);
+					cJSON_Delete(json_obj);
+				}
+				else
+				{
+					cJSON_Delete(json_arr);
+				}
 
+				m_pServer->m_pLog->Add(90, "%s:(R)[%s]", fn, message);
+				if(m_pServer->Resp(message, strlen(message), GME_OK) != GME_OK)
+				{
+					/* error al responder */
+					m_pServer->m_pLog->Add(1, "ERROR al responder mensaje [%s]", fn);
+				}
+			}
+			/* ****************************************************************
+			*		dompi_cloud_user_get
+			**************************************************************** */
+			else if( !strcmp(fn, "dompi_cloud_user_get"))
+			{
+				json_obj = cJSON_Parse(message);
+				message[0] = 0;
+				json_un_obj = cJSON_GetObjectItemCaseSensitive(json_obj, "Usuario");
+				if(json_un_obj)
+				{
+					json_arr = cJSON_CreateArray();
+					sprintf(query, "SELECT * FROM TB_DOMCLOUD_USER WHERE Usuario = %s;", json_un_obj->valuestring);
+					m_pServer->m_pLog->Add(100, "[QUERY][%s]", query);
+					rc = pDB->Query(json_arr, query);
+					if(rc > 0)
+					{
+						cJSON_Delete(json_obj);
+						json_obj = cJSON_CreateObject();
+						cJSON_AddItemToObject(json_obj, "response", json_arr);
+						cJSON_PrintPreallocated(json_obj, message, MAX_BUFFER_LEN, 0);
+					}
+				}
+				cJSON_Delete(json_obj);
 
+				m_pServer->m_pLog->Add(90, "%s:(R)[%s]", fn, message);
+				if(m_pServer->Resp(message, strlen(message), GME_OK) != GME_OK)
+				{
+					/* error al responder */
+					m_pServer->m_pLog->Add(1, "ERROR al responder mensaje [%s]", fn);
+				}
+			}
+			/* ****************************************************************
+			*		dompi_cloud_user_add
+			**************************************************************** */
+			else if( !strcmp(fn, "dompi_cloud_user_add"))
+			{
+				json_obj = cJSON_Parse(message);
+				strcpy(message, "{\"response\":{\"resp_code\":\"0\", \"resp_msg\":\"Ok\"}}");
+				query[0] = 0;
+				query_into[0] = 0;
+				query_values[0] = 0;
+
+				json_un_obj = json_obj;
+
+				while( json_un_obj )
+				{
+					/* Voy hasta el elemento con datos */
+					if(json_un_obj->type == cJSON_Object)
+					{
+						json_un_obj = json_un_obj->child;
+					}
+					else
+					{
+						if(json_un_obj->type == cJSON_String)
+						{
+							if(json_un_obj->string && json_un_obj->valuestring)
+							{
+								if(strlen(json_un_obj->string) && strlen(json_un_obj->valuestring))
+								{
+									if(ExisteColumna(json_un_obj->string, user_columns))
+									{
+										/* Dato */
+										if(strlen(query_into) == 0)
+										{
+											strcpy(query_into, "(");
+										}
+										else
+										{
+											strcat(query_into, ",");
+										}
+										strcat(query_into, json_un_obj->string);
+										/* Valor */
+										if(strlen(query_values) == 0)
+										{
+											strcpy(query_values, "(");
+										}
+										else
+										{
+											strcat(query_values, ",");
+										}
+										strcat(query_values, "'");
+										strcat(query_values, json_un_obj->valuestring);
+										strcat(query_values, "'");
+									}
+								}
+							}
+						}
+						json_un_obj = json_un_obj->next;
+					}
+				}
+				cJSON_Delete(json_obj);
+
+				strcat(query_into, ")");
+				strcat(query_values, ")");
+				sprintf(query, "INSERT INTO TB_DOMCLOUD_USER %s VALUES %s;", query_into, query_values);
+				m_pServer->m_pLog->Add(100, "[QUERY][%s]", query);
+
+				rc = pDB->Query(NULL, query);
+				if(rc != 0)
+				{
+					strcpy(message, "{\"response\":{\"resp_code\":\"1\", \"resp_msg\":\"Database Error\"}}");
+				}
+
+				m_pServer->m_pLog->Add(90, "%s:(R)[%s]", fn, message);
+				if(m_pServer->Resp(message, strlen(message), GME_OK) != GME_OK)
+				{
+					/* error al responder */
+					m_pServer->m_pLog->Add(1, "ERROR al responder mensaje [%s]", fn);
+				}
+			}
+			/* ****************************************************************
+			*		dompi_cloud_user_delete
+			**************************************************************** */
+			else if( !strcmp(fn, "dompi_cloud_user_delete"))
+			{
+				json_obj = cJSON_Parse(message);
+				strcpy(message, "{\"response\":{\"resp_code\":\"0\", \"resp_msg\":\"Ok\"}}");
+				json_un_obj = cJSON_GetObjectItemCaseSensitive(json_obj, "Usuario");
+				if(json_un_obj)
+				{
+					if( strcmp(json_un_obj->valuestring, "Admin") )
+					{
+						sprintf(query, "DELETE FROM TB_DOMCLOUD_USER WHERE Usuario = \'%s\';", json_un_obj->valuestring);
+						m_pServer->m_pLog->Add(100, "[QUERY][%s]", query);
+						rc = pDB->Query(NULL, query);
+						if(rc != 0)
+						{
+							strcpy(message, "{\"response\":{\"resp_code\":\"1\", \"resp_msg\":\"Database Error\"}}");
+						}
+					}
+					else
+					{
+						strcpy(message, "{\"response\":{\"resp_code\":\"2\", \"resp_msg\":\"Usuario Invalido\"}}");
+					}
+				}
+				cJSON_Delete(json_obj);
+
+				m_pServer->m_pLog->Add(90, "%s:(R)[%s]", fn, message);
+				if(m_pServer->Resp(message, strlen(message), GME_OK) != GME_OK)
+				{
+					/* error al responder */
+					m_pServer->m_pLog->Add(1, "ERROR al responder mensaje [%s]", fn);
+				}
+			}
+			/* ****************************************************************
+			*		dompi_cloud_user_update
+			**************************************************************** */
+			else if( !strcmp(fn, "dompi_cloud_user_update"))
+			{
+				json_obj = cJSON_Parse(message);
+				strcpy(message, "{\"response\":{\"resp_code\":\"0\", \"resp_msg\":\"Ok\"}}");
+				query[0] = 0;
+				query_into[0] = 0;
+				query_values[0] = 0;
+				query_where[0] = 0;
+// cJSON_ArrayForEach(element, array) for(element = (array != NULL) ? (array)->child : NULL; element != NULL; element = element->next)
+				json_un_obj = json_obj;
+				while( json_un_obj )
+				{
+					/* Voy hasta el elemento con datos */
+					if(json_un_obj->type == cJSON_Object)
+					{
+						json_un_obj = json_un_obj->child;
+					}
+					else
+					{
+						if(json_un_obj->type == cJSON_String)
+						{
+							if(json_un_obj->string && json_un_obj->valuestring)
+							{
+								if(strlen(json_un_obj->string) && strlen(json_un_obj->valuestring))
+								{
+									if(ExisteColumna(json_un_obj->string, user_columns))
+									{
+										if( !strcmp(json_un_obj->string, "Usuario") )
+										{
+											strcpy(query_where, json_un_obj->string);
+											strcat(query_where, "='");
+											strcat(query_where, json_un_obj->valuestring);
+											strcat(query_where, "'");
+										}
+										else
+										{
+											/* Dato = Valor */
+											if(strlen(query_values) > 0)
+											{
+												strcat(query_values, ",");
+											}
+											strcat(query_values, json_un_obj->string);
+											strcat(query_values, "='");
+											strcat(query_values, json_un_obj->valuestring);
+											strcat(query_values, "'");
+										}
+									}
+								}
+							}
+						}
+						json_un_obj = json_un_obj->next;
+					}
+				}
+				cJSON_Delete(json_obj);
+				if(strlen(query_where))
+				{
+					sprintf(query, "UPDATE TB_DOMCLOUD_USER SET %s WHERE %s;", query_values, query_where);
+					m_pServer->m_pLog->Add(100, "[QUERY][%s]", query);
+					rc = pDB->Query(NULL, query);
+					if(rc == 0)
+					{
+						strcpy(message, "{\"response\":{\"resp_code\":\"1\", \"resp_msg\":\"Database Error\"}}");
+					}
+				}
+				else
+				{
+					strcpy(message, "{\"response\":{\"resp_code\":\"2\", \"resp_msg\":\"Form Data Error\"}}");
+				}
+
+				m_pServer->m_pLog->Add(90, "%s:(R)[%s]", fn, message);
+				if(m_pServer->Resp(message, strlen(message), GME_OK) != GME_OK)
+				{
+					/* error al responder */
+					m_pServer->m_pLog->Add(1, "ERROR al responder mensaje [%s]", fn);
+				}
+			}
 			else
 			{
 				m_pServer->m_pLog->Add(50, "GME_SVC_NOTFOUND");
@@ -653,9 +965,18 @@ int main(/*int argc, char** argv, char** env*/void)
 void OnClose(int sig)
 {
 	m_pServer->m_pLog->Add(1, "Exit on signal %i", sig);
-	m_pServer->UnSuscribe("dompi_check_user", GM_MSG_TYPE_CR);
+	m_pServer->UnSuscribe("dompi_cloud_check_user", GM_MSG_TYPE_CR);
 	m_pServer->UnSuscribe("dompi_web_notif", GM_MSG_TYPE_CR);
 	m_pServer->UnSuscribe("dompi_cloud_status", GM_MSG_TYPE_CR);
+
+	m_pServer->UnSuscribe("dompi_cloud_user_list", GM_MSG_TYPE_CR);
+	m_pServer->UnSuscribe("dompi_cloud_user_list_all", GM_MSG_TYPE_CR);
+	m_pServer->UnSuscribe("dompi_cloud_user_get", GM_MSG_TYPE_CR);
+	m_pServer->UnSuscribe("dompi_cloud_user_add", GM_MSG_TYPE_CR);
+	m_pServer->UnSuscribe("dompi_cloud_user_delete", GM_MSG_TYPE_CR);
+	m_pServer->UnSuscribe("dompi_cloud_user_update", GM_MSG_TYPE_CR);
+	m_pServer->UnSuscribe("dompi_cloud_user_check", GM_MSG_TYPE_CR);
+
 	delete pConfig;
 	delete m_pServer;
 	exit(0);

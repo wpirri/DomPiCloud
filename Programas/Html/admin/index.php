@@ -19,7 +19,7 @@ if(isset($resp_code) && isset($resp_msg) && isset($sistema))
     <img id="upload-icon" class="icon-btn" src="../images/gear.png">&nbsp;Sistema
 </div>
 
-<div class="normal-btn" id="btn-config-usuarios" onclick="window.location.replace('user_list.php');">
+<div class="normal-btn" id="btn-config-usuarios" onclick="window.location.replace('abm_user_list.php');">
     <img id="user-icon" class="icon-btn" src="../images/access.png">&nbsp;Usuarios
 </div>
 

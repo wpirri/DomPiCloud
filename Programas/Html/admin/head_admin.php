@@ -40,7 +40,7 @@ $auth_token_cript = $_SESSION['auth_token'];
 $auth_token_decript = openssl_decrypt($auth_token_cript, $ALGO_KEY, $TOKEN_KEY, 0, $IV_KEY);
 $auth = unserialize($auth_token_decript);
 $host = $_SERVER["SERVER_NAME"];
-$script = "/cgi-bin/auth.cgi";
+$script = "/cgi-bin/dompi_cloud_auth.cgi";
 if(isset($_SERVER["HTTPS"]))
 {
     $protocol = "https";
@@ -55,7 +55,7 @@ $result = json_decode(httpPost($url, $auth));
 
 $resp_code = $result->response->resp_code;
 $resp_msg = $result->response->resp_msg;
-$sistema = $result->response->resp_code;
+$sistema = $result->response->sistema;
 
 if(isset($ONLOAD))
 {
