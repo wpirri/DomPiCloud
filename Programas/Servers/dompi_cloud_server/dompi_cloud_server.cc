@@ -127,20 +127,26 @@ void OnClose(int sig);
 int QueryForNews(CMyDB* db, cJSON *response_array, const char *client_key)
 {
 	int rc;
+	char query[4096];
 
 	m_pServer->m_pLog->Add(100, "[QueryForNews] System_Key = [%s].", client_key);
-	rc = db->Query(response_array, 
-					"SELECT * "
+	sprintf(query, "SELECT * "
 					"FROM TB_DOMCLOUD_NOTIF "
 					"WHERE System_Key = \'%s\';", client_key);
+	m_pServer->m_pLog->Add(100, "[QUERY][%s]", query);
+	rc = db->Query(response_array, query);
+					
 	return rc;
 }
 
 void DeleteNotify(CMyDB *db, const char *client_key, time_t t)
 {
+	char query[4096];
 	m_pServer->m_pLog->Add(100, "[DeleteNotify] System_Key = [%s].", client_key);
-	db->Query(NULL, "DELETE FROM TB_DOMCLOUD_NOTIF "
+	sprintf(query, "DELETE FROM TB_DOMCLOUD_NOTIF "
 					"WHERE System_Key = \'%s\' AND Time_Stamp <= %lu;", client_key, t);
+	m_pServer->m_pLog->Add(100, "[QUERY][%s]", query);
+	db->Query(NULL, query);
 }
 
 int main(/*int argc, char** argv, char** env*/void)
@@ -154,6 +160,7 @@ int main(/*int argc, char** argv, char** env*/void)
 	char db_host[32];
 	char db_user[32];
 	char db_password[32];
+	char query[4096];
 
 	time_t t;
 	struct tm *p_tm;
@@ -186,6 +193,9 @@ int main(/*int argc, char** argv, char** env*/void)
 	cJSON *json_User;
 	cJSON *json_Password;
 	cJSON *json_Time;
+	cJSON *json_Id_Sistema;
+	cJSON *json_Errores;
+	cJSON *json_Ultima_Conexion;
 
     cJSON *json_Accion;
 
@@ -257,24 +267,28 @@ int main(/*int argc, char** argv, char** env*/void)
 						m_pServer->m_pLog->Add(100, "Status Update: [%s]", json_System_Key->valuestring);
 						t = time(&t);
 						p_tm = localtime(&t);
-						rc = pDB->Query(NULL, "UPDATE TB_DOMCLOUD_ASSIGN "
-													"SET Ultimo_Update = \'%04i-%02i-%02i %02i:%02i:%02i\', "
-													"Estado = %s "
-													"WHERE System_Key = \'%s\' AND Id = %s;",
-												p_tm->tm_year+1900, p_tm->tm_mon+1, p_tm->tm_mday,
-												p_tm->tm_hour, p_tm->tm_min, p_tm->tm_sec,
-												json_Estado->valuestring,
-												json_System_Key->valuestring,
-												json_Id->valuestring);
+						sprintf(query, "UPDATE TB_DOMCLOUD_ASSIGN "
+											"SET Ultimo_Update = \'%04i-%02i-%02i %02i:%02i:%02i\', "
+											"Estado = %s "
+											"WHERE System_Key = \'%s\' AND Id = %s;",
+										p_tm->tm_year+1900, p_tm->tm_mon+1, p_tm->tm_mday,
+										p_tm->tm_hour, p_tm->tm_min, p_tm->tm_sec,
+										json_Estado->valuestring,
+										json_System_Key->valuestring,
+										json_Id->valuestring);
+						m_pServer->m_pLog->Add(100, "[QUERY][%s]", query);
+						rc = pDB->Query(NULL, query);
 						if(rc == 0)
 						{
-							rc = pDB->Query(NULL, "INSERT INTO TB_DOMCLOUD_ASSIGN (System_Key, Id, Ultimo_Update, Estado) "
+							sprintf(query, "INSERT INTO TB_DOMCLOUD_ASSIGN (System_Key, Id, Ultimo_Update, Estado) "
 														"VALUES (\'%s\', %s, \'%04i-%02i-%02i %02i:%02i:%02i\', %s);",
 													json_System_Key->valuestring,
 													json_Id->valuestring,
 													p_tm->tm_year+1900, p_tm->tm_mon+1, p_tm->tm_mday,
 													p_tm->tm_hour, p_tm->tm_min, p_tm->tm_sec,
 													json_Estado->valuestring);
+							m_pServer->m_pLog->Add(100, "[QUERY][%s]", query);
+							rc = pDB->Query(NULL, query);
 							if(rc < 0)
 							{
 								m_pServer->m_pLog->Add(1, "ERROR: Al agregar [%s]", json_System_Key->valuestring);
@@ -312,7 +326,7 @@ int main(/*int argc, char** argv, char** env*/void)
 								json_Analog_Mult_Div && json_Analog_Mult_Div_Valor && json_Flags && json_System_Key && json_Id)
 							{
 								/* A pegarle a la base */
-								rc = pDB->Query(NULL, "UPDATE TB_DOMCLOUD_ASSIGN "
+								sprintf(query, "UPDATE TB_DOMCLOUD_ASSIGN "
 															"SET Ultimo_Update = \'%04i-%02i-%02i %02i:%02i:%02i\', "
 															"Objeto = \'%s\', "
 															"Tipo = %s, "
@@ -345,9 +359,11 @@ int main(/*int argc, char** argv, char** env*/void)
 														json_Flags->valuestring,
 														json_System_Key->valuestring,
 														json_Id->valuestring);
+								m_pServer->m_pLog->Add(100, "[QUERY][%s]", query);
+								rc = pDB->Query(NULL, query);
 								if(rc == 0)
 								{
-									rc = pDB->Query(NULL, "INSERT INTO TB_DOMCLOUD_ASSIGN (System_Key, Id, Ultimo_Update, Objeto, Tipo, Estado, Icono0, Icono1, Grupo_Visual, Planta, Cord_x, Cord_y, Coeficiente, Analog_Mult_Div, Analog_Mult_Div_Valor, Flags) "
+									sprintf(query, "INSERT INTO TB_DOMCLOUD_ASSIGN (System_Key, Id, Ultimo_Update, Objeto, Tipo, Estado, Icono0, Icono1, Grupo_Visual, Planta, Cord_x, Cord_y, Coeficiente, Analog_Mult_Div, Analog_Mult_Div_Valor, Flags) "
 																"VALUES (\'%s\', %s, \'%04i-%02i-%02i %02i:%02i:%02i\', \'%s\', %s, %s, \'%s\', \'%s\', %s, %s, %s, %s, %s, %s, %s, %s );",
 															json_System_Key->valuestring,
 															json_Id->valuestring,
@@ -366,6 +382,8 @@ int main(/*int argc, char** argv, char** env*/void)
 															json_Analog_Mult_Div->valuestring,
 															json_Analog_Mult_Div_Valor->valuestring,
 															json_Flags->valuestring);
+									m_pServer->m_pLog->Add(100, "[QUERY][%s]", query);
+									rc = pDB->Query(NULL, query);
 									if(rc < 0)
 									{
 										m_pServer->m_pLog->Add(1, "ERROR: Al agregar [%s de %s]", json_Objeto->valuestring, json_System_Key->valuestring);
@@ -387,19 +405,23 @@ int main(/*int argc, char** argv, char** env*/void)
 						t = time(&t);
 						p_tm = localtime(&t);
 						m_pServer->m_pLog->Add(100, "Keep Alive: [%s]", json_System_Key->valuestring);
-						rc = pDB->Query(NULL, "UPDATE TB_DOMCLOUD_ASSIGN "
+						sprintf(query, "UPDATE TB_DOMCLOUD_ASSIGN "
 													"SET Ultimo_Update = \'%04i-%02i-%02i %02i:%02i:%02i\' "
 													"WHERE System_Key = \'%s\' AND Id = 0;",
 												p_tm->tm_year+1900, p_tm->tm_mon+1, p_tm->tm_mday,
 												p_tm->tm_hour, p_tm->tm_min, p_tm->tm_sec,
 												json_System_Key->valuestring);
+						m_pServer->m_pLog->Add(100, "[QUERY][%s]", query);
+						rc = pDB->Query(NULL, query);
 						if(rc == 0)
 						{
-							rc = pDB->Query(NULL, "INSERT INTO TB_DOMCLOUD_ASSIGN (System_Key, Id, Ultimo_Update) "
+							sprintf(query, "INSERT INTO TB_DOMCLOUD_ASSIGN (System_Key, Id, Ultimo_Update) "
 														"VALUES (\'%s\', 0, \'%04i-%02i-%02i %02i:%02i:%02i\');",
 													json_System_Key->valuestring,
 													p_tm->tm_year+1900, p_tm->tm_mon+1, p_tm->tm_mday,
 													p_tm->tm_hour, p_tm->tm_min, p_tm->tm_sec);
+							m_pServer->m_pLog->Add(100, "[QUERY][%s]", query);
+							rc = pDB->Query(NULL, query);
 							if(rc < 0)
 							{
 								m_pServer->m_pLog->Add(1, "ERROR: Al agregar [%s]", json_System_Key->valuestring);
@@ -476,12 +498,14 @@ int main(/*int argc, char** argv, char** env*/void)
 						m_pServer->m_pLog->Add(50, "Establecer / Cambiar estado de Objeto: %s de %s",
 							json_Objeto->valuestring,
 							json_System_Key->valuestring);
-						pDB->Query(NULL, "INSERT INTO TB_DOMCLOUD_NOTIF (System_Key, Time_Stamp, Objeto, Accion) "
+						sprintf(query, "INSERT INTO TB_DOMCLOUD_NOTIF (System_Key, Time_Stamp, Objeto, Accion) "
 											"VALUES (\'%s\', %lu, \'%s\', \'%s\') ",
 											json_System_Key->valuestring,
 											t,
 											json_Objeto->valuestring,
 											json_Accion->valuestring);
+						m_pServer->m_pLog->Add(100, "[QUERY][%s]", query);
+						rc = pDB->Query(NULL, query);
 						strcpy(message, "{\"response\":{\"resp_code\":\"0\", \"resp_msg\":\"Ok\"}}");
 					}
 					else
@@ -493,9 +517,11 @@ int main(/*int argc, char** argv, char** env*/void)
 				{
 					m_pServer->m_pLog->Add(50, "Estado de Objetos: [%s]", json_System_Key->valuestring);
 					json_arr = cJSON_CreateArray();
-					rc = pDB->Query(json_arr, "SELECT Objeto, Estado, Ultimo_Update "
+					sprintf(query, "SELECT Objeto, Estado, Ultimo_Update "
 											"FROM TB_DOMCLOUD_ASSIGN "
 											"WHERE System_Key = \'%s\' AND Id > 0;", json_System_Key->valuestring);
+					m_pServer->m_pLog->Add(100, "[QUERY][%s]", query);
+					rc = pDB->Query(json_arr, query);
 					if(rc > 0)
 					{
 						cJSON_Delete(json_obj);
@@ -515,9 +541,11 @@ int main(/*int argc, char** argv, char** env*/void)
 				{
 					m_pServer->m_pLog->Add(50, "Listado de clientes");
 					json_arr = cJSON_CreateArray();
-					rc = pDB->Query(json_arr, "SELECT System_Key "
+					sprintf(query, "SELECT System_Key "
 											"FROM TB_DOMCLOUD_ASSIGN "
 											"WHERE Id = 0;");
+					m_pServer->m_pLog->Add(100, "[QUERY][%s]", query);
+					rc = pDB->Query(json_arr, query);
 					if(rc > 0)
 					{
 						cJSON_Delete(json_obj);
@@ -553,8 +581,44 @@ int main(/*int argc, char** argv, char** env*/void)
 				json_Time = cJSON_GetObjectItemCaseSensitive(json_obj, "Time");
 				if(json_User && json_Password && json_Time)
 				{
+					json_arr = cJSON_CreateArray();
+					sprintf(query, "SELECT Id_Sistema, Errores, Ultima_Conexion, Estado "
+											"FROM TB_DOMCLOUD_USER "
+											"WHERE Usuario = \'%s\' AND Clave = \'%s\';",
+											json_User->valuestring,
+											json_Password->valuestring);
+					m_pServer->m_pLog->Add(100, "[QUERY][%s]", query);
+					rc = pDB->Query(json_arr, query);
+					if(rc > 0)
+					{
+						cJSON_ArrayForEach(json_un_obj, json_arr)
+						{
+							json_Id_Sistema = cJSON_GetObjectItemCaseSensitive(json_un_obj, "Id_Sistema");
+							json_Errores = cJSON_GetObjectItemCaseSensitive(json_un_obj, "Errores");
+							json_Ultima_Conexion = cJSON_GetObjectItemCaseSensitive(json_un_obj, "Ultima_Conexion");
+							json_Estado = cJSON_GetObjectItemCaseSensitive(json_un_obj, "Estado");
 
-					strcpy(message, "{\"response\":{\"resp_code\":\"0\", \"resp_msg\":\"Ok\", \"sistema\":\"0\"}}");				
+							if( atoi(json_Estado->valuestring) == 1)
+							{
+								//cJSON_Delete(json_obj);
+								//json_obj = cJSON_CreateObject();
+								//cJSON_AddStringToObject(json_obj, "resp_code", "0");
+								//cJSON_AddStringToObject(json_obj, "resp_msg", "Ok");
+								//cJSON_AddItemToObject(json_obj, "response", json_arr);
+								//cJSON_PrintPreallocated(json_obj, message, MAX_BUFFER_LEN, 0);
+								sprintf(message, "{\"response\":{\"resp_code\":\"0\", \"resp_msg\":\"Ok\", \"sistema\":\"%s\"}}", json_Id_Sistema->valuestring);
+							}
+							else
+							{
+								strcpy(message, "{\"response\":{\"resp_code\":\"9999\", \"resp_msg\":\"Auth Error\"}}");
+							}
+						}
+					}
+					else
+					{
+						strcpy(message, "{\"response\":{\"resp_code\":\"9999\", \"resp_msg\":\"Auth Error\"}}");
+					}
+					cJSON_Delete(json_arr);
 				}
 				else
 				{
