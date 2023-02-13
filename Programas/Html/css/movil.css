@@ -1,0 +1,228 @@
+body {
+	font-family: Verdana, Arial, sans-serif;
+	background: black;
+	color: white;
+	margin: 0px auto;
+	padding: 0 0 20px 0;
+	height: 100%;
+	overflow: hidden;
+}
+
+#desktop {
+	}
+
+.desktop-group {
+	font-weight: bold;
+	width: 100%;
+	}
+
+.desktop-group input {
+	background: black;
+	font-weight: normal;
+	color: orange;
+	}
+
+.menu-btn {
+	color: white;
+	width: 100%;
+	z-index: 10;
+	padding: 2px;
+	height: 75px;
+	border: 1px dotted #fff;
+	cursor: pointer;
+	}
+
+.app-btn {
+	color: white;
+	width: 275px;
+	z-index: 10;
+	padding: 2px;
+	height: 75px;
+	border: 1px dotted #fff;
+	cursor: pointer;
+	}
+	
+.list-head1 {
+	color: white;
+	background: red;
+	z-index: 10;
+	padding: 2px;
+	height: 75px;
+	width: 245px;
+	border: 1px dotted #fff;
+	cursor: pointer;
+	}
+
+.list-head2 {
+	color: white;
+	background: olive;
+	z-index: 10;
+	padding: 2px;
+	height: 75px;
+	width: 245px;
+	border: 1px dotted #fff;
+	cursor: pointer;
+	}
+
+.list-head3 {
+	color: white;
+	background: orange;
+	z-index: 10;
+	padding: 2px;
+	height: 75px;
+	width: 245px;
+	border: 1px dotted #fff;
+	cursor: pointer;
+	}
+	
+.list-head4 {
+	color: white;
+	background: orangered;
+	z-index: 10;
+	padding: 2px;
+	height: 75px;
+	width: 245px;
+	border: 1px dotted #fff;
+	cursor: pointer;
+	}
+		
+.list-head5 {
+	color: white;
+	background: navy;
+	z-index: 10;
+	padding: 2px;
+	height: 75px;
+	width: 245px;
+	border: 1px dotted #fff;
+	cursor: pointer;
+	}
+
+.list-btn {
+	color: white;
+	z-index: 10;
+	padding: 2px;
+	height: 40px;
+	width: 245px;
+	border: 1px dotted #fff;
+	cursor: pointer;
+	}
+	
+.list-back-btn {
+	color: white;
+	z-index: 10;
+	padding: 2px;
+	height: 40px;
+	width: 245px;
+	border: 1px dotted #fff;
+	cursor: pointer;
+	}
+			
+.status-text {
+	font-weight: normal;
+	color: silver;
+	}
+
+.icon-image {
+	border: 0px;
+	width: 32px;
+	height: 32px;
+	}
+
+.scroll-list {
+	position: absolute; 
+	left: 20px; 
+	top: 10px; 
+	width: 250px;
+	height: 355px;
+	border: 1px dotted #fff;
+	padding: 2px;
+	color: white;
+	background: black;
+	overflow: auto;
+	overflow-x: hidden;
+	}
+
+.list-tb {
+	width: 90%;
+	border: 0;
+	padding: 0;
+	text-align: left;
+	}
+
+.list-tb-head{
+	text-align: center;
+	font-weight: bold;
+	color: orange;
+	}
+
+.list-tb-foot{
+	font-weight: bold;
+	text-align: right;
+	}
+
+/* ***************************************************************************
+	Area de Luces
+*************************************************************************** */	
+#luces-btn {
+	position: static;
+	background: olive;
+	left: 10px; 
+	top: 10px; 
+	height: 75px;
+	}
+		
+.luzn-btn {
+	color: white;
+	background: teal;
+	z-index: 10;
+	padding: 2px;
+	height: 40px;
+	width: 245px;
+	border: 1px dotted #fff;
+	cursor: pointer;
+	}
+
+/* ***************************************************************************
+	Area de aplicaciones
+*************************************************************************** */	
+#menu1 {
+	position: absolute; 
+	left: 20px; 
+	top: 10px; 
+	background: red;
+	}
+
+#menu2 {
+	position: absolute; 
+	left: 20px; 
+	top: 95px; 
+	background: olive;
+	}
+
+#menu3 {
+	position: absolute; 
+	left: 20px; 
+	top: 180px; 
+	background: orange;
+	}
+
+#menu4 {
+	position: absolute; 
+	left: 20px; 
+	top: 265px; 
+	background: orangered;
+	}
+
+#menu5 {
+	position: absolute; 
+	left: 20px; 
+	top: 350px; 
+	background: navy;
+	}
+
+#menu-return {
+	position: absolute; 
+	left: 20px; 
+	top: 435px; 
+	background: green;
+	}

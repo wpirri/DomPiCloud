@@ -57,23 +57,23 @@ if(isset($resp_code) && isset($resp_msg) && isset($sistema))
         $auth_token = serialize($auth);
         $auth_token_cript = openssl_encrypt($auth_token, $ALGO_KEY, $TOKEN_KEY, 0, $IV_KEY);
         $_SESSION['auth_token'] = $auth_token_cript;
-        if($sistema == 0)
+        if($sistema == 'ADMIN')
         {
             echo "window.location.replace('../admin/index.php');";
         }
         else
         {
-            echo "window.location.replace('../m/index.php?sistema='".$sistema.");";
+            echo "window.location.replace('../m/index.php?sistema=".$sistema."');";
         }
     }
     else
     {
-        echo "window.location.replace('login.php?msg=Error');";
+        echo "window.location.replace('../index.php?msg=Error');";
     }
 }
 else
 {
-    echo "window.location.replace('login.php?msg=Error');";
+    echo "window.location.replace('../index.php?msg=Error');";
 }
 ?>
 </script>

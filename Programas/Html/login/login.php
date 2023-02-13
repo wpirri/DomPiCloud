@@ -1,8 +1,8 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-<title>DomPiCloud Login</title>
 <meta charset="utf-8">
+<title>DomPiCloud Login</title>
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="author" content="Walter Pirri" >
 <meta name="keywords" content="SMART HOME, SYSHOME, DOMOTIC, SECURITY SYSTEM, IOT">

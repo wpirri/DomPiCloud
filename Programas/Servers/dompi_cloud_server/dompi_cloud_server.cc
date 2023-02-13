@@ -221,6 +221,8 @@ int main(/*int argc, char** argv, char** env*/void)
 	cJSON *json_Id_Sistema;
 	cJSON *json_Errores;
 	cJSON *json_Ultima_Conexion;
+	cJSON *json_sistema;
+	cJSON *json_grupo;
 
     cJSON *json_Accion;
 
@@ -257,6 +259,9 @@ int main(/*int argc, char** argv, char** env*/void)
 	m_pServer->Suscribe("dompi_cloud_user_delete", GM_MSG_TYPE_CR);
 	m_pServer->Suscribe("dompi_cloud_user_update", GM_MSG_TYPE_CR);
 	m_pServer->Suscribe("dompi_cloud_user_check", GM_MSG_TYPE_CR);
+
+	m_pServer->Suscribe("dompi_cloud_list_objects", GM_MSG_TYPE_CR);
+	
 
 	m_pServer->m_pLog->Add(10, "Conectado a la base de datos...");
 	pDB = new CMyDB(db_host, "DB_DOMPICLOUD", db_user, db_password);
@@ -950,6 +955,43 @@ int main(/*int argc, char** argv, char** env*/void)
 					m_pServer->m_pLog->Add(1, "ERROR al responder mensaje [%s]", fn);
 				}
 			}
+			/* ****************************************************************
+			*		dompi_cloud_user_get
+			**************************************************************** */
+			else if( !strcmp(fn, "dompi_cloud_list_objects"))
+			{
+				json_obj = cJSON_Parse(message);
+				message[0] = 0;
+				json_sistema = cJSON_GetObjectItemCaseSensitive(json_obj, "sistema");
+				json_grupo = cJSON_GetObjectItemCaseSensitive(json_obj, "grupo");
+				if(json_sistema && json_grupo)
+				{
+					json_arr = cJSON_CreateArray();
+					sprintf(query, "SELECT * FROM TB_DOMCLOUD_ASSIGN "
+					               "WHERE System_Key = \'%s\' AND Grupo_Visual = %s;",
+								   json_sistema->valuestring,
+								   json_grupo->valuestring);
+					m_pServer->m_pLog->Add(100, "[QUERY][%s]", query);
+					rc = pDB->Query(json_arr, query);
+					if(rc > 0)
+					{
+						cJSON_Delete(json_obj);
+						json_obj = cJSON_CreateObject();
+						cJSON_AddItemToObject(json_obj, "response", json_arr);
+						cJSON_PrintPreallocated(json_obj, message, MAX_BUFFER_LEN, 0);
+					}
+				}
+				cJSON_Delete(json_obj);
+
+				m_pServer->m_pLog->Add(90, "%s:(R)[%s]", fn, message);
+				if(m_pServer->Resp(message, strlen(message), GME_OK) != GME_OK)
+				{
+					/* error al responder */
+					m_pServer->m_pLog->Add(1, "ERROR al responder mensaje [%s]", fn);
+				}
+			}
+
+
 			else
 			{
 				m_pServer->m_pLog->Add(50, "GME_SVC_NOTFOUND");
@@ -976,6 +1018,8 @@ void OnClose(int sig)
 	m_pServer->UnSuscribe("dompi_cloud_user_delete", GM_MSG_TYPE_CR);
 	m_pServer->UnSuscribe("dompi_cloud_user_update", GM_MSG_TYPE_CR);
 	m_pServer->UnSuscribe("dompi_cloud_user_check", GM_MSG_TYPE_CR);
+
+	m_pServer->UnSuscribe("dompi_cloud_list_objects", GM_MSG_TYPE_CR);
 
 	delete pConfig;
 	delete m_pServer;
