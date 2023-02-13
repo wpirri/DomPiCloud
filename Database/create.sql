@@ -7,7 +7,7 @@ DROP TABLE IF EXISTS TB_DOMCLOUD_ASSIGN;
 CREATE TABLE IF NOT EXISTS TB_DOMCLOUD_USER (
 Usuario varchar(256),
 Clave varchar(256),
-Id_Sistema integer,
+Id_Sistema varchar(256),
 Errores integer DEFAULT 0,
 Ultima_Conexion bigint DEFAULT 0,
 Estado integer DEFAULT 0,     -- 0 Disable, 1 Enable
