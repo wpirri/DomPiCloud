@@ -4,7 +4,7 @@ $ONLOAD = "OnLoad();";
 require('head_admin.php');
 if(isset($resp_code) && isset($resp_msg) && isset($sistema))
 {
-    if($resp_code == 0 && $sistema == 0)
+    if($resp_code == 0 && $sistema == 'ADMIN')
     {
 ?>
 <!-- ==================== CARGA AUTORIZADA ==================== -->
@@ -56,7 +56,7 @@ if(isset($resp_code) && isset($resp_msg) && isset($sistema))
     {
         ?>
         <script type="text/javascript" >
-        window.location.replace('../login.php?msg=Error');
+        window.location.replace('../index.php?msg=Error');
         </script>
         <?php
     }
@@ -65,7 +65,7 @@ else
 {
     ?>
     <script type="text/javascript" >
-    window.location.replace('../login.php?msg=Error');
+    window.location.replace('../index.php?msg=Error');
     </script>
     <?php
 }
