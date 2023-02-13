@@ -81,7 +81,7 @@ int main(int /*argc*/, char** /*argv*/, char** env)
     return 0;
   }
 
-  if( pConfig->GetParam("TRACE-MOBILE.CGI", s))
+  if( pConfig->GetParam("TRACE-AUTH.CGI", s))
   {
     trace = atoi(s);
   }
@@ -134,7 +134,7 @@ int main(int /*argc*/, char** /*argv*/, char** env)
  
   if(trace)
   {
-    openlog("dompi_cloud_mobile.cgi", 0, LOG_USER);
+    openlog("dompi_cloud_auth.cgi", 0, LOG_USER);
 
     syslog(LOG_DEBUG, "REMOTE_ADDR: %s",remote_addr);
     syslog(LOG_DEBUG, "REQUEST_URI: [%s]",request_uri);
@@ -191,12 +191,26 @@ int main(int /*argc*/, char** /*argv*/, char** env)
     /* Recorro los datos del POST */
     for(i = 0; Str.ParseDataIdx(post_data, label, value, i); i++)
     {
-      /* lo agrego al JSon */
-      cJSON_AddStringToObject(json_obj, label, value);
+      /* El parametro funcion lo uso para el mensaje */
+      if( !strcmp(label, "funcion"))
+      {
+        strcpy(funcion, value);
+      }
+      else /* El resto lo paso a json y va como dato */
+      {
+        cJSON_AddStringToObject(json_obj, label, value);
+      }
     }
   }
 
-  strcpy(funcion_call, "dompi_check_user");
+  if( !strcmp(funcion, "list"))
+  {
+    strcpy(funcion_call, "dompi_cloud_list_objects");
+  }
+  else if( !strcmp(funcion, "touch"))
+  {
+    strcpy(funcion_call, "dompi_cloud_touch_object");
+  }
 
   /* Paso el objeto json a un buffer */
   cJSON_PrintPreallocated(json_obj, buffer, 4095, 0);
