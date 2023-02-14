@@ -81,7 +81,7 @@ int main(int /*argc*/, char** /*argv*/, char** env)
     return 0;
   }
 
-  if( pConfig->GetParam("TRACE-AUTH.CGI", s))
+  if( pConfig->GetParam("TRACE-MOBILE.CGI", s))
   {
     trace = atoi(s);
   }

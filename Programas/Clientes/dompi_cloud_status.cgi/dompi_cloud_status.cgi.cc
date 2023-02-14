@@ -35,8 +35,7 @@
 #define MAX_GET_LEN 255
 
 int trace;
-int internal_timeout;
-int external_timeout;
+int timeout;
 
 int main(int /*argc*/, char** /*argv*/, char** env)
 {
@@ -83,21 +82,15 @@ int main(int /*argc*/, char** /*argv*/, char** env)
     return 0;
   }
 
-  if( pConfig->GetParam("TRACE-CLOUD-STATUS.CGI", s))
+  if( pConfig->GetParam("TRACE-STATUS.CGI", s))
   {
     trace = atoi(s);
   }
 
-  internal_timeout = 1000;
-  if( pConfig->GetParam("INTERNAL-TIMEOUT", s))
+  timeout = 1000;
+  if( pConfig->GetParam("CGI-TIMEOUT", s))
   {
-    internal_timeout = atoi(s) * 1000;
-  }
-
-  external_timeout = 1000;
-  if( pConfig->GetParam("EXTERNAL-TIMEOUT", s))
-  {
-    external_timeout = atoi(s) * 1000;
+    timeout = atoi(s) * 1000;
   }
 
   for(i = 0; env[i]; i++)
@@ -179,7 +172,7 @@ int main(int /*argc*/, char** /*argv*/, char** env)
     cJSON_Delete(json_obj);
 
     if(trace) syslog(LOG_DEBUG, "Call dompi_cloud_status [%s]", query.C_Str()); 
-    rc = pClient->Call("dompi_cloud_status", query, response, external_timeout);
+    rc = pClient->Call("dompi_cloud_status", query, response, timeout);
     if(rc == 0)
     {
         fprintf(stdout, "%s\r\n", response.C_Str());

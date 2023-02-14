@@ -38,7 +38,7 @@ if(isset($resp_code) && isset($resp_msg) && isset($sistema))
 &nbsp;
 </div>
 
-<div class="app-btn" id="menu-return" onclick="window.location.replace('../index.php');">
+<div class="menu-back-btn" id="menu-return" onclick="window.location.replace('../index.php');">
 	<img id="back-icon" class="icon-image" src="../images/back.png">&nbsp;Volver
 </div>
 

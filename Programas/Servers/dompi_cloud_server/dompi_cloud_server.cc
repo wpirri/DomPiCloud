@@ -258,9 +258,9 @@ int main(/*int argc, char** argv, char** env*/void)
 	m_pServer->Suscribe("dompi_cloud_user_add", GM_MSG_TYPE_CR);
 	m_pServer->Suscribe("dompi_cloud_user_delete", GM_MSG_TYPE_CR);
 	m_pServer->Suscribe("dompi_cloud_user_update", GM_MSG_TYPE_CR);
-	m_pServer->Suscribe("dompi_cloud_user_check", GM_MSG_TYPE_CR);
 
 	m_pServer->Suscribe("dompi_cloud_list_objects", GM_MSG_TYPE_CR);
+	m_pServer->Suscribe("dompi_cloud_touch_object", GM_MSG_TYPE_CR);
 	
 
 	m_pServer->m_pLog->Add(10, "Conectado a la base de datos...");
@@ -667,7 +667,7 @@ int main(/*int argc, char** argv, char** env*/void)
 				if(m_pServer->Resp(message, strlen(message), GME_OK) != GME_OK)
 				{
 					/* error al responder */
-					m_pServer->m_pLog->Add(1, "ERROR al responder mensaje [dompi_cloud_check_user]");
+					m_pServer->m_pLog->Add(1, "ERROR al responder mensaje [%s]", fn);
 				}
 				cJSON_Delete(json_obj);
 			}
@@ -956,7 +956,7 @@ int main(/*int argc, char** argv, char** env*/void)
 				}
 			}
 			/* ****************************************************************
-			*		dompi_cloud_user_get
+			*		dompi_cloud_list_objects
 			**************************************************************** */
 			else if( !strcmp(fn, "dompi_cloud_list_objects"))
 			{
@@ -990,8 +990,43 @@ int main(/*int argc, char** argv, char** env*/void)
 					m_pServer->m_pLog->Add(1, "ERROR al responder mensaje [%s]", fn);
 				}
 			}
+			/* ****************************************************************
+			*		dompi_cloud_touch_object
+			**************************************************************** */
+			else if( !strcmp(fn, "dompi_cloud_touch_object"))
+			{
+				json_obj = cJSON_Parse(message);
+				message[0] = 0;
+				json_System_Key = cJSON_GetObjectItemCaseSensitive(json_obj, "sistema");
+				json_Objeto = cJSON_GetObjectItemCaseSensitive(json_obj, "objeto");
+				if(json_System_Key && json_Objeto)
+				{
+					t = time(&t);
+					m_pServer->m_pLog->Add(50, "Cambiar estado de Objeto: %s de %s",
+						json_Objeto->valuestring,
+						json_System_Key->valuestring);
+					sprintf(query, "INSERT INTO TB_DOMCLOUD_NOTIF (System_Key, Time_Stamp, Objeto, Accion) "
+										"VALUES (\'%s\', %lu, \'%s\', \'switch\') ",
+										json_System_Key->valuestring,
+										t,
+										json_Objeto->valuestring);
+					m_pServer->m_pLog->Add(100, "[QUERY][%s]", query);
+					rc = pDB->Query(NULL, query);
+					strcpy(message, "{\"response\":{\"resp_code\":\"0\", \"resp_msg\":\"Ok\"}}");
+				}
+				else
+				{
+					strcpy(message, "{\"response\":{\"resp_code\":\"10\", \"resp_msg\":\"Falta Objeto\"}}");
+				}
+				cJSON_Delete(json_obj);
 
-
+				m_pServer->m_pLog->Add(90, "%s:(R)[%s]", fn, message);
+				if(m_pServer->Resp(message, strlen(message), GME_OK) != GME_OK)
+				{
+					/* error al responder */
+					m_pServer->m_pLog->Add(1, "ERROR al responder mensaje [%s]", fn);
+				}
+			}
 			else
 			{
 				m_pServer->m_pLog->Add(50, "GME_SVC_NOTFOUND");
@@ -1017,9 +1052,9 @@ void OnClose(int sig)
 	m_pServer->UnSuscribe("dompi_cloud_user_add", GM_MSG_TYPE_CR);
 	m_pServer->UnSuscribe("dompi_cloud_user_delete", GM_MSG_TYPE_CR);
 	m_pServer->UnSuscribe("dompi_cloud_user_update", GM_MSG_TYPE_CR);
-	m_pServer->UnSuscribe("dompi_cloud_user_check", GM_MSG_TYPE_CR);
 
 	m_pServer->UnSuscribe("dompi_cloud_list_objects", GM_MSG_TYPE_CR);
+	m_pServer->UnSuscribe("dompi_cloud_touch_object", GM_MSG_TYPE_CR);
 
 	delete pConfig;
 	delete m_pServer;

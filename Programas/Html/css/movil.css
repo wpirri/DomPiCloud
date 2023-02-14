@@ -32,88 +32,117 @@ body {
 	cursor: pointer;
 	}
 
-.app-btn {
+.menu-back-btn {
+	position: absolute; 
+	left: 20px; 
+	top: 85%; 
 	color: white;
-	width: 275px;
-	z-index: 10;
-	padding: 2px;
-	height: 75px;
-	border: 1px dotted #fff;
-	cursor: pointer;
-	}
-	
-.list-head1 {
-	color: white;
-	background: red;
 	z-index: 10;
 	padding: 2px;
 	height: 75px;
 	width: 245px;
 	border: 1px dotted #fff;
+	background: green;
 	cursor: pointer;
-	}
+}
 
-.list-head2 {
+.list-head {
 	color: white;
-	background: olive;
 	z-index: 10;
 	padding: 2px;
 	height: 75px;
-	width: 245px;
-	border: 1px dotted #fff;
-	cursor: pointer;
-	}
-
-.list-head3 {
-	color: white;
-	background: orange;
-	z-index: 10;
-	padding: 2px;
-	height: 75px;
-	width: 245px;
-	border: 1px dotted #fff;
-	cursor: pointer;
-	}
-	
-.list-head4 {
-	color: white;
-	background: orangered;
-	z-index: 10;
-	padding: 2px;
-	height: 75px;
-	width: 245px;
+	width: 100%;
 	border: 1px dotted #fff;
 	cursor: pointer;
 	}
 		
-.list-head5 {
-	color: white;
+#list-head1 {
+	background: red;
+	}
+
+#list-head2 {
+	background: olive;
+	}
+
+#list-head3 {
+	background: orange;
+	}
+	
+#list-head4 {
+	background: orangered;
+	}
+		
+#list-head5 {
 	background: navy;
+	}
+
+.list-btn-group1 {
+	color: white;
+	background: maroon;
+	z-index: 10;
+	padding: 2px;
+	height: 40px;
+	width: 100%;
+	border: 1px dotted #fff;
+	cursor: pointer;
+	}
+
+.list-btn-group2 {
+	color: white;
+	background: teal;
+	z-index: 10;
+	padding: 2px;
+	height: 40px;
+	width: 100%;
+	border: 1px dotted #fff;
+	cursor: pointer;
+	}
+		
+.list-btn-group3 {
+	color: white;
+	background: brown;
+	z-index: 10;
+	padding: 2px;
+	height: 40px;
+	width: 100%;
+	border: 1px dotted #fff;
+	cursor: pointer;
+	}
+	
+.list-btn-group4 {
+	color: white;
+	background: orange;
+	z-index: 10;
+	padding: 2px;
+	height: 40px;
+	width: 100%;
+	border: 1px dotted #fff;
+	cursor: pointer;
+	}
+	
+.list-btn-group5 {
+	color: white;
+	background: blue;
+	z-index: 10;
+	padding: 2px;
+	height: 40px;
+	width: 100%;
+	border: 1px dotted #fff;
+	cursor: pointer;
+	}
+		
+
+.list-back-btn {
+	position: absolute; 
+	left: 20px; 
+	top: 85%; 
+	color: white;
 	z-index: 10;
 	padding: 2px;
 	height: 75px;
 	width: 245px;
 	border: 1px dotted #fff;
-	cursor: pointer;
-	}
-
-.list-btn {
-	color: white;
-	z-index: 10;
-	padding: 2px;
-	height: 40px;
-	width: 245px;
-	border: 1px dotted #fff;
-	cursor: pointer;
-	}
-	
-.list-back-btn {
-	color: white;
-	z-index: 10;
-	padding: 2px;
-	height: 40px;
-	width: 245px;
-	border: 1px dotted #fff;
+	background: green;
 	cursor: pointer;
 	}
 			
@@ -132,8 +161,8 @@ body {
 	position: absolute; 
 	left: 20px; 
 	top: 10px; 
-	width: 250px;
-	height: 355px;
+	width: 100%;
+	height: 80%;
 	border: 1px dotted #fff;
 	padding: 2px;
 	color: white;
@@ -183,7 +212,7 @@ body {
 	}
 
 /* ***************************************************************************
-	Area de aplicaciones
+	Area de menu
 *************************************************************************** */	
 #menu1 {
 	position: absolute; 
@@ -220,9 +249,3 @@ body {
 	background: navy;
 	}
 
-#menu-return {
-	position: absolute; 
-	left: 20px; 
-	top: 435px; 
-	background: green;
-	}

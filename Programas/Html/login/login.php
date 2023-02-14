@@ -1,5 +1,5 @@
-<!DOCTYPE html>
-<html lang="en">
+<!doctype html>
+<html>
 <head>
 <meta charset="utf-8">
 <title>DomPiCloud Login</title>
@@ -13,30 +13,18 @@
 <body>
 <form action="go_login.php" method="post">
   <div class="imgcontainer">
-    <img src="../images/home.png" alt="Home" class="avatar">
+    <img src="../images/home.png" class="avatar">
   </div>
 
   <div class="container">
     <label for="uname"><b>Usuario</b></label>
-    <input type="text" placeholder="Ingrese su nombre de usuario" name="uname" required>
+    <input type="text" placeholder="Ingrese su nombre de usuario" name="uname" required />
 
     <label for="psw"><b>Clave</b></label>
-    <input type="password" placeholder="Ingrese su clave de acceso" name="psw" required>
+    <input type="password" placeholder="Ingrese su clave de acceso" name="psw" required />
 
-    <button type="submit">Login</button>
-    <!--
-    <label>
-      <input type="checkbox" checked="checked" name="remember"> Recordar
-    </label>
--->
+    <button type="submit">Ingresar</button>
   </div>
-<!--
-  <div class="container" style="background-color:#f1f1f1">
-    <button type="button" class="cancelbtn">Cancelar</button>
-    <span class="psw">Olvid&oacute; su <a href="#">clave de ingreso?</a></span>
-  </div>
--->
 </form>
-
 </body>
 </html>

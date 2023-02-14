@@ -35,8 +35,7 @@
 #define MAX_GET_LEN 255
 
 int trace;
-int internal_timeout;
-int external_timeout;
+int timeout;
 
 int main(int /*argc*/, char** /*argv*/, char** env)
 {
@@ -82,21 +81,15 @@ int main(int /*argc*/, char** /*argv*/, char** env)
     return 0;
   }
 
-  if( pConfig->GetParam("TRACE-CLOUD-NOTIF.CGI", s))
+  if( pConfig->GetParam("TRACE-NOTIF.CGI", s))
   {
     trace = atoi(s);
   }
 
-  internal_timeout = 1000;
-  if( pConfig->GetParam("INTERNAL-TIMEOUT", s))
+  timeout = 1000;
+  if( pConfig->GetParam("CGI-TIMEOUT", s))
   {
-    internal_timeout = atoi(s) * 1000;
-  }
-
-  external_timeout = 1000;
-  if( pConfig->GetParam("EXTERNAL-TIMEOUT", s))
-  {
-    external_timeout = atoi(s) * 1000;
+    timeout = atoi(s) * 1000;
   }
 
   for(i = 0; env[i]; i++)
@@ -160,7 +153,7 @@ int main(int /*argc*/, char** /*argv*/, char** env)
   }
 
   if(trace) syslog(LOG_DEBUG, "Call dompi_web_notif [%s]", query.C_Str()); 
-  rc = pClient->Call("dompi_web_notif", query, response, external_timeout);
+  rc = pClient->Call("dompi_web_notif", query, response, timeout);
   if(rc == 0)
   {
     fprintf(stdout, "%s\r\n", response.C_Str());
