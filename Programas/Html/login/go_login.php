@@ -4,8 +4,8 @@ require('../head.php');
 
 $_SESSION['auth_token'] = "";
 
-$auth["User"] = urlencode($_POST["uname"]);
-$auth["Password"] = urlencode($_POST["psw"]);
+$auth["User"] = htmlspecialchars(trim($_POST["uname"]), ENT_QUOTES);
+$auth["Password"] = htmlspecialchars(trim($_POST["uname"]), ENT_QUOTES);
 $auth["Time"] = time();
 $host = $_SERVER["SERVER_NAME"];
 $script = "/cgi-bin/dompi_cloud_auth.cgi";
