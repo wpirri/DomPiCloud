@@ -219,8 +219,8 @@ int main(/*int argc, char** argv, char** env*/void)
 	cJSON *json_Password;
 	cJSON *json_Time;
 	cJSON *json_Id_Sistema;
-	cJSON *json_Errores;
-	cJSON *json_Ultima_Conexion;
+	//cJSON *json_Errores;
+	//cJSON *json_Ultima_Conexion;
 	cJSON *json_sistema;
 	cJSON *json_grupo;
 
@@ -622,7 +622,7 @@ int main(/*int argc, char** argv, char** env*/void)
 					json_arr = cJSON_CreateArray();
 					sprintf(query, "SELECT Id_Sistema, Errores, Ultima_Conexion, Estado "
 											"FROM TB_DOMCLOUD_USER "
-											"WHERE Usuario = \'%s\' AND Clave = \'%s\';",
+											"WHERE UPPER(Usuario) = UPPER(\'%s\') AND Clave = \'%s\';",
 											json_User->valuestring,
 											json_Password->valuestring);
 					m_pServer->m_pLog->Add(100, "[QUERY][%s]", query);
@@ -632,8 +632,8 @@ int main(/*int argc, char** argv, char** env*/void)
 						cJSON_ArrayForEach(json_un_obj, json_arr)
 						{
 							json_Id_Sistema = cJSON_GetObjectItemCaseSensitive(json_un_obj, "Id_Sistema");
-							json_Errores = cJSON_GetObjectItemCaseSensitive(json_un_obj, "Errores");
-							json_Ultima_Conexion = cJSON_GetObjectItemCaseSensitive(json_un_obj, "Ultima_Conexion");
+							//json_Errores = cJSON_GetObjectItemCaseSensitive(json_un_obj, "Errores");
+							//json_Ultima_Conexion = cJSON_GetObjectItemCaseSensitive(json_un_obj, "Ultima_Conexion");
 							json_Estado = cJSON_GetObjectItemCaseSensitive(json_un_obj, "Estado");
 
 							if( atoi(json_Estado->valuestring) == 1)
