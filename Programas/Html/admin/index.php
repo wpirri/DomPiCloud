@@ -73,20 +73,20 @@ if(isset($resp_code) && isset($resp_msg) && isset($sistema))
 </div>
 -->
 
-<div class="normal-btn" id="btn-config-upload" onclick="window.location.replace('working_list.php');">
+<div class="normal-btn" id="btn-config-upload" onclick="window.location.replace('upload.php');">
     <img id="upload-icon" class="icon-btn" src="../images/upload.png">&nbsp;Actualizaci&oacute;n
 </div>
 
-<div class="normal-btn" id="btn-config-download" onclick="window.location.replace('working_list.php');">
+<div class="normal-btn" id="btn-config-download" onclick="window.location.replace('download.php');">
     <img id="logs-icon" class="icon-btn" src="../images/download.png">&nbsp;Descargas
 </div>
 
 
-<div class="normal-btn" id="btn-config-dummy2" onclick="window.location.replace('working_list.php');">
+<div class="normal-btn" id="btn-config-dummy2" onclick="window.location.replace('');">
     <!-- <img id="logs-icon" class="icon-btn" src="images/download.png">&nbsp;xxxxxxxx -->
 </div>
 
-<div class="normal-btn" id="btn-config-dummy3" onclick="window.location.replace('working_list.php');">
+<div class="normal-btn" id="btn-config-dummy3" onclick="window.location.replace('');">
     <!-- <img id="logs-icon" class="icon-btn" src="images/download.png">&nbsp;xxxxxxxx -->
 </div>
 
