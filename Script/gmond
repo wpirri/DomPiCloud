@@ -1,0 +1,94 @@
+#! /bin/sh
+
+#
+# Este script reemplaza al que se instala con el sistema gmonitor base y agrega 
+# la funcionalidad de actualización del sistema
+#
+
+if [ -f /etc/gmonitor ]; then
+  . /etc/gmonitor
+else
+  if [ -f /etc/sysconfig/gmonitor ]; then
+    . /etc/sysconfig/gmonitor
+  else
+    if [ -f /usr/etc/gmonitor ]; then
+      . /usr/etc/gmonitor
+    else
+      if [ -f /usr/etc/sysconfig/gmonitor ]; then
+        . /usr/etc/sysconfig/gmonitor
+      fi
+    fi
+  fi
+fi
+
+SU="su -s /bin/sh -c "
+SU_USER="gmonitor"
+
+UPDATE_FILE="/home/${SU_USER}/gmonitor_dompicloud_update.tar.gz"
+OLD_UPDATE_FILE="/home/${SU_USER}/old_gmonitor_dompicloud_update.tar.gz"
+FECHA_HORA=`date "+%Y%m%d%H%M%S"`
+UPDATE_LOG="/home/${SU_USER}/update-log-${FECHA_HORA}.txt"
+SYTEM_HOME=/home/$SU_USER
+DOCUMENT_ROOT=/var/www/html/dpc
+CGI_ROOT=/usr/lib/cgi-bin/
+
+#
+# CheckUpdate
+#
+CheckUpdate()
+{
+    echo "Verificando actualizaciones..."
+    if [ -f ${UPDATE_FILE} ]; then
+        if [ -f ${OLD_UPDATE_FILE} ]; then
+            rm -f ${OLD_UPDATE_FILE}
+        fi
+        echo "Actualizando sistema con: ${UPDATE_FILE}..."
+        cd /
+        tar xvzf ${UPDATE_FILE}
+        mv ${UPDATE_FILE} ${OLD_UPDATE_FILE}
+        cp -uvr $SYTEM_HOME/html/* $DOCUMENT_ROOT
+        cp -uvr $SYTEM_HOME/cgi/* $CGI_ROOT
+        rm -rv $SYTEM_HOME/*
+    fi
+}
+
+#
+# Este script levanta el listener, el router de transacciones y una instancia
+# de cada servicio configurado en el monitor transaccional.
+# Si se decide utilizar inetd o xinetd se deber▒n comentar las lineas que
+# convocan al programa gmd.
+#
+
+case $1 in
+  start)
+    #ulimit -c unlimited
+    CheckUpdate
+    #$SU "${SERVER_BIN}/gmd -d --mode=listener" $SU_USER
+    $SU "${SERVER_BIN}/gmt -d --debug $LOG_LEVEL" $SU_USER
+    sleep 3
+    $SERVER_BIN/gmon_start all
+  ;;
+  stop)
+    $SERVER_BIN/gmon_stop all
+
+    gmt_pid=`ps -eaf | grep -v grep | grep $SERVER_BIN/gmt | awk '{ print $2; }'`
+    $SU "kill ${gmt_pid}" $SU_USER
+
+    #gmd_pid=`ps -eaf | grep -v grep | grep $SERVER_BIN/gmd | awk '{ print $2; }'`
+    #$SU "kill ${gmd_pid}" $SU_USER
+    /usr/local/sbin/drop_ipc.sh $SU_USER
+  ;;
+  status)
+    $SU "${SERVER_BIN}/gmon_status all" $SU_USER
+  ;;
+  restart)
+    $0 stop && $0 start
+  ;;
+  reload)
+    gmt_pid=`ps -eaf | grep -v grep | grep $SERVER_BIN/gmt | awk '{ print $2; }'`
+    $SU "kill -HUP ${gmt_pid}" $SU_USER
+  ;;
+  *)
+    echo "Use $0 start|stop|restart|status|reload"
+  ;;
+esac

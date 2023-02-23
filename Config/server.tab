@@ -1,0 +1,11 @@
+# Tabla: server
+# nombre|descripcion|modo|servicio
+#gm_sysps|Comando ps|1|/bin/ps
+#gm_sysdate|Comando date|1|/bin/date
+gm_config|Server de configuracion on-line|2|/usr/sbin/gm_config
+gm_default|Server de ejemplo|2|/usr/sbin/gm_default
+gm_timer|Server de timers|2|/usr/sbin/gm_timer
+gm_transac|Administrador de transacciones|2|/usr/sbin/gm_transac
+gm_buffer|Server de buffers|2|/usr/sbin/gm_sbuffer
+gm_squeue|Server de Store and forward|2|/usr/sbin/gm_squeue
+dompi_cloud_server|Nube de Domotica|2|/usr/local/sbin/dompi_cloud_server

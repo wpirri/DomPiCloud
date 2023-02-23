@@ -5,10 +5,12 @@ require('../head.php');
 $_SESSION['auth_token'] = "";
 
 $auth["User"] = htmlspecialchars(trim($_POST["uname"]), ENT_QUOTES);
-$auth["Password"] = htmlspecialchars(trim($_POST["uname"]), ENT_QUOTES);
+$auth["Password"] = htmlspecialchars(trim($_POST["psw"]), ENT_QUOTES);
 $auth["Time"] = time();
-$host = $_SERVER["SERVER_NAME"];
+/*$host = $_SERVER["SERVER_NAME"];*/
+$host = "127.0.0.1";
 $script = "/cgi-bin/dompi_cloud_auth.cgi";
+/*
 if(isset($_SERVER["HTTPS"]))
 {
     $protocol = "https";
@@ -17,7 +19,8 @@ else
 {
     $protocol = "http";
 }
-
+*/
+$protocol = "http";
 $url = $protocol."://".$host.$script;
 $result = json_decode(httpPost($url, $auth));
 

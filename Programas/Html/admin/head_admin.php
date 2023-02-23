@@ -39,8 +39,10 @@ function httpPost($url, $data)
 $auth_token_cript = $_SESSION['auth_token'];
 $auth_token_decript = openssl_decrypt($auth_token_cript, $ALGO_KEY, $TOKEN_KEY, 0, $IV_KEY);
 $auth = unserialize($auth_token_decript);
-$host = $_SERVER["SERVER_NAME"];
+/*$host = $_SERVER["SERVER_NAME"];*/
+$host = "127.0.0.1";
 $script = "/cgi-bin/dompi_cloud_auth.cgi";
+/*
 if(isset($_SERVER["HTTPS"]))
 {
     $protocol = "https";
@@ -49,6 +51,8 @@ else
 {
     $protocol = "http";
 }
+*/
+$protocol = "http";
 
 $url = $protocol."://".$host.$script;
 $result = json_decode(httpPost($url, $auth));
