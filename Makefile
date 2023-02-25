@@ -26,6 +26,7 @@ installer:
 	mkdir -p $(SYTEM_HOME)/html
 
 	cp -av Programas/Html/* $(SYTEM_HOME)/html/
+	rm $(SYTEM_HOME)/html/config.php
 	rm $(SYTEM_HOME)/html/Makefile
 	cp Programas/Clientes/dompi_cloud_abmuser.cgi/dompi_cloud_abmuser.cgi $(SYTEM_HOME)/cgi/
 	cp Programas/Clientes/dompi_cloud_auth.cgi/dompi_cloud_auth.cgi $(SYTEM_HOME)/cgi/

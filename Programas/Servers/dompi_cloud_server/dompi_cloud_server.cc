@@ -679,7 +679,7 @@ int main(/*int argc, char** argv, char** env*/void)
 				message[0] = 0;
 
 				json_arr = cJSON_CreateArray();
-				strcpy(query, "SELECT Usuario, Id_Sistema, Estado, Ultima_Conexion "
+				strcpy(query, "SELECT Usuario, Id_Sistema, Estado "
 								"FROM TB_DOMCLOUD_USER;");
 				m_pServer->m_pLog->Add(100, "[QUERY][%s]", query);
 				rc = pDB->Query(json_arr, query);
@@ -852,19 +852,12 @@ int main(/*int argc, char** argv, char** env*/void)
 				json_un_obj = cJSON_GetObjectItemCaseSensitive(json_obj, "Usuario");
 				if(json_un_obj)
 				{
-					if( strcmp(json_un_obj->valuestring, "Admin") )
+					sprintf(query, "DELETE FROM TB_DOMCLOUD_USER WHERE Usuario = \'%s\';", json_un_obj->valuestring);
+					m_pServer->m_pLog->Add(100, "[QUERY][%s]", query);
+					rc = pDB->Query(NULL, query);
+					if(rc != 0)
 					{
-						sprintf(query, "DELETE FROM TB_DOMCLOUD_USER WHERE Usuario = \'%s\';", json_un_obj->valuestring);
-						m_pServer->m_pLog->Add(100, "[QUERY][%s]", query);
-						rc = pDB->Query(NULL, query);
-						if(rc != 0)
-						{
-							strcpy(message, "{\"response\":{\"resp_code\":\"1\", \"resp_msg\":\"Database Error\"}}");
-						}
-					}
-					else
-					{
-						strcpy(message, "{\"response\":{\"resp_code\":\"2\", \"resp_msg\":\"Usuario Invalido\"}}");
+						strcpy(message, "{\"response\":{\"resp_code\":\"1\", \"resp_msg\":\"Database Error\"}}");
 					}
 				}
 				cJSON_Delete(json_obj);
