@@ -115,6 +115,27 @@ const char *user_columns[] = {
 	"Estado",
 	0};
 
+const char *assign_columns[] = {
+	"System_Key",
+	"Id",
+	"ASS_Id",
+	"Objeto",
+	"Tipo",
+	"Tipo_ASS",
+	"Estado",
+	"Icono0",
+	"Icono1",
+	"Grupo_Visual",
+	"Planta",
+	"Cord_x",
+	"Cord_y",
+	"Coeficiente",
+	"Analog_Mult_Div",
+	"Analog_Mult_Div_Valor",
+	"Ultimo_Update",
+	"Flags",
+	0};
+
 int power2(int exp)
 {
 	switch(exp)
@@ -183,8 +204,9 @@ int main(/*int argc, char** argv, char** env*/void)
 	char db_user[32];
 	char db_password[32];
 	char query[4096];
-	char query_into[1024];
+	char query_into[2048];
 	char query_values[2048];
+	char query_set[2048];
 	char query_where[512];
 
 	time_t t;
@@ -198,29 +220,15 @@ int main(/*int argc, char** argv, char** env*/void)
     cJSON *json_obj;
     cJSON *json_arr;
     cJSON *json_un_obj;
-    cJSON *json_System_Key;
-    cJSON *json_Objetos;
     cJSON *json_Id;
+    cJSON *json_System_Key;
 	cJSON *json_Objeto;
-	cJSON *json_Tipo;
 	cJSON *json_Estado;
-	cJSON *json_Icono0;
-	cJSON *json_Icono1;
-	cJSON *json_Grupo_Visual;
-	cJSON *json_Planta;
-	cJSON *json_Cord_x;
-	cJSON *json_Cord_y;
-	cJSON *json_Coeficiente;
-	cJSON *json_Analog_Mult_Div;
-	cJSON *json_Analog_Mult_Div_Valor;
-	cJSON *json_Flags;
 	cJSON *json_Time_Stamp;
 	cJSON *json_User;
 	cJSON *json_Password;
 	cJSON *json_Time;
 	cJSON *json_Id_Sistema;
-	//cJSON *json_Errores;
-	//cJSON *json_Ultima_Conexion;
 	cJSON *json_sistema;
 	cJSON *json_grupo;
 
@@ -287,162 +295,162 @@ int main(/*int argc, char** argv, char** env*/void)
 			**************************************************************** */
 			if( !strcmp(fn, "dompi_web_notif"))
 			{
+				t = time(&t);
+				p_tm = localtime(&t);
+
 				json_obj = cJSON_Parse(message);
+
 				json_System_Key = cJSON_GetObjectItemCaseSensitive(json_obj, "System_Key");
+				json_Id = cJSON_GetObjectItemCaseSensitive(json_obj, "Id");
+				if(!json_Id)
+				{
+					json_Id = cJSON_GetObjectItemCaseSensitive(json_obj, "ASS_Id");
+				}
 
 				if(json_System_Key)
 				{
-					json_Estado = cJSON_GetObjectItemCaseSensitive(json_obj, "Estado");
-					json_Objetos = cJSON_GetObjectItemCaseSensitive(json_obj, "Objetos");
-					json_Id = cJSON_GetObjectItemCaseSensitive(json_obj, "ASS_Id");
-					if( !json_Id)
+					if(json_Id)
 					{
-						json_Id = cJSON_GetObjectItemCaseSensitive(json_obj, "Id");
-					}
+						query[0] = 0;
+						query_into[0] = 0;
+						query_values[0] = 0;
+						query_set[0] = 0;
+						query_where[0] = 0;
 
-					if(json_Id && json_Estado)
-					{
-						m_pServer->m_pLog->Add(100, "Status Update: [%s]", json_System_Key->valuestring);
-						t = time(&t);
-						p_tm = localtime(&t);
-						sprintf(query, "UPDATE TB_DOMCLOUD_ASSIGN "
-											"SET Ultimo_Update = \'%04i-%02i-%02i %02i:%02i:%02i\', "
-											"Estado = %s "
-											"WHERE System_Key = \'%s\' AND Id = %s;",
-										p_tm->tm_year+1900, p_tm->tm_mon+1, p_tm->tm_mday,
-										p_tm->tm_hour, p_tm->tm_min, p_tm->tm_sec,
-										json_Estado->valuestring,
-										json_System_Key->valuestring,
-										json_Id->valuestring);
-						m_pServer->m_pLog->Add(100, "[QUERY][%s]", query);
-						rc = pDB->Query(NULL, query);
-						if(rc == 0)
-						{
-							sprintf(query, "INSERT INTO TB_DOMCLOUD_ASSIGN (System_Key, Id, Ultimo_Update, Estado) "
-														"VALUES (\'%s\', %s, \'%04i-%02i-%02i %02i:%02i:%02i\', %s);",
-													json_System_Key->valuestring,
-													json_Id->valuestring,
-													p_tm->tm_year+1900, p_tm->tm_mon+1, p_tm->tm_mday,
-													p_tm->tm_hour, p_tm->tm_min, p_tm->tm_sec,
-													json_Estado->valuestring);
-							m_pServer->m_pLog->Add(100, "[QUERY][%s]", query);
-							rc = pDB->Query(NULL, query);
-							if(rc < 0)
-							{
-								m_pServer->m_pLog->Add(1, "ERROR: Al agregar [%s]", json_System_Key->valuestring);
-							}
-						}
-						else if(rc < 0)
-						{
-							m_pServer->m_pLog->Add(1, "ERROR: Al actualizar [%s]", json_System_Key->valuestring);
-						}
-					}
-					else if(json_Objetos)
-					{
-						m_pServer->m_pLog->Add(100, "Objects Update: [%s]", json_System_Key->valuestring);
-						t = time(&t);
-						p_tm = localtime(&t);
+						m_pServer->m_pLog->Add(100, "[*** Update ***] System_Key: %s", json_System_Key->valuestring);
 
-						cJSON_ArrayForEach(json_un_obj, json_Objetos)
+						json_un_obj = json_obj;
+						while( json_un_obj )
 						{
-							json_Id = cJSON_GetObjectItemCaseSensitive(json_un_obj, "Id");
-							json_Objeto = cJSON_GetObjectItemCaseSensitive(json_un_obj, "Objeto");
-							json_Tipo = cJSON_GetObjectItemCaseSensitive(json_un_obj, "Tipo");
-							json_Estado = cJSON_GetObjectItemCaseSensitive(json_un_obj, "Estado");
-							json_Icono0 = cJSON_GetObjectItemCaseSensitive(json_un_obj, "Icono0");
-							json_Icono1 = cJSON_GetObjectItemCaseSensitive(json_un_obj, "Icono1");
-							json_Grupo_Visual = cJSON_GetObjectItemCaseSensitive(json_un_obj, "Grupo_Visual");
-							json_Planta = cJSON_GetObjectItemCaseSensitive(json_un_obj, "Planta");
-							json_Cord_x = cJSON_GetObjectItemCaseSensitive(json_un_obj, "Cord_x");
-							json_Cord_y = cJSON_GetObjectItemCaseSensitive(json_un_obj, "Cord_y");
-							json_Coeficiente = cJSON_GetObjectItemCaseSensitive(json_un_obj, "Coeficiente");
-							json_Analog_Mult_Div = cJSON_GetObjectItemCaseSensitive(json_un_obj, "Analog_Mult_Div");
-							json_Analog_Mult_Div_Valor = cJSON_GetObjectItemCaseSensitive(json_un_obj, "Analog_Mult_Div_Valor");
-							json_Flags = cJSON_GetObjectItemCaseSensitive(json_un_obj, "Flags");
-							if(json_Id && json_Objeto && json_Tipo && json_Estado && json_Icono0 && json_Icono1 && 
-								json_Grupo_Visual && json_Planta && json_Cord_x && json_Cord_y && json_Coeficiente && 
-								json_Analog_Mult_Div && json_Analog_Mult_Div_Valor && json_Flags && json_System_Key && json_Id)
+							/* Voy hasta el elemento con datos */
+							if(json_un_obj->type == cJSON_Object)
 							{
-								/* A pegarle a la base */
-								sprintf(query, "UPDATE TB_DOMCLOUD_ASSIGN "
-															"SET Ultimo_Update = \'%04i-%02i-%02i %02i:%02i:%02i\', "
-															"Objeto = \'%s\', "
-															"Tipo = %s, "
-															"Estado = %s, "
-															"Icono0 = \'%s\', "
-															"Icono1 = \'%s\', "
-															"Grupo_Visual = %s, "
-															"Planta = %s, "
-															"Cord_x = %s, "
-															"Cord_y = %s, "
-															"Coeficiente = %s, "
-															"Analog_Mult_Div = %s, "
-															"Analog_Mult_Div_Valor = %s, "
-															"Flags = %s "
-															"WHERE System_Key = \'%s\' AND Id = %s;",
-														p_tm->tm_year+1900, p_tm->tm_mon+1, p_tm->tm_mday,
-														p_tm->tm_hour, p_tm->tm_min, p_tm->tm_sec,
-														json_Objeto->valuestring,
-														json_Tipo->valuestring,
-														json_Estado->valuestring,
-														json_Icono0->valuestring,
-														json_Icono1->valuestring,
-														json_Grupo_Visual->valuestring,
-														json_Planta->valuestring,
-														json_Cord_x->valuestring,
-														json_Cord_y->valuestring,
-														json_Coeficiente->valuestring,
-														json_Analog_Mult_Div->valuestring,
-														json_Analog_Mult_Div_Valor->valuestring,
-														json_Flags->valuestring,
-														json_System_Key->valuestring,
-														json_Id->valuestring);
-								m_pServer->m_pLog->Add(100, "[QUERY][%s]", query);
-								rc = pDB->Query(NULL, query);
-								if(rc == 0)
-								{
-									sprintf(query, "INSERT INTO TB_DOMCLOUD_ASSIGN (System_Key, Id, Ultimo_Update, Objeto, Tipo, Estado, Icono0, Icono1, Grupo_Visual, Planta, Cord_x, Cord_y, Coeficiente, Analog_Mult_Div, Analog_Mult_Div_Valor, Flags) "
-																"VALUES (\'%s\', %s, \'%04i-%02i-%02i %02i:%02i:%02i\', \'%s\', %s, %s, \'%s\', \'%s\', %s, %s, %s, %s, %s, %s, %s, %s );",
-															json_System_Key->valuestring,
-															json_Id->valuestring,
-															p_tm->tm_year+1900, p_tm->tm_mon+1, p_tm->tm_mday,
-															p_tm->tm_hour, p_tm->tm_min, p_tm->tm_sec,
-															json_Objeto->valuestring,
-															json_Tipo->valuestring,
-															json_Estado->valuestring,
-															json_Icono0->valuestring,
-															json_Icono1->valuestring,
-															json_Grupo_Visual->valuestring,
-															json_Planta->valuestring,
-															json_Cord_x->valuestring,
-															json_Cord_y->valuestring,
-															json_Coeficiente->valuestring,
-															json_Analog_Mult_Div->valuestring,
-															json_Analog_Mult_Div_Valor->valuestring,
-															json_Flags->valuestring);
-									m_pServer->m_pLog->Add(100, "[QUERY][%s]", query);
-									rc = pDB->Query(NULL, query);
-									if(rc < 0)
-									{
-										m_pServer->m_pLog->Add(1, "ERROR: Al agregar [%s de %s]", json_Objeto->valuestring, json_System_Key->valuestring);
-									}
-								}
-								else if(rc < 0)
-								{
-									m_pServer->m_pLog->Add(1, "ERROR: Al actualizar [%s de %s]", json_Objeto->valuestring, json_System_Key->valuestring);
-								}
+								json_un_obj = json_un_obj->child;
 							}
 							else
 							{
-								m_pServer->m_pLog->Add(1, "ERROR: Array de datos imcompleto de [%s]", json_System_Key->valuestring);
+								if(json_un_obj->type == cJSON_String)
+								{
+									if(json_un_obj->string && json_un_obj->valuestring)
+									{
+										if(strlen(json_un_obj->string) && strlen(json_un_obj->valuestring))
+										{
+											if(ExisteColumna(json_un_obj->string, assign_columns))
+											{
+												/* Armo las sentencias del UPDATE */
+												if( !strcmp(json_un_obj->string, "System_Key") ||
+													!strcmp(json_un_obj->string, "ASS_Id") ||
+													!strcmp(json_un_obj->string, "Id"))
+												{
+													if(strlen(query_where) > 0)
+													{
+														strcat(query_where, " AND ");
+													}
+													if( !strcmp(json_un_obj->string, "ASS_Id"))
+													{
+														strcat(query_where, "Id");
+													}
+													else
+													{
+														strcat(query_where, json_un_obj->string);
+													}
+													strcat(query_where, "='");
+													strcat(query_where, json_un_obj->valuestring);
+													strcat(query_where, "'");
+												}
+												else
+												{
+													/* Dato = Valor */
+													if(strlen(query_set) > 0)
+													{
+														strcat(query_set, ",");
+													}
+													if( !strcmp(json_un_obj->string, "Tipo_ASS"))
+													{
+														strcat(query_set, "Tipo");
+													}
+													else
+													{
+														strcat(query_set, json_un_obj->string);
+													}
+													strcat(query_set, "='");
+													strcat(query_set, json_un_obj->valuestring);
+													strcat(query_set, "'");
+												}
+												/* Armo las sentencias del insert */
+												/* Dato */
+												if(strlen(query_into) == 0)
+												{
+													strcpy(query_into, "(");
+												}
+												else
+												{
+													strcat(query_into, ",");
+												}
+												strcat(query_into, json_un_obj->string);
+												/* Valor */
+												if(strlen(query_values) == 0)
+												{
+													strcpy(query_values, "(");
+												}
+												else
+												{
+													strcat(query_values, ",");
+												}
+												strcat(query_values, "'");
+												strcat(query_values, json_un_obj->valuestring);
+												strcat(query_values, "'");
+											}
+										}
+									}
+								}
+								json_un_obj = json_un_obj->next;
 							}
-						} /* cJSON_ArrayForEach(...) */
+						}
+
+						if(strlen(query_where))
+						{
+							/* agrego Ultimo_Update */
+							if(strlen(query_set) > 0)
+							{
+								strcat(query_set, ",");
+							}
+							strcat(query_set, "Ultimo_Update=");
+							sprintf(&query_set[strlen(query_set)], "\'%04i-%02i-%02i %02i:%02i:%02i\'",
+									p_tm->tm_year+1900, p_tm->tm_mon+1, p_tm->tm_mday,
+									p_tm->tm_hour, p_tm->tm_min, p_tm->tm_sec);
+
+							/* Trato de hacer un update */
+							sprintf(query, "UPDATE TB_DOMCLOUD_ASSIGN SET %s WHERE %s;", query_set, query_where);
+							m_pServer->m_pLog->Add(100, "[QUERY][%s]", query);
+							rc = pDB->Query(NULL, query);
+							if(rc == 0)
+							{
+								/* Si no actualiza nada hago un insert */
+								if(strlen(query_into) && strlen(query_values))
+								{
+									/* Dato */
+									strcat(query_into, ",");
+									strcat(query_into, "Ultimo_Update");
+									/* Valor */
+									strcat(query_values, ",");
+									sprintf(&query_values[strlen(query_values)], "\'%04i-%02i-%02i %02i:%02i:%02i\'",
+											p_tm->tm_year+1900, p_tm->tm_mon+1, p_tm->tm_mday,
+											p_tm->tm_hour, p_tm->tm_min, p_tm->tm_sec);
+									/* Final */
+									strcat(query_into, ")");
+									strcat(query_values, ")");
+
+									sprintf(query, "INSERT INTO TB_DOMCLOUD_ASSIGN %s VALUES %s;", query_into, query_values);
+									m_pServer->m_pLog->Add(100, "[QUERY][%s]", query);
+									rc = pDB->Query(NULL, query);
+								}
+							}
+						}
 					}
 					else /* Solo vino la Key */
 					{
-						t = time(&t);
-						p_tm = localtime(&t);
-						m_pServer->m_pLog->Add(100, "Keep Alive: [%s]", json_System_Key->valuestring);
+						m_pServer->m_pLog->Add(100, "[*** Keep Alive ***] System_Key: %s", json_System_Key->valuestring);
 						sprintf(query, "UPDATE TB_DOMCLOUD_ASSIGN "
 													"SET Ultimo_Update = \'%04i-%02i-%02i %02i:%02i:%02i\' "
 													"WHERE System_Key = \'%s\' AND Id = 0;",
@@ -960,7 +968,8 @@ int main(/*int argc, char** argv, char** env*/void)
 				if(json_sistema && json_grupo)
 				{
 					json_arr = cJSON_CreateArray();
-					sprintf(query, "SELECT * FROM TB_DOMCLOUD_ASSIGN "
+					sprintf(query, "SELECT Id,Objeto,Estado,Icono0,Icono1 "
+								   "FROM TB_DOMCLOUD_ASSIGN "
 					               "WHERE System_Key = \'%s\' AND Grupo_Visual = %s;",
 								   json_sistema->valuestring,
 								   json_grupo->valuestring);
