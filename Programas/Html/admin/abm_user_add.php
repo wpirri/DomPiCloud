@@ -1,5 +1,5 @@
 <?php
-$TITLE = "Clientes";
+$TITLE = "Uusario Nuevo";
 $ONLOAD = "OnLoad();";
 require('head_admin.php');
 if(isset($resp_code) && isset($resp_msg) && isset($sistema))

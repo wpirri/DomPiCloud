@@ -233,6 +233,7 @@ int main(/*int argc, char** argv, char** env*/void)
 	cJSON *json_grupo;
 
     cJSON *json_Accion;
+    cJSON *json_Admin;
 
 	signal(SIGPIPE, SIG_IGN);
 	signal(SIGKILL, OnClose);
@@ -535,6 +536,7 @@ int main(/*int argc, char** argv, char** env*/void)
 
 				json_System_Key = cJSON_GetObjectItemCaseSensitive(json_obj, "System_Key");
 				json_Accion = cJSON_GetObjectItemCaseSensitive(json_obj, "Accion");
+				json_Admin = cJSON_GetObjectItemCaseSensitive(json_obj, "Admin");
 				if(json_Accion)
 				{
 					json_Objeto = cJSON_GetObjectItemCaseSensitive(json_obj, "Objeto");
@@ -557,6 +559,23 @@ int main(/*int argc, char** argv, char** env*/void)
 					else
 					{
 						strcpy(message, "{\"response\":{\"resp_code\":\"10\", \"resp_msg\":\"Falta Objeto\"}}");
+					}
+				}
+				else if(json_Admin)
+				{
+					strcpy(message, "{\"response\":{\"resp_code\":\"0\", \"resp_msg\":\"Ok\"}}");
+					if( !strcmp(json_Admin->valuestring, "delcli"))
+					{
+						m_pServer->m_pLog->Add(50, "Borrar registros de: [%s]", json_System_Key->valuestring);
+
+						sprintf(query, "DELETE FROM TB_DOMCLOUD_ASSIGN "
+											"WHERE System_Key = \'%s\';", json_System_Key->valuestring);
+						m_pServer->m_pLog->Add(100, "[QUERY][%s]", query);
+						rc = pDB->Query(NULL, query);
+						if(rc < 0)
+						{
+							strcpy(message, "{\"response\":{\"resp_code\":\"10\", \"resp_msg\":\"Falta Objeto\"}}");
+						}
 					}
 				}
 				else if(json_System_Key)

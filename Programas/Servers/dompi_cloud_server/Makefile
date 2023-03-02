@@ -2,7 +2,7 @@
 
 INCLUDE=-I../../Common/ `mysql_config --cflags`
 CXXFLAGS=-g -Wall -Wextra -MMD -O2
-# Para Postgres: -lpq
+NO_LIBS= -lpq
 LIBS=-lgmqw -lgmshared -lstdc++ -lcjson -lssl -lcrypto `mysql_config --libs`
 OBJECTS=dompi_cloud_server.o config.o strfunc.o cmydb.o
 OUTPUT=dompi_cloud_server

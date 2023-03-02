@@ -13,15 +13,11 @@ if(isset($resp_code) && isset($resp_msg) && isset($sistema))
   <img id='client_list_back_icon' class='icon-btn' src='../images/back.png'>&nbsp;Volver
 </div>
 
-<div id='client_list_add_btn' class='abm-add-btn' onclick="window.location.replace('');" >
-  <img id='client_list_add_icon' class='icon-btn' src='../images/add.png'>&nbsp;Nuevo
-</div>
-
 <div id='client_list_table_div' class='abm-div'></div>
 
 <script type="text/javascript" >
     function LoadData(msg) {
-        fillAbmList(JSON.parse(msg).response, 'client_list_table_div', '<?php echo $TITLE; ?>', 'System_Key', 'client_status.php', '');
+        fillAbmList(JSON.parse(msg).response, 'client_list_table_div', '<?php echo $TITLE; ?>', 'System_Key', 'client_status.php', 'client_delete.php');
     }
 
     function OnLoad() {
