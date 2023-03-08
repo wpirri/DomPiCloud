@@ -34,6 +34,8 @@ function LoadData(msg) {
     var output = '';
     var filename = '';
 
+    if(!json_list) return;
+
     // Cabecera
     <?php if($grupo == 1) { ?>
     output += '<div class="list-head" id="list-head1"  >\n';
@@ -82,6 +84,8 @@ function UpdateStatus(msg) {
 	var i = 0;
 	var json_list = JSON.parse(msg).response;
     var filename = '';
+
+    if(!json_list) return;
 
 	for (i = 0; i < json_list.length; i++) {
         if(json_list[i].Estado == 0)

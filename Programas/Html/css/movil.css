@@ -24,7 +24,8 @@ body {
 
 .menu-btn {
 	color: white;
-	width: 100%;
+	left: 5%; 
+	width: 90%;
 	z-index: 10;
 	padding: 2px;
 	height: 75px;
@@ -34,13 +35,13 @@ body {
 
 .menu-back-btn {
 	position: absolute; 
-	left: 20px; 
+	left: 5%; 
 	top: 85%; 
 	color: white;
 	z-index: 10;
 	padding: 2px;
 	height: 75px;
-	width: 245px;
+	width: 50%;
 	border: 1px dotted #fff;
 	background: green;
 	cursor: pointer;
@@ -134,13 +135,13 @@ body {
 
 .list-back-btn {
 	position: absolute; 
-	left: 20px; 
+	left: 5%; 
 	top: 85%; 
 	color: white;
 	z-index: 10;
 	padding: 2px;
 	height: 75px;
-	width: 245px;
+	width: 50%;
 	border: 1px dotted #fff;
 	background: green;
 	cursor: pointer;
@@ -159,9 +160,9 @@ body {
 
 .scroll-list {
 	position: absolute; 
-	left: 20px; 
+	left: 5%; 
 	top: 10px; 
-	width: 100%;
+	width: 90%;
 	height: 80%;
 	border: 1px dotted #fff;
 	padding: 2px;
@@ -216,35 +217,30 @@ body {
 *************************************************************************** */	
 #menu1 {
 	position: absolute; 
-	left: 20px; 
 	top: 10px; 
 	background: red;
 	}
 
 #menu2 {
 	position: absolute; 
-	left: 20px; 
 	top: 95px; 
 	background: olive;
 	}
 
 #menu3 {
 	position: absolute; 
-	left: 20px; 
 	top: 180px; 
 	background: orange;
 	}
 
 #menu4 {
 	position: absolute; 
-	left: 20px; 
 	top: 265px; 
 	background: orangered;
 	}
 
 #menu5 {
 	position: absolute; 
-	left: 20px; 
 	top: 350px; 
 	background: navy;
 	}
