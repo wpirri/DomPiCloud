@@ -30,6 +30,8 @@ Ejecutar 'mysql_config --cflags --libs' para obtener los parametros de compilaci
 */
 #include <mysql.h>
 
+#define CMYDB_MAX_ERROR_TEXT 1024
+
 class CMyDB
 {
 public:
@@ -39,17 +41,21 @@ public:
 
     int Open(void);
     int Open(const char* host, const char* dbname, const char* username, const char* userpass);
+    int IsOpen(void);
+    void Close(void);
 
     int Begin(void);
     int Query(cJSON *json_array, const char* query_fmt, ...);
     int Commit(void);
     int Rollback(void);
+    long NextId(const char* table_name, const char* row_name);
 
     char* LastErrorMsg(char* msg);
+    long LastQueryTime();
+    void Manten(void);
 
-    int IsOpen(void);
+    char m_last_error_text[CMYDB_MAX_ERROR_TEXT+1];
 
-    void Close(void);
 private:
     MYSQL *m_pMYConn;
     char m_host[64];
@@ -57,6 +63,7 @@ private:
     char m_username[32];
     char m_userpass[32];
     int m_connect_error_count;
+    long m_last_query_time;
 
 };
 
