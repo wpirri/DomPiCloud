@@ -42,12 +42,11 @@ int main(int /*argc*/, char** /*argv*/, char** env)
   CGMInitData gminit;
   CGMClient *pClient;
   CGMError gmerror;
-  CGMBuffer query;
-  CGMBuffer response;
   DPConfig *pConfig;
   STRFunc Str;
   int i;
-  
+  CGMClient::GMIOS call_resp;
+
   char server_address[16];
   char s[16];
   
@@ -57,10 +56,6 @@ int main(int /*argc*/, char** /*argv*/, char** env)
   int content_length;
   char s_content_length[8];
   char post_data[MAX_POST_LEN+1];
-  //char get_data[MAX_GET_LEN+1];
-  //char buffer[4096];
-  //char label[64];
-  //char value[1024];
   int rc;
 
   signal(SIGALRM, SIG_IGN);
@@ -129,8 +124,12 @@ int main(int /*argc*/, char** /*argv*/, char** env)
   if(trace)
   {
     openlog("dompi_cloud_notif.cgi", 0, LOG_USER);
-    syslog(LOG_DEBUG, "REMOTE_ADDR=%s REQUEST_URI=%s REQUEST_METHOD=%s CONTENT_LENGTH=%i POST=%s", 
-                remote_addr, request_uri, request_method,content_length, (content_length>0)?post_data:"(vacio)" );
+    syslog(LOG_DEBUG, "REMOTE_ADDR: %s",remote_addr);
+    syslog(LOG_DEBUG, "REQUEST_URI: [%s]",request_uri);
+    syslog(LOG_DEBUG, "REQUEST_METHOD: %s",request_method);
+    syslog(LOG_DEBUG, "CONTENT_LENGTH: %s",s_content_length);
+    syslog(LOG_DEBUG, "CONFIG_FILE: /etc/dompiio.config");
+    syslog(LOG_DEBUG, "DOMPIWEB_SERVER: [%s]",server_address);
   }
 
   gminit.m_host = server_address;
@@ -138,29 +137,28 @@ int main(int /*argc*/, char** /*argv*/, char** env)
 
   pClient = new CGMClient(&gminit);
 
-  query.Clear();
-  response.Clear();
-
-/*
-  if(strchr(request_uri, '?'))
+  if(trace)
   {
-  }
-*/
-
-  if(content_length > 0)
-  {
-    query = post_data;
+    syslog(LOG_DEBUG, "Call Q: dompi_web_notif [%s]", post_data); 
   }
 
-  if(trace) syslog(LOG_DEBUG, "Call dompi_web_notif [%s]", query.C_Str()); 
-  rc = pClient->Call("dompi_web_notif", query, response, timeout);
+  rc = pClient->Call("dompi_web_notif", post_data, strlen(post_data), &call_resp, timeout);
   if(rc == 0)
   {
-    fprintf(stdout, "%s\r\n", response.C_Str());
+    fprintf(stdout, "%s\r\n", (const char*)call_resp.data);
+    if(trace)
+    {
+      syslog(LOG_DEBUG, "Call R: [%s]", (const char*)call_resp.data);
+    }
+    pClient->Free(call_resp);
   }
   else
   {
     fprintf(stdout, "{ \"rc\":\"%02i\", \"msg\":\"%s\" }\r\n", rc, gmerror.Message(rc).c_str());
+    if(trace)
+    {
+      syslog(LOG_DEBUG, "{ \"rc\":\"%02i\", \"msg\":\"%s\" }\r\n", rc, gmerror.Message(rc).c_str());
+    }
   }
   delete pClient;
   return 0;
