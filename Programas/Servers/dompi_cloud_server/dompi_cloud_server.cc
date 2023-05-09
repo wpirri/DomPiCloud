@@ -308,6 +308,9 @@ int main(/*int argc, char** argv, char** env*/void)
 					json_Id = cJSON_GetObjectItemCaseSensitive(json_obj, "ASS_Id");
 				}
 
+				json_User = cJSON_GetObjectItemCaseSensitive(json_obj, "Usuario_Cloud");
+				json_Password = cJSON_GetObjectItemCaseSensitive(json_obj, "Clave_Cloud");
+
 				if(json_System_Key)
 				{
 					if(json_Id)
@@ -318,7 +321,7 @@ int main(/*int argc, char** argv, char** env*/void)
 						query_set[0] = 0;
 						query_where[0] = 0;
 
-						m_pServer->m_pLog->Add(100, "[*** Update ***] System_Key: %s", json_System_Key->valuestring);
+						m_pServer->m_pLog->Add(100, "[*** Update Objeto ***] System_Key: %s", json_System_Key->valuestring);
 
 						json_un_obj = json_obj;
 						while( json_un_obj )
@@ -447,6 +450,36 @@ int main(/*int argc, char** argv, char** env*/void)
 									rc = pDB->Query(NULL, query);
 								}
 							}
+						}
+					}
+					else if(json_User && json_Password) /* Actualizacion de usuario del sistema */
+					{
+						m_pServer->m_pLog->Add(100, "[*** Update User ***] %s de System_Key: %s", json_User->valuestring, json_System_Key->valuestring);
+						sprintf(query, "UPDATE TB_DOMCLOUD_USER "
+													"SET Clave = \'%s\' , Id_Sistema = \'%s\' "
+													"WHERE Usuario = \'%s\';",
+												json_Password->valuestring,
+												json_System_Key->valuestring,
+												json_User->valuestring);
+						m_pServer->m_pLog->Add(100, "[QUERY][%s]", query);
+						rc = pDB->Query(NULL, query);
+						if(rc == 0)
+						{
+							sprintf(query, "INSERT INTO TB_DOMCLOUD_USER (Usuario, Clave, Id_Sistema, Errores, Ultima_Conexion, Estado) "
+														"VALUES (\'%s\', \'%s\', \'%s\', 0, 0, 1);",
+													json_User->valuestring,
+													json_Password->valuestring,
+													json_System_Key->valuestring);
+							m_pServer->m_pLog->Add(100, "[QUERY][%s]", query);
+							rc = pDB->Query(NULL, query);
+							if(rc < 0)
+							{
+								m_pServer->m_pLog->Add(1, "ERROR: Al agregar [%s a %s]", json_User->valuestring, json_System_Key->valuestring);
+							}
+						}
+						else if(rc < 0)
+						{
+							m_pServer->m_pLog->Add(10, "ERROR: Al actualizar [%s de %s]", json_User->valuestring, json_System_Key->valuestring);
 						}
 					}
 					else /* Solo vino la Key */
