@@ -21,6 +21,7 @@ uninstall:
 	make -C Programas uninstall
 
 installer:
+	rm -rf $(SYTEM_HOME)
 	mkdir -p $(SYTEM_HOME)
 	mkdir -p $(SYTEM_HOME)/cgi
 	mkdir -p $(SYTEM_HOME)/html

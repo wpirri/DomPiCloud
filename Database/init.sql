@@ -1,13 +1,6 @@
-CREATE ROLE dompi_cloud LOGIN
-  NOSUPERUSER INHERIT NOCREATEDB NOCREATEROLE NOREPLICATION;
+\u DB_DOMPICLOUD
 
-ALTER ROLE dompi_cloud
-  SET password_encryption = 'scram-sha-256';
-
-alter user dompi_cloud with password 'dompi_cloud';
-
-GRANT SELECT, INSERT, UPDATE, DELETE ON TB_DOMCLOUD_USER TO dompi_cloud;
-GRANT SELECT, INSERT, UPDATE, DELETE ON TB_DOMCLOUD_ASSIGN TO dompi_cloud;
-GRANT SELECT, INSERT, UPDATE, DELETE ON TB_DOMCLOUD_NOTIF TO dompi_cloud;
+CREATE USER 'dompi_cloud'@'%' IDENTIFIED BY 'dompi_cloud'; 
+GRANT SELECT, INSERT, UPDATE, DELETE ON DB_DOMPICLOUD.* TO 'dompi_cloud'@'%' WITH GRANT OPTION;
 
 INSERT INTO TB_DOMCLOUD_USER (Usuario, Clave, Id_Sistema, Estado) VALUES ("Admin", "Admin", "ADMIN", 1);
