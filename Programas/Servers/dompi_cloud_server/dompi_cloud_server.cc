@@ -313,6 +313,21 @@ int main(/*int argc, char** argv, char** env*/void)
 
 				if(json_System_Key)
 				{
+					if( !strcmp(json_System_Key->valuestring, "CALLEYNUM00000-CP0000"))
+					{
+						/* No proceso mensajes de sistemas no configurados */
+						strcpy(message, "{\"response\":{\"resp_code\":\"0\", \"resp_msg\":\"Ok\"}}");
+						m_pServer->m_pLog->Add(50, "%s:(R)[%s]", fn, message);
+						if(m_pServer->Resp(message, strlen(message), GME_OK) != GME_OK)
+						{
+							/* error al responder */
+							m_pServer->m_pLog->Add(1, "ERROR al responder mensaje [%s]", fn);
+						}
+						cJSON_Delete(json_obj);
+
+						continue;
+					}
+
 					if(json_Id)
 					{
 						query[0] = 0;
@@ -556,7 +571,7 @@ int main(/*int argc, char** argv, char** env*/void)
 				if(m_pServer->Resp(message, strlen(message), GME_OK) != GME_OK)
 				{
 					/* error al responder */
-					m_pServer->m_pLog->Add(1, "ERROR al responder mensaje [dompi_infoio]");
+					m_pServer->m_pLog->Add(1, "ERROR al responder mensaje [%s]", fn);
 				}
 				cJSON_Delete(json_obj);
 			}
@@ -663,7 +678,7 @@ int main(/*int argc, char** argv, char** env*/void)
 				if(m_pServer->Resp(message, strlen(message), GME_OK) != GME_OK)
 				{
 					/* error al responder */
-					m_pServer->m_pLog->Add(1, "ERROR al responder mensaje [dompi_cloud_status]");
+					m_pServer->m_pLog->Add(1, "ERROR al responder mensaje [%s]", fn);
 				}
 				cJSON_Delete(json_obj);
 			}
