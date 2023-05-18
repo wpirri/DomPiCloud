@@ -63,7 +63,8 @@ function fillAbmList(json_list, dst_div, title, index_label, edit_link, delete_l
 		output += '</th>';
 	}
 	// Agrego las columnas de edición y borrado
-	output += '<th>Editar</th>';
+	if(edit_link.length > 0)
+		output += '<th>Editar</th>';
 	output += '<th>Borrar</th>';
 	output += '</tr>\n';
 	// Datos
@@ -83,8 +84,10 @@ function fillAbmList(json_list, dst_div, title, index_label, edit_link, delete_l
 			}
 		} 
 		// Agrego los links de edición y borrado
-		val = '<td><a href="' + edit_link + '?' + index_label + '=' + index_value + '"><img src="../images/edit.png"></a></td>' 
-		output += val;
+		if(edit_link.length > 0) {
+			val = '<td><a href="' + edit_link + '?' + index_label + '=' + index_value + '"><img src="../images/edit.png"></a></td>' 
+			output += val;
+		}
 		val = '<td><a href="' + delete_link + '?' + index_label + '=' + index_value + '"><img src="../images/delete.png"></a></td>' 
 		output += val;
 		output += '</tr>\n';

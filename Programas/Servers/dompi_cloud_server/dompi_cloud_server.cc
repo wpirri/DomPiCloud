@@ -123,8 +123,9 @@ const char *assign_columns[] = {
 	"Tipo",
 	"Tipo_ASS",
 	"Estado",
-	"Icono0",
-	"Icono1",
+	"Icono_Apagado",
+	"Icono_Encendido",
+	"Icono_Auto",
 	"Grupo_Visual",
 	"Planta",
 	"Cord_x",
@@ -1035,7 +1036,7 @@ int main(/*int argc, char** argv, char** env*/void)
 				if(json_sistema && json_grupo)
 				{
 					json_arr = cJSON_CreateArray();
-					sprintf(query, "SELECT Id,Objeto,Estado,Icono0,Icono1 "
+					sprintf(query, "SELECT Id,Objeto,Estado,Icono_Apagado,Icono_Encendido,Icono_Auto "
 								   "FROM TB_DOMCLOUD_ASSIGN "
 					               "WHERE System_Key = \'%s\' AND Grupo_Visual = %s;",
 								   json_sistema->valuestring,

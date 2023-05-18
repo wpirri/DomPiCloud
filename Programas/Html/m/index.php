@@ -34,6 +34,10 @@ if(isset($resp_code) && isset($resp_msg) && isset($sistema))
 	<img id="zone-icon" class="icon-image" src="../images/camara.png">&nbsp;C&aacute;maras
 </div>
 
+<div class="menu-btn" id="menu6" onclick="window.location.replace('objetos_m.php?grupo=6');">
+	<img id="zone-icon" class="icon-image" src="../images/gota.png">&nbsp;Riego
+</div>
+
 </div>
 &nbsp;
 </div>

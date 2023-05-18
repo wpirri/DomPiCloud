@@ -74,9 +74,13 @@ body {
 	}
 		
 #list-head5 {
-	background: navy;
+	background: darkmagenta;
 	}
-
+	
+#list-head6 {
+	background: blue;
+	}
+		
 .list-btn-group1 {
 	color: white;
 	background: maroon;
@@ -123,7 +127,7 @@ body {
 	
 .list-btn-group5 {
 	color: white;
-	background: blue;
+	background: darkorchid;
 	z-index: 10;
 	padding: 2px;
 	height: 40px;
@@ -131,8 +135,18 @@ body {
 	border: 1px dotted #fff;
 	cursor: pointer;
 	}
-		
-
+			
+.list-btn-group6 {
+	color: white;
+	background: cornflowerblue;
+	z-index: 10;
+	padding: 2px;
+	height: 40px;
+	width: 100%;
+	border: 1px dotted #fff;
+	cursor: pointer;
+	}
+	
 .list-back-btn {
 	position: absolute; 
 	left: 5%; 
@@ -242,6 +256,12 @@ body {
 #menu5 {
 	position: absolute; 
 	top: 350px; 
-	background: navy;
+	background: darkmagenta;
 	}
 
+#menu6 {
+	position: absolute; 
+	top: 435px; 
+	background: blue;
+	}
+	

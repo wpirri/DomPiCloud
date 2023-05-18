@@ -20,11 +20,12 @@ CREATE TABLE IF NOT EXISTS TB_DOMCLOUD_ASSIGN (
 System_Key varchar(256),
 Id integer,
 Objeto varchar(128),
-Tipo integer DEFAULT 0,
-Estado integer DEFAULT 0,
-Icono0 varchar(32),
-Icono1 varchar(32),
-Grupo_Visual integer DEFAULT 0,
+Tipo integer DEFAULT 0,                 -- 0=Output, 1=Input, 2=Analog, 3=Output Alarma, 4=Input Alarma, 5=Output Pulse/Analog_Mult_Div_Valor=Pulse Param, 6=Periferico, 1x=Automatizacion (3 estados)
+Estado integer DEFAULT 0,               -- 0=Apagado, 1=Encendido, 2=Automático
+Icono_Apagado varchar(32),
+Icono_Encendido varchar(32),
+Icono_Auto varchar(32),
+Grupo_Visual integer DEFAULT 0,         -- 0=Ninguno 1=Alarma 2=Iluminación 3=Puertas 4=Climatización 5=Cámaras 6=Riego
 Planta integer DEFAULT 0,
 Cord_x integer DEFAULT 0,
 Cord_y integer DEFAULT 0,

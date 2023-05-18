@@ -53,20 +53,32 @@ function LoadData(msg) {
     output += '<div class="list-head"  id="list-head4" >\n';
 	output += '<img id="icon-image4" class="icon-image" src="../images/calef1.png" >&nbsp;Clima\n';
     output += '</div>\n';
+    <?php } else if($grupo == 4) { ?>
+    output += '<div class="list-head"  id="list-head4" >\n';
+	output += '<img id="icon-image4" class="icon-image" src="../images/calef1.png" >&nbsp;Clima\n';
+    output += '</div>\n';
     <?php } else if($grupo == 5) { ?>
     output += '<div class="list-head"  id="list-head5" >\n';
 	output += '<img id="icon-image5" class="icon-image" src="../images/camara.png" >&nbsp;C&aacute;maras\n';
+    output += '</div>\n';
+    <?php } else if($grupo == 6) { ?>
+    output += '<div class="list-head"  id="list-head6" >\n';
+	output += '<img id="icon-image6" class="icon-image" src="../images/gear.png" >&nbsp;Riego\n';
     output += '</div>\n';
     <?php } ?>
 
 	for (i = 0; i < json_list.length; i++) {
         if(json_list[i].Estado == 0)
         {
-            filename = json_list[i].Icono0;
+            filename = json_list[i].Icono_Apagado;
         }
-        else
+        else if(json_list[i].Estado == 1)
         {
-            filename = json_list[i].Icono1;
+            filename = json_list[i].Icono_Encendido;
+        }
+        else if(json_list[i].Estado == 2)
+        {
+            filename = json_list[i].Icono_Auto;
         }
 
         output += '<div class="list-btn-group<?php echo $grupo; ?>" id="list-btn' + i + '" onClick="ChangeStatus(\'<?php echo $sistema; ?>\', \'' + json_list[i].Objeto + '\');">\n';
@@ -90,11 +102,15 @@ function UpdateStatus(msg) {
 	for (i = 0; i < json_list.length; i++) {
         if(json_list[i].Estado == 0)
         {
-            filename = json_list[i].Icono0;
+            filename = json_list[i].Icono_Apagado;
         }
-        else
+        else if(json_list[i].Estado == 1)
         {
-            filename = json_list[i].Icono1;
+            filename = json_list[i].Icono_Encendido;
+        }
+        else if(json_list[i].Estado == 2)
+        {
+            filename = json_list[i].Icono_Auto;
         }
         document.getElementById('boton' + i).src = '../images/' + filename;
     }

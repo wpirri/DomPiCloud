@@ -17,7 +17,7 @@ if(isset($resp_code) && isset($resp_msg) && isset($sistema))
 
 <script type="text/javascript" >
     function LoadData(msg) {
-        fillAbmList(JSON.parse(msg).response, 'client_status_table_div', '<?php echo $TITLE; ?>', 'Id', 'client_edit.php', 'client_delete.php');
+        fillAbmList(JSON.parse(msg).response, 'client_status_table_div', '<?php echo $TITLE; ?>', 'Id', '', 'client_delete.php');
     }
 
     function OnLoad() {
