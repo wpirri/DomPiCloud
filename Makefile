@@ -39,7 +39,6 @@ installer:
 
 	cp Database/create.sql $(SYTEM_HOME)/
 	cp Database/init.sql $(SYTEM_HOME)/
-	cp Database/init-mysql.sql $(SYTEM_HOME)/
 	cp Script/gmond $(SYTEM_HOME)/
 	cp Script/install.sh $(SYTEM_HOME)/
 	cp Config/dompicloud.config $(SYTEM_HOME)/
