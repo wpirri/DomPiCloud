@@ -6,6 +6,7 @@ $_SESSION['auth_token'] = "";
 
 $auth["User"] = htmlspecialchars(trim($_POST["uname"]), ENT_QUOTES);
 $auth["Password"] = htmlspecialchars(trim($_POST["psw"]), ENT_QUOTES);
+$auth["Remember"] = htmlspecialchars(trim($_POST["remember"]), ENT_QUOTES);
 $auth["Time"] = time();
 /*$host = $_SERVER["SERVER_NAME"];*/
 $host = "127.0.0.1";
@@ -59,6 +60,16 @@ if(isset($resp_code) && isset($resp_msg) && isset($sistema))
     {
         $auth_token = serialize($auth);
         $auth_token_cript = openssl_encrypt($auth_token, $ALGO_KEY, $TOKEN_KEY, 0, $IV_KEY);
+
+        if( $auth["Remember"] == "on" )
+        {
+            echo "localStorage.setItem('auth_token', '".base64_encode($auth_token_cript)."');";
+        }
+        else
+        {
+            echo "localStorage.setItem('auth_token', '');";
+        }
+
         $_SESSION['auth_token'] = $auth_token_cript;
         if($sistema == 'ADMIN')
         {
@@ -71,11 +82,13 @@ if(isset($resp_code) && isset($resp_msg) && isset($sistema))
     }
     else
     {
+        echo "localStorage.setItem('auth_token', '');";
         echo "window.location.replace('../index.php?msg=Error');";
     }
 }
 else
 {
+    echo "localStorage.setItem('auth_token', '');";
     echo "window.location.replace('../index.php?msg=Error');";
 }
 ?>
