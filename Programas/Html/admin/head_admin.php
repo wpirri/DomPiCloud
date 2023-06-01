@@ -36,9 +36,7 @@ function httpPost($url, $data)
     return $result;
 }
 
-$auth_token_cript = $_SESSION['auth_token'];
-$auth_token_decript = openssl_decrypt($auth_token_cript, $ALGO_KEY, $TOKEN_KEY, 0, $IV_KEY);
-$auth = unserialize($auth_token_decript);
+$auth = unserialize(openssl_decrypt(base64_decode($_SESSION['auth_token']), $ALGO_KEY, $TOKEN_KEY, 0, $IV_KEY));
 /*$host = $_SERVER["SERVER_NAME"];*/
 $host = "127.0.0.1";
 $script = "/cgi-bin/dompi_cloud_auth.cgi";

@@ -2,12 +2,49 @@
 $TITLE = "DomPi Cloud Login";
 require('../head.php');
 
-$_SESSION['auth_token'] = "";
+//syslog(LOG_DEBUG, "go_login.php");
 
-$auth["User"] = htmlspecialchars(trim($_POST["uname"]), ENT_QUOTES);
-$auth["Password"] = htmlspecialchars(trim($_POST["psw"]), ENT_QUOTES);
-$auth["Remember"] = htmlspecialchars(trim($_POST["remember"]), ENT_QUOTES);
+/* Armado de un nuevo auth_token */
+if( isset($_POST["uname"]) ) { $auth["User"] = htmlspecialchars(trim($_POST["uname"]), ENT_QUOTES); }
+else { $auth["User"] = ""; }
+if( isset($_POST["psw"]) ) { $auth["Password"] = htmlspecialchars(trim($_POST["psw"]), ENT_QUOTES); }
+else { $auth["Password"] = ""; }
+if( isset($_POST["remember"]) ) { $auth["Remember"] = htmlspecialchars(trim($_POST["remember"]), ENT_QUOTES); }
+else { $auth["Remember"] = ""; }
+
+//syslog(LOG_DEBUG, "FORM: ".$auth["User"]."/".$auth["Password"]."/".$auth["Remember"]);
+
+if( !empty($_SERVER['HTTP_CLIENT_IP']) ) { $auth["ClientIP"] = $_SERVER['HTTP_CLIENT_IP']; }
+elseif( !empty($_SERVER['HTTP_X_FORWARDED_FOR']) ) { $auth["ClientIP"] = $_SERVER['HTTP_X_FORWARDED_FOR']; }
+else { $auth["ClientIP"] = $_SERVER['REMOTE_ADDR']; }
+
+$auth["ClientBrowser"] = $_SERVER['HTTP_USER_AGENT'];
 $auth["Time"] = time();
+
+/* Si viene con info de auth guardada la valido */
+if( isset($_SESSION['auth_token']) )
+{
+    //syslog(LOG_DEBUG, "auth_token en SESSION"); 
+    $saved_auth = unserialize(openssl_decrypt(base64_decode($_SESSION['auth_token']), $ALGO_KEY, $TOKEN_KEY, 0, $IV_KEY));
+    if( isset($saved_auth) )
+    {
+        //syslog(LOG_DEBUG, "SESSION User:    ".$saved_auth["User"]); 
+        //syslog(LOG_DEBUG, "SESSION Pass:    ".$saved_auth["Password"]); 
+        //syslog(LOG_DEBUG, "SESSION Browser: ".$saved_auth["ClientBrowser"]); 
+        if( /*$auth["ClientIP"] == $saved_auth["ClientIP"] &&*/
+            $auth["ClientBrowser"] == $saved_auth["ClientBrowser"] &&
+            $auth["User"] == "**********" &&
+            $auth["Password"] == "**********" )
+        {
+            /* Si el token salvado es válido sobreescribo el del formulario */
+            //syslog(LOG_DEBUG, "Usando auth_token de SESSION"); 
+            $auth["User"] = $saved_auth["User"];
+            $auth["Password"] = $saved_auth["Password"];
+        }
+    }
+}
+/* Autenticacion */
+//syslog(LOG_DEBUG, "AUTH: ".$auth["User"]."/".$auth["Password"]);
 /*$host = $_SERVER["SERVER_NAME"];*/
 $host = "127.0.0.1";
 $script = "/cgi-bin/dompi_cloud_auth.cgi";
@@ -24,11 +61,7 @@ else
 $protocol = "http";
 $url = $protocol."://".$host.$script;
 $result = json_decode(httpPost($url, $auth));
-
-$resp_code = $result->response->resp_code;
-$resp_msg = $result->response->resp_msg;
-$sistema = $result->response->sistema;
-
+//syslog(LOG_DEBUG, "AUTH: resp ".$result->response->resp_code);
 ?>
 <body>
 
@@ -54,16 +87,19 @@ echo "<p>Time: ".$auth_decript["time"]."</p>";
 
 <script type="text/javascript" >
 <?php
-if(isset($resp_code) && isset($resp_msg) && isset($sistema))
+if(isset($result->response->resp_code) && isset($result->response->resp_msg) && isset($result->response->sistema))
 {
+    $resp_code = $result->response->resp_code;
+    $resp_msg = $result->response->resp_msg;
+    $sistema = $result->response->sistema;
+
     if($resp_code == 0)
     {
-        $auth_token = serialize($auth);
-        $auth_token_cript = openssl_encrypt($auth_token, $ALGO_KEY, $TOKEN_KEY, 0, $IV_KEY);
+        $auth_token_cript = base64_encode(openssl_encrypt(serialize($auth), $ALGO_KEY, $TOKEN_KEY, 0, $IV_KEY));
 
         if( $auth["Remember"] == "on" )
         {
-            echo "localStorage.setItem('auth_token', '".base64_encode($auth_token_cript)."');";
+            echo "localStorage.setItem('auth_token', '".$auth_token_cript."');";
         }
         else
         {
