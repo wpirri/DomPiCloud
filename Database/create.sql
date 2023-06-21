@@ -1,5 +1,5 @@
 create database DB_DOMPICLOUD;
-\u DB_DOMPICLOUD
+USE DB_DOMPICLOUD;
 
 DROP TABLE IF EXISTS TB_DOMCLOUD_USER;
 DROP TABLE IF EXISTS TB_DOMCLOUD_NOTIF;
@@ -15,6 +15,14 @@ Estado integer DEFAULT 0,     -- 0 Disable, 1 Enable
 PRIMARY KEY (Usuario)
 );
 
+CREATE TABLE IF NOT EXISTS TB_DOMCLOUD_SYSTEM (
+System_Key varchar(256),
+Amazon_Key varchar(256),
+Google_Key varchar(256),
+Apple_Key varchar(256),
+Other_Key varchar(256),
+PRIMARY KEY (System_Key)
+);
 
 CREATE TABLE IF NOT EXISTS TB_DOMCLOUD_ASSIGN (
 System_Key varchar(256),
