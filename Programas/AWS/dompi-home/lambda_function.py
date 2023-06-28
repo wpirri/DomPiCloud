@@ -26,8 +26,8 @@ def QueryExternalHost(fcn, request, context):
     return json.loads(response_data)
 
 def AlexaDiscover(request, context):
-    dompi_response = QueryExternalHost(request["directive"]["header"]["name"], request, context)
-
+    header = request["directive"]["header"]
+    dompi_response = QueryExternalHost(header["name"], request, context)
     endpoints = []
     for dompi_object in dompi_response["response"]:
         #if dompi_object["Tipo"] == "1":
@@ -64,18 +64,8 @@ def AlexaDiscover(request, context):
                 # Riego
         #if dompi_object["Tipo"] == "2":
             # Entradas analogicas
-    payload = {
-        "endpoints":
-            [
-                
-            
-        ]
-    }
 
-    header = request["directive"]["header"]
     header["name"] = "Discover.Response"
-    #header["messageId"] = header["messageId"] + "-R"
-    
     response = { "event": { "header": header, "payload": { "endpoints": endpoints } } }
 
     return response
