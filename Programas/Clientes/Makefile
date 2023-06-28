@@ -6,6 +6,7 @@ all:
 	make -C dompi_cloud_mobile.cgi
 	make -C dompi_cloud_auth.cgi
 	make -C dompi_cloud_abmuser.cgi
+	make -C dompi_cloud_amazon.cgi
 
 clean:
 	make -C dompi_cloud_notif.cgi clean
@@ -13,6 +14,7 @@ clean:
 	make -C dompi_cloud_mobile.cgi clean
 	make -C dompi_cloud_auth.cgi clean
 	make -C dompi_cloud_abmuser.cgi clean
+	make -C dompi_cloud_amazon.cgi clean
 
 install:
 	make -C dompi_cloud_notif.cgi install
@@ -20,6 +22,7 @@ install:
 	make -C dompi_cloud_mobile.cgi install
 	make -C dompi_cloud_auth.cgi install
 	make -C dompi_cloud_abmuser.cgi install
+	make -C dompi_cloud_amazon.cgi install
 
 uninstall:
 	make -C dompi_cloud_notif.cgi uninstall
@@ -27,3 +30,4 @@ uninstall:
 	make -C dompi_cloud_mobile.cgi uninstall
 	make -C dompi_cloud_auth.cgi uninstall
 	make -C dompi_cloud_abmuser.cgi uninstall
+	make -C dompi_cloud_amazon.cgi uninstall
