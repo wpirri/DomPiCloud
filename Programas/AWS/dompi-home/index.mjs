@@ -65,145 +65,118 @@ var DompiHomeDiscover = function(header, context)
     context.succeed({ event: { header: header, payload: json_data } });    
 }
 
+var DompiHomeStatus = function(request, context)
+{
+    var strStatus = "OFF"
+
+    var response = {
+          "event": {
+            "header": {
+              "namespace": request.directive.header.namespace,
+              "name": "StateReport",
+              "messageId": request.directive.header.messageId,
+              "correlationToken": request.directive.header.correlationToken,
+              "payloadVersion": request.directive.header.payloadVersion
+            },
+            "endpoint": {
+              "scope": {
+                "type": request.directive.endpoint.scope.type,
+                "token": request.directive.endpoint.scope.token
+              },
+              "endpointId": request.directive.endpointId
+            },
+            "payload": {}
+          },
+          "context": {
+            "properties": [
+              {
+                "namespace": "Alexa.PowerController",
+                "name": "powerState",
+                "value": strStatus,
+                "timeOfSample": "2023-06-22T00:00:00.000",
+                "uncertaintyInMilliseconds": 0
+              }
+            ]
+          }
+        };
+
+    LogMessage("[dompi-home]", "response: ",  JSON.stringify(response));
+
+    context.succeed(response);
+}
+
 var DompiHomeTurnOn = function(request, context)
 {
-    // get device ID passed in during discovery
-    var requestMethod = request.directive.header.name;
-    var responseHeader = request.directive.header;
-    responseHeader.namespace = "Alexa";
-    responseHeader.name = "Response";
-    responseHeader.messageId = responseHeader.messageId + "-R";
-    
-    luz_cocina_status = 1;
-
-    var contextResult = {
-        "properties": [{
-            "namespace": "Alexa.PowerController",
-            "name": "powerState",
-            "value": "ON",
-            "timeOfSample": "0000-00-00T00:00:00.00Z", //retrieve from result.
-            "uncertaintyInMilliseconds": 50
-        },
-        {
-            "namespace": "Alexa.EndpointHealth",
-            "name": "connectivity",
-            "value": {
-            "value": "OK"
-        },
-        "timeOfSample": "0000-00-00T00:00:00.00Z",
-        "uncertaintyInMilliseconds": 0
-        }]
-    };
     var response = {
-        context: contextResult,
-        event: {
-            header: responseHeader,
+          event: {
+            header: {
+              namespace: "Alexa",
+              name: "Response",
+              messageId: request.directive.header.messageId,
+              correlationToken: request.directive.header.correlationToken,
+              payloadVersion: request.directive.header.payloadVersion
+            },
             endpoint: {
-                scope: {
-                    type: "BearerToken",
-                    token: request.directive.payload.accessToken,
-                },
-                endpointId: request.directive.payload.applianceId,
+              scope: {
+                type: request.directive.endpoint.scope.type,
+                token: request.directive.endpoint.scope.token
+              },
+              endpointId: request.directive.endpointId
             },
             payload: {}
-        }
-    };
+          },
+          context: {
+            properties: [
+              {
+                namespace: "Alexa.PowerController",
+                name: "powerState",
+                value: "ON",
+                timeOfSample: "2023-06-22T00:00:00.000",
+                uncertaintyInMilliseconds: 500
+              }
+            ]
+          }
+        };
+
+    LogMessage("[dompi-home]", "response: ",  JSON.stringify(response));
 
     context.succeed(response);
 }
 
 var DompiHomeTurnOff = function(request, context)
 {
-    // get device ID passed in during discovery
-    var requestMethod = request.directive.header.name;
-    var responseHeader = request.directive.header;
-    responseHeader.namespace = "Alexa";
-    responseHeader.name = "Response";
-    responseHeader.messageId = responseHeader.messageId + "-R";
-    
-    luz_cocina_status = 0;
-
-    var contextResult = {
-        "properties": [{
-            "namespace": "Alexa.PowerController",
-            "name": "powerState",
-            "value": "OFF",
-            "timeOfSample": "0000-00-00T00:00:00.00Z", //retrieve from result.
-            "uncertaintyInMilliseconds": 50
-        },
-        {
-            "namespace": "Alexa.EndpointHealth",
-            "name": "connectivity",
-            "value": {
-            "value": "OK"
-        },
-        "timeOfSample": "0000-00-00T00:00:00.00Z",
-        "uncertaintyInMilliseconds": 0
-        }]
-    };
     var response = {
-        context: contextResult,
-        event: {
-            header: responseHeader,
+          event: {
+            header: {
+              namespace: "Alexa",
+              name: "Response",
+              messageId: request.directive.header.messageId,
+              correlationToken: request.directive.header.correlationToken,
+              payloadVersion: request.directive.header.payloadVersion
+            },
             endpoint: {
-                scope: {
-                    type: "BearerToken",
-                    token: request.directive.payload.accessToken,
-                },
-                endpointId: request.directive.payload.applianceId,
+              scope: {
+                type: request.directive.endpoint.scope.type,
+                token: request.directive.endpoint.scope.token
+              },
+              endpointId: request.directive.endpointId
             },
             payload: {}
-        }
-    };
+          },
+          context: {
+            properties: [
+              {
+                namespace: "Alexa.PowerController",
+                name: "powerState",
+                value: "OFF",
+                timeOfSample: "2023-06-22T00:00:00.000",
+                uncertaintyInMilliseconds: 500
+              }
+            ]
+          }
+        };
 
-    context.succeed(response);
-}
-
-var DompiHomeStatus = function(request, context)
-{
-    // get device ID passed in during discovery
-    var requestMethod = request.directive.header.name;
-    var responseHeader = request.directive.header;
-    responseHeader.namespace = "Alexa";
-    responseHeader.name = "Response";
-    responseHeader.messageId = responseHeader.messageId + "-R";
-
-    var strStatus = "OFF"
-
-    if(luz_cocina_status == 1) strStatus = "ON";
-
-    var contextResult = {
-        "properties": [{
-            "namespace": "Alexa",
-            "name": "powerState",
-            "value": strStatus,
-            "timeOfSample": "0000-00-00T00:00:00.00Z", //retrieve from result.
-            "uncertaintyInMilliseconds": 50
-        },
-        {
-            "namespace": "Alexa.EndpointHealth",
-            "name": "connectivity",
-            "value": {
-            "value": "OK"
-        },
-        "timeOfSample": "0000-00-00T00:00:00.00Z",
-        "uncertaintyInMilliseconds": 0
-        }]
-    };
-    var response = {
-        context: contextResult,
-        event: {
-            header: responseHeader,
-            endpoint: {
-                scope: {
-                    type: "BearerToken",
-                    token: request.directive.payload.accessToken,
-                },
-                endpointId: request.directive.payload.applianceId,
-            },
-            payload: {}
-        }
-    };
+    LogMessage("[dompi-home]", "response: ",  JSON.stringify(response));
 
     context.succeed(response);
 }
@@ -226,12 +199,7 @@ export const handler = async(request, context) => {
     
     if(request.directive.header.namespace === 'Alexa.Discovery' && request.directive.header.name === 'Discover')
     {
-        // Discovery
-        request.directive.header.name = "Discover.Response";
-
-        var header = request.directive.header;
-        DompiHomeDiscover(header, context);
-
+        DompiHomeDiscover(request, context);
     }
     else if(request.directive.header.namespace === 'Alexa.PowerController')
     {
@@ -252,5 +220,4 @@ export const handler = async(request, context) => {
     {
         DompiHomeAuth(request, context);
     }
-    LogMessage("[dompi-home]", "context at response:",  JSON.stringify(context));
 };
