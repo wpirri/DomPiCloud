@@ -123,6 +123,8 @@ int main(/*int argc, char** argv, char** env*/void)
 
 	char query[4096];
 	char sistema[256];
+	char str_tmp[256];
+	char *p;
 
 	time_t t;
 	struct tm *p_tm;
@@ -143,6 +145,9 @@ int main(/*int argc, char** argv, char** env*/void)
 	cJSON *json_Name;
 	cJSON *json_Scope_Type;
 	cJSON *json_Scope_Token;
+	cJSON *json_EndPoint;
+	cJSON *json_EndPoint_Id;
+	cJSON *json_Query_Row;
 
 	cJSON *json_Query_Result;
 
@@ -186,6 +191,8 @@ int main(/*int argc, char** argv, char** env*/void)
 	}
 
 	m_pServer->Suscribe("amazon_Discover", GM_MSG_TYPE_CR);
+	m_pServer->Suscribe("amazon_ReportState", GM_MSG_TYPE_CR);
+	
 
 	m_pServer->m_pLog->Add(1, "Servicios de interface con Amazon inicializados.");
 
@@ -244,7 +251,7 @@ int main(/*int argc, char** argv, char** env*/void)
 							{ 
 							"header": request["directive"]["header"],
 							"payload": {
-
+				===========================================================================================
 								"endpoints": 
 									[
 										{ 	
@@ -308,7 +315,7 @@ int main(/*int argc, char** argv, char** env*/void)
 											]
 										}
 									]
-
+				===========================================================================================
 								}
 							}
 						}
@@ -397,7 +404,164 @@ int main(/*int argc, char** argv, char** env*/void)
 				}
 				cJSON_Delete(json_Message);
 			}
+			else if( !strcmp(fn, "amazon_ReportState"))
+			{
+				json_Message = cJSON_Parse(message);
+				message[0] = 0;
+				/* Requerimiento
+					query = 
+						{
+						"CONTENT_LENGTH":"632",
+						"REMOTE_ADDR":"3.236.68.226",
+						"REQUEST_METHOD":"POST",
+						"REQUEST_URI":"/cgi-bin/dompi_cloud_amazon.cgi/?funcion=ReportState",
+						"request":
+							{
+								"directive": {
+									"header": {
+										"namespace": "Alexa",
+										"name": "ReportState",
+										"payloadVersion": "3",
+										"messageId": "6ce37ae0-4418-4ed4-bd83-075c6c0bc74c",
+										"correlationToken": "AAAAAAAAAADEVbPXc+NW3PHt/5PhzDkeAAIAAAAAAAC5+aP9qYktPhDiowA07FQlUDwYQjIRGeUFY7vJU+ht0d1kS5TTouRvpyfXXtpYjfBr3HDl9tpE7DwVanbPAZfxJpGJOkoAXTif51/3ECvGIswc+2RUhXKeti3U3AH+s2W2T/xvIE/90l5V7C2NyFmBngxRthvT5/eb5ko3uYlOsXw3QqAJxaQBwjfU+FXwQiMna7eNKU6m0f14927ksjpwvRstC/qREW5AA3V42W8LloutsIAePTm7QPB4tDTfHgVvgeQaVnz+Jz5p4/yXhwffylRvfn5d9d3ZdgDVXed9FlhbPU5/OrDq0fvHyPgRUY9W28olCdbtMGeBbYnSMJT9rSnx8IgnaGUMg6NHrqot9cwyveUL4nFzGB1T52GDVu/eRGWcMpJaXGoXfcLsDKOEo4V1ZNaU00+N9JIZCehtpfKVuu+DxY/BEXzIKLSRnft9m33ktf/OKL+oOyYVIKr1LFxnFvo4+SDwHWsE28vUbtQilodsteyrxf6wjqQ5xsgZqgVU7CnEuPJbxffIz/VddRmUFy/mte2jfoAgm17/OmLjA3jsjO+Ga7zNr85JztWQR/f+ik9L6kh7KTOAW7i9gjfZwQacPZI/QX/CyQpWBs5d2xWbK1xAGnt9OxAVCluu42RQUnH5UKPHF787Xuyd0UEg4ERPG2x9I07unyM9SQ=="
+									},
+									"endpoint": {
+										"scope": {
+											"type": "BearerToken",
+											"token": "Atza|IwEBIJ1WbPdybs6OeB8Y0zEFqMwtDQ-mOgvEgDGe4eir_McFEpmX3I3nHzXM2d_l59wMDCopGparf21FSLbiU-5BbEh29sEybOIxmBt51TEgoD88TGh_WS8xX4ftOdo-TYVK-vMqDRnqvei_tLc0z4uHJ9jgQj9f6qugHu0hI79jBGipNR-u_-vw3dNwWQJfkoCQ9I-w4OtkbS_85zUQ7mWt0ql49DJCfavbCVJ-YjMMj9Y7TkCyJmCK0MnryODq6n9SBb_xnKX-ooxCsWttNICkLZQLcP3CLtwq5a5onXDXbBClZ3P7EPhXEgBFSLgXvvVlQ4I_VxvO9EccAT9DqVBtozOQeY7eX93aa3DsuT6Vj5aE_JXahtcPoqLwU458HQryWfU"
+										},
+										"endpointId": "luz-cocina", <---
+										"cookie": {
+											"key1": "-",
+											"key2": "-",
+											"key3": "-",
+											"key4": "-"
+										}
+									},
+									"payload": {}
+								}
+							}
+						}
+				*/
 
+				/* Respuesta
+					{
+					"event": {
+						"header": {
+						"namespace": "Alexa",
+						"name": "StateReport",
+						"messageId": "Unique identifier, preferably a version 4 UUID",
+						"correlationToken": "Opaque correlation token that matches the request",
+						"payloadVersion": "3"
+						},
+						"endpoint": {
+						"scope": {
+							"type": "BearerToken",
+							"token": "OAuth2.0 bearer token"
+						},
+						"endpointId": "Endpoint ID"
+						},
+						"payload": {}
+					},
+					"context": {
+				===========================================================================================
+						"properties": [
+						{
+							"namespace": "Alexa.PowerController",
+							"name": "powerState",
+							"value": "OFF",
+							"timeOfSample": "2017-02-03T16:20:50.52Z",
+							"uncertaintyInMilliseconds": 0
+						}
+						]
+				===========================================================================================
+					}
+					}
+				*/
+				if((json_Request = cJSON_GetObjectItemCaseSensitive(json_Message, "request")) != nullptr )
+				{
+					if((json_Directive = cJSON_GetObjectItemCaseSensitive(json_Request, "directive")) != nullptr )
+					{
+						json_EndPoint = cJSON_GetObjectItemCaseSensitive(json_Directive, "endpoint");
+						if(json_EndPoint)
+						{
+							json_EndPoint_Id = cJSON_GetObjectItemCaseSensitive(json_EndPoint, "endpointId");
+							if((json_Scope = cJSON_GetObjectItemCaseSensitive(json_EndPoint, "scope")) != nullptr)
+							{
+								json_Scope_Type = cJSON_GetObjectItemCaseSensitive(json_Scope, "type");
+								json_Scope_Token = cJSON_GetObjectItemCaseSensitive(json_Scope, "token");
+								if(json_EndPoint_Id && json_Scope_Type && json_Scope_Token)
+								{
+									json_Query_Result = cJSON_CreateArray();
+									/* Reemplazo '-' por ' ' en el Id */
+									strcpy(str_tmp, json_EndPoint_Id->valuestring);
+									p = &str_tmp[0];
+									while(*p)
+									{
+										if(*p == '-') *p = ' ';
+										p++;
+									}
+									strcpy(sistema, "D3S4RR0LL0-0001");
+									sprintf(query, "SELECT Id, Objeto, Estado, Ultimo_Update "
+															"FROM TB_DOMCLOUD_ASSIGN "
+															"WHERE System_Key = \'%s\' AND UPPER(Objeto) = UPPER(\'%s\') AND Id > 0;", sistema, str_tmp);
+									m_pServer->m_pLog->Add(100, "[QUERY][%s]", query);
+									rc = pDB->Query(json_Query_Result, query);
+									m_pServer->m_pLog->Add((pDB->LastQueryTime()>1)?1:100, "[QUERY] rc= %i, time= %li [%s]", rc, pDB->LastQueryTime(), query);
+									if(rc < 0) m_pServer->m_pLog->Add(1, "[QUERY] ERROR [%s] en [%s]", pDB->m_last_error_text, query);
+									if(rc > 0)
+									{
+										cJSON_ArrayForEach(json_Query_Row, json_Query_Result) { break; }
+
+										if(json_Query_Row)
+										{
+											json_Response = cJSON_CreateObject();
+											cJSON_AddItemToObject(json_Response, "response", json_Query_Row);
+											cJSON_PrintPreallocated(json_Response, message, MAX_BUFFER_LEN, 0);
+										}
+										else
+										{
+											strcpy(message, "{\"response\":{\"resp_code\":\"10\", \"resp_msg\":\"Error interno\"}}");
+										}
+									}
+									else
+									{
+										strcpy(message, "{\"response\":{\"resp_code\":\"10\", \"resp_msg\":\"Error interno\"}}");
+									}
+									cJSON_Delete(json_Query_Result);
+								}
+								else
+								{
+									strcpy(message, "{\"response\":{\"resp_code\":\"10\", \"resp_msg\":\"Falta Objeto type/token/endpointId\"}}");
+								}
+							}
+							else
+							{
+								strcpy(message, "{\"response\":{\"resp_code\":\"10\", \"resp_msg\":\"Falta Objeto scope\"}}");
+							}
+						}
+						else
+						{
+							strcpy(message, "{\"response\":{\"resp_code\":\"10\", \"resp_msg\":\"Falta Objeto header/payload\"}}");
+						}
+					}
+					else
+					{
+						strcpy(message, "{\"response\":{\"resp_code\":\"10\", \"resp_msg\":\"Falta Objeto directive\"}}");
+					}
+				}
+				else
+				{
+					strcpy(message, "{\"response\":{\"resp_code\":\"10\", \"resp_msg\":\"Falta Objeto request\"}}");
+				}
+				m_pServer->m_pLog->Add(90, "%s:(R)[%s]", fn, message);
+				if(m_pServer->Resp(message, strlen(message), GME_OK) != GME_OK)
+				{
+					/* error al responder */
+					m_pServer->m_pLog->Add(1, "ERROR al responder mensaje [%s]", fn);
+				}
+				cJSON_Delete(json_Message);
+			}
 
 
 
@@ -440,6 +604,7 @@ void OnClose(int sig)
 	m_pServer->m_pLog->Add(1, "Exit on signal %i", sig);
 
 	m_pServer->UnSuscribe("amazon_Discover", GM_MSG_TYPE_CR);
+	m_pServer->UnSuscribe("amazon_ReportState", GM_MSG_TYPE_CR);
 
 	delete pConfig;
 	delete m_pServer;
