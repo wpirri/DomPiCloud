@@ -9,19 +9,14 @@ CREATE TABLE IF NOT EXISTS TB_DOMCLOUD_USER (
 Usuario varchar(256),
 Clave varchar(256),
 Id_Sistema varchar(256),
-Errores integer DEFAULT 0,
-Ultima_Conexion bigint DEFAULT 0,
-Estado integer DEFAULT 0,     -- 0 Disable, 1 Enable
-PRIMARY KEY (Usuario)
-);
-
-CREATE TABLE IF NOT EXISTS TB_DOMCLOUD_SYSTEM (
-System_Key varchar(256),
 Amazon_Key varchar(256),
 Google_Key varchar(256),
 Apple_Key varchar(256),
 Other_Key varchar(256),
-PRIMARY KEY (System_Key)
+Errores integer DEFAULT 0,
+Ultima_Conexion bigint DEFAULT 0,
+Estado integer DEFAULT 0,     -- 0 Disable, 1 Enable
+PRIMARY KEY (Usuario)
 );
 
 CREATE TABLE IF NOT EXISTS TB_DOMCLOUD_ASSIGN (
