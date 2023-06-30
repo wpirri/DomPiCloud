@@ -221,50 +221,43 @@ int main(/*int argc, char** argv, char** env*/void)
 							{
 								if((json_Directive = cJSON_GetObjectItemCaseSensitive(json_Data, "directive")) != nullptr )
 								{
-									if((json_EndPoint = cJSON_GetObjectItemCaseSensitive(json_Directive, "endpoint")) != nullptr )
+									/* Busco el sistema por el cliente  */
+									sprintf(query, "SELECT Id_Sistema "
+										"FROM TB_DOMCLOUD_USER "
+										"WHERE Amazon_Key = \'%s\';", json_User_Id->valuestring);
+									m_pServer->m_pLog->Add(100, "[QUERY][%s]", query);
+									json_Query_Result = cJSON_CreateArray();
+									rc = pDB->Query(json_Query_Result, query);
+									m_pServer->m_pLog->Add((pDB->LastQueryTime()>1)?1:100, "[QUERY] rc= %i, time= %li [%s]", rc, pDB->LastQueryTime(), query);
+									if(rc < 0) m_pServer->m_pLog->Add(1, "[QUERY] ERROR [%s] en [%s]", pDB->m_last_error_text, query);
+									if(rc > 0)
 									{
-										/* Busco el sistema por el cliente  */
-										sprintf(query, "SELECT Id_Sistema "
-											"FROM TB_DOMCLOUD_USER "
-											"WHERE Amazon_Key = \'%s\';", json_User_Id->valuestring);
-										m_pServer->m_pLog->Add(100, "[QUERY][%s]", query);
-										json_Query_Result = cJSON_CreateArray();
-										rc = pDB->Query(json_Query_Result, query);
-										m_pServer->m_pLog->Add((pDB->LastQueryTime()>1)?1:100, "[QUERY] rc= %i, time= %li [%s]", rc, pDB->LastQueryTime(), query);
-										if(rc < 0) m_pServer->m_pLog->Add(1, "[QUERY] ERROR [%s] en [%s]", pDB->m_last_error_text, query);
-										if(rc > 0)
+										cJSON_ArrayForEach(json_Query_Row, json_Query_Result) { break; }
+										if(json_Query_Row)
 										{
-											cJSON_ArrayForEach(json_Query_Row, json_Query_Result) { break; }
-											if(json_Query_Row)
+											if((json_Id_Sistema = cJSON_GetObjectItemCaseSensitive(json_Query_Row, "Id_Sistema")) != nullptr )
 											{
-												if((json_Id_Sistema = cJSON_GetObjectItemCaseSensitive(json_Query_Row, "Id_Sistema")) != nullptr )
+												if((json_Directive = cJSON_GetObjectItemCaseSensitive(json_Data, "directive")) != nullptr )
 												{
-													if((json_Directive = cJSON_GetObjectItemCaseSensitive(json_Data, "directive")) != nullptr )
+													if((json_Header = cJSON_GetObjectItemCaseSensitive(json_Directive, "header")) != nullptr )
 													{
-														if((json_Header = cJSON_GetObjectItemCaseSensitive(json_Directive, "header")) != nullptr )
+														sprintf(query, "SELECT Id, Objeto, Tipo, Grupo_Visual "
+																				"FROM TB_DOMCLOUD_ASSIGN "
+																				"WHERE System_Key = \'%s\' AND Id > 0;", 
+																				json_Id_Sistema->valuestring);
+														m_pServer->m_pLog->Add(100, "[QUERY][%s]", query);
+														cJSON_Delete(json_Query_Result);
+														json_Query_Result = cJSON_CreateArray();
+														rc = pDB->Query(json_Query_Result, query);
+														m_pServer->m_pLog->Add((pDB->LastQueryTime()>1)?1:100, "[QUERY] rc= %i, time= %li [%s]", rc, pDB->LastQueryTime(), query);
+														if(rc < 0) m_pServer->m_pLog->Add(1, "[QUERY] ERROR [%s] en [%s]", pDB->m_last_error_text, query);
+														if(rc > 0)
 														{
-															sprintf(query, "SELECT Id, Objeto, Tipo, Grupo_Visual "
-																					"FROM TB_DOMCLOUD_ASSIGN "
-																					"WHERE System_Key = \'%s\' AND Id > 0;", 
-																					json_Id_Sistema->valuestring);
-															m_pServer->m_pLog->Add(100, "[QUERY][%s]", query);
-															cJSON_Delete(json_Query_Result);
-															json_Query_Result = cJSON_CreateArray();
-															rc = pDB->Query(json_Query_Result, query);
-															m_pServer->m_pLog->Add((pDB->LastQueryTime()>1)?1:100, "[QUERY] rc= %i, time= %li [%s]", rc, pDB->LastQueryTime(), query);
-															if(rc < 0) m_pServer->m_pLog->Add(1, "[QUERY] ERROR [%s] en [%s]", pDB->m_last_error_text, query);
-															if(rc > 0)
+															if(cJSON_IsArray(json_Query_Result))
 															{
-																if(cJSON_IsArray(json_Query_Result))
-																{
-																	json_Response = cJSON_CreateObject();
-																	cJSON_AddItemToObject(json_Response, "response", json_Query_Result);
-																	cJSON_PrintPreallocated(json_Response, message, MAX_BUFFER_LEN, 0);
-																}
-																else
-																{
-																	strcpy(message, "{\"response\":{\"resp_code\":\"10\", \"resp_msg\":\"Error interno\"}}");
-																}
+																json_Response = cJSON_CreateObject();
+																cJSON_AddItemToObject(json_Response, "response", json_Query_Result);
+																cJSON_PrintPreallocated(json_Response, message, MAX_BUFFER_LEN, 0);
 															}
 															else
 															{
@@ -273,34 +266,34 @@ int main(/*int argc, char** argv, char** env*/void)
 														}
 														else
 														{
-															strcpy(message, "{\"response\":{\"resp_code\":\"10\", \"resp_msg\":\"Falta Objeto header/payload\"}}");
+															strcpy(message, "{\"response\":{\"resp_code\":\"10\", \"resp_msg\":\"Error interno\"}}");
 														}
 													}
 													else
 													{
-														strcpy(message, "{\"response\":{\"resp_code\":\"10\", \"resp_msg\":\"Falta Objeto directive\"}}");
+														strcpy(message, "{\"response\":{\"resp_code\":\"10\", \"resp_msg\":\"Falta Objeto header\"}}");
 													}
 												}
 												else
 												{
-													strcpy(message, "{\"response\":{\"resp_code\":\"10\", \"resp_msg\":\"Error interno Id_Sistema\"}}");
+													strcpy(message, "{\"response\":{\"resp_code\":\"10\", \"resp_msg\":\"Falta Objeto directive\"}}");
 												}
 											}
 											else
 											{
-												strcpy(message, "{\"response\":{\"resp_code\":\"10\", \"resp_msg\":\"Usuario no relacionado con sistema\"}}");
+												strcpy(message, "{\"response\":{\"resp_code\":\"10\", \"resp_msg\":\"Error interno Id_Sistema\"}}");
 											}
 										}
 										else
 										{
-											strcpy(message, "{\"response\":{\"resp_code\":\"10\", \"resp_msg\":\"Error interno USUARIO\"}}");
+											strcpy(message, "{\"response\":{\"resp_code\":\"10\", \"resp_msg\":\"Usuario no relacionado con sistema\"}}");
 										}
-										cJSON_Delete(json_Query_Result);
 									}
 									else
 									{
-										strcpy(message, "{\"response\":{\"resp_code\":\"10\", \"resp_msg\":\"Falta Objeto header/payload\"}}");
+										strcpy(message, "{\"response\":{\"resp_code\":\"10\", \"resp_msg\":\"Error interno USUARIO\"}}");
 									}
+									cJSON_Delete(json_Query_Result);
 								}
 								else
 								{
@@ -433,7 +426,7 @@ int main(/*int argc, char** argv, char** env*/void)
 									}
 									else
 									{
-										strcpy(message, "{\"response\":{\"resp_code\":\"10\", \"resp_msg\":\"Falta Objeto header/payload\"}}");
+										strcpy(message, "{\"response\":{\"resp_code\":\"10\", \"resp_msg\":\"Falta Objeto endpoint\"}}");
 									}
 								}
 								else
@@ -552,7 +545,7 @@ int main(/*int argc, char** argv, char** env*/void)
 									}
 									else
 									{
-										strcpy(message, "{\"response\":{\"resp_code\":\"10\", \"resp_msg\":\"Falta Objeto header/payload\"}}");
+										strcpy(message, "{\"response\":{\"resp_code\":\"10\", \"resp_msg\":\"endpoint\"}}");
 									}
 								}
 								else
@@ -671,7 +664,7 @@ int main(/*int argc, char** argv, char** env*/void)
 									}
 									else
 									{
-										strcpy(message, "{\"response\":{\"resp_code\":\"10\", \"resp_msg\":\"Falta Objeto header/payload\"}}");
+										strcpy(message, "{\"response\":{\"resp_code\":\"10\", \"resp_msg\":\"endpoint\"}}");
 									}
 								}
 								else
