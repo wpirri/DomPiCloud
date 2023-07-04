@@ -11,11 +11,18 @@ if( isset($_GET["auth_token"]) )
   $auth = unserialize(openssl_decrypt(base64_decode($auth_token_cript), $ALGO_KEY, $TOKEN_KEY, 0, $IV_KEY));
   if( isset($auth) )
   {
-    if( $auth["Remember"] == "on" )
+    if( isset($auth["Remember"]) )
     {
-      $_SESSION['auth_token'] = $auth_token_cript;
-      $user = "**********";
-      $pass = "**********";
+      if( $auth["Remember"] == "on" )
+      {
+        $_SESSION['auth_token'] = $auth_token_cript;
+        $user = "**********";
+        $pass = "**********";
+      }
+    }
+    else
+    {
+      $auth["Remember"] = "off";
     }
   }
   ?>

@@ -30,6 +30,7 @@ installer:
 	rm $(SYTEM_HOME)/html/config.php
 	rm $(SYTEM_HOME)/html/Makefile
 	cp Programas/Clientes/dompi_cloud_abmuser.cgi/dompi_cloud_abmuser.cgi $(SYTEM_HOME)/cgi/
+	cp Programas/Clientes/dompi_cloud_amazon.cgi/dompi_cloud_amazon.cgi $(SYTEM_HOME)/cgi/
 	cp Programas/Clientes/dompi_cloud_auth.cgi/dompi_cloud_auth.cgi $(SYTEM_HOME)/cgi/
 	cp Programas/Clientes/dompi_cloud_mobile.cgi/dompi_cloud_mobile.cgi $(SYTEM_HOME)/cgi/
 	cp Programas/Clientes/dompi_cloud_notif.cgi/dompi_cloud_notif.cgi $(SYTEM_HOME)/cgi/

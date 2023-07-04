@@ -104,7 +104,7 @@ a2enmod cgi
 service apache2 restart
 
 # Limpiesa final
-rm -rv $SYTEM_HOME/*
+#rm -rv $SYTEM_HOME/*
 echo "Crear e inicializar la base de datos con los script sql en ${SYTEM_HOME}".
 echo "Editar el archivo /etc/dompicloud.config con los valores validos"
 

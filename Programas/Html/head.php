@@ -26,9 +26,13 @@ function httpPost($url, $data)
     // use key 'http' even if you send the request to https://...
     $options = array(
         'http' => array(
-        'header'  => "Content-type: application/x-www-form-urlencoded\r\n",
-        'method'  => 'POST',
-        'content' => http_build_query($data)
+            'header'  => "Content-type: application/x-www-form-urlencoded\r\n",
+            'method'  => 'POST',
+            'content' => http_build_query($data)
+        ),
+        "ssl"=>array(
+            "verify_peer" => false,
+            "verify_peer_name" => false
         )
     );
     $context  = stream_context_create($options);

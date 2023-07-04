@@ -9,3 +9,5 @@ gm_transac|Administrador de transacciones|2|/usr/sbin/gm_transac
 gm_buffer|Server de buffers|2|/usr/sbin/gm_sbuffer
 gm_squeue|Server de Store and forward|2|/usr/sbin/gm_squeue
 dompi_cloud_server|Nube de Domotica|2|/usr/local/sbin/dompi_cloud_server
+dompi_amazon_server|Interface con AWS|2|/usr/local/sbin/dompi_amazon_server
+

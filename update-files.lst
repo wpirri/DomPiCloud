@@ -35,6 +35,7 @@
 /usr/lib/libgmshared.la
 /usr/lib/libgmshared.so.0.0.0
 
+/usr/local/sbin/dompi_amazon_server
 /usr/local/sbin/dompi_cloud_server
 
 /etc/sysconfig/gmonitor
