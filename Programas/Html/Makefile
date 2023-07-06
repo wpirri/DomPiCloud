@@ -1,5 +1,5 @@
 #!/usr/bin/make -f
-DOCUMENT_ROOT=/var/www/html/dompi-cloud/
+DOCUMENT_ROOT=/var/www/html/dpc/
 CGI_ROOT=/usr/lib/cgi-bin/
 
 CP=cp -uva
@@ -16,6 +16,8 @@ none:
 install:
 	mkdir -p $(DOCUMENT_ROOT)
 	$(CP) * $(DOCUMENT_ROOT)
+	mkdir -p $(DOCUMENT_ROOT)/admin/upload
+	chmod 0777 $(DOCUMENT_ROOT)/admin/upload
 
 uninstall:
 	rm -rf $(DOCUMENT_ROOT)

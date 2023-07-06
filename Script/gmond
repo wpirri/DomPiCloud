@@ -61,6 +61,11 @@ CheckUpdate()
 
 case $1 in
   start)
+    #update sniffer
+    x=`ps -eaf | grep -v grep | grep /usr/local/sbin/dompi_cloud_check_for_updates.sh`
+    if [ "X${x}" = "X" ]; then
+        /usr/local/sbin/dompi_cloud_check_for_updates.sh
+    fi
     #ulimit -c unlimited
     CheckUpdate
     #$SU "${SERVER_BIN}/gmd -d --mode=listener" $SU_USER

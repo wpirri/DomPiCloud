@@ -292,6 +292,7 @@ int main(/*int argc, char** argv, char** env*/void)
 									else
 									{
 										strcpy(message, "{\"response\":{\"resp_code\":\"10\", \"resp_msg\":\"Error interno USUARIO\"}}");
+										m_pServer->m_pLog->Add(1, "[AMAZON:Discover] Usuario no vinculado ID: %s", json_User_Id->valuestring);
 									}
 									cJSON_Delete(json_Query_Result);
 								}
@@ -421,6 +422,7 @@ int main(/*int argc, char** argv, char** env*/void)
 										else
 										{
 											strcpy(message, "{\"response\":{\"resp_code\":\"10\", \"resp_msg\":\"Error interno USUARIO\"}}");
+											m_pServer->m_pLog->Add(50, "[AMAZON:ReporState] Usuario no vinculado ID: %s", json_User_Id->valuestring);
 										}
 										cJSON_Delete(json_Query_Result);
 									}
@@ -540,6 +542,7 @@ int main(/*int argc, char** argv, char** env*/void)
 										else
 										{
 											strcpy(message, "{\"response\":{\"resp_code\":\"10\", \"resp_msg\":\"Error interno USUARIO\"}}");
+											m_pServer->m_pLog->Add(50, "[AMAZON:TurnOn] Usuario no vinculado ID: %s", json_User_Id->valuestring);
 										}
 										cJSON_Delete(json_Query_Result);
 									}
@@ -659,6 +662,7 @@ int main(/*int argc, char** argv, char** env*/void)
 										else
 										{
 											strcpy(message, "{\"response\":{\"resp_code\":\"10\", \"resp_msg\":\"Error interno USUARIO\"}}");
+											m_pServer->m_pLog->Add(50, "[AMAZON:TurnOff] Usuario no vinculado ID: %s", json_User_Id->valuestring);
 										}
 										cJSON_Delete(json_Query_Result);
 									}

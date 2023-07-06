@@ -15,70 +15,6 @@
     License along with this library; if not, write to the Free Software
     Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  ***************************************************************************/
-/*
-Informaciòn de desarrollo sobre Raspberry Pi
-
-https://pinout.xyz/
-http://diymakers.es/usando-el-puerto-gpio/
-http://wiringpi.com/reference/
-
-
-instalar libcjson-dev (https://github.com/DaveGamble/cJSON)
-#include <cjson/cJSON.h>
--lcjson
-
-char *p;
-cJSON *obj;
-cJSON *str;
-cJSON *num;
-cJSON *arr;
-obj = cJSON_CreateObject();
-
-
--- String ---------------------------------------------------------------------
-obj = cJSON_Parse(const char *value);
-
--- String ---------------------------------------------------------------------
-str = cJSON_CreateString("un string");
-cJSON_AddItemToObject(obj, "nombre", str);
-o
-cJSON_AddStringToObject(obj, "nombre", "un string")
-
--- Number ---------------------------------------------------------------------
-num = cJSON_CreateNumber(50);
-cJSON_AddItemToObject(obj, "edad", num);
-o
-cJSON_AddNumberToObject(obj, edad, 50);
-
--- Array ----------------------------------------------------------------------
-arr = cJSON_CreateArray();
-cJSON_AddItemToArray(arr, obj);
-cJSON_AddItemToObject(obj, "nombre_array", arr);
-o
-arr = cJSON_AddArrayToObject(obj, "nombre_arr");
-
--- Generado -------------------------------------------------------------------
-p = cJSON_Print(obj);
-p = cJSON_PrintUnformatted(obj)
-cJSON_PrintPreallocated(cJSON *item, char *buffer, const int length, const cJSON_bool format);
-
--- Obtener --------------------------------------------------------------------
-un_obj = cJSON_GetObjectItemCaseSensitive(obj, "nombre");
-un_obj = cJSON_GetObjectItemCaseSensitive(obj, "edad");
-    cJSON_IsString(un_obj)
-    name->valuestring
-
-    cJSON_IsNumber
-    width->valuedouble
-
--- Free -----------------------------------------------------------------------
-cJSON_Delete(obj);
-
-
-#define cJSON_ArrayForEach(element, array) for(element = (array != NULL) ? (array)->child : NULL; element != NULL; element = element->next)
-
-*/
-
 #include <gmonitor/gmerror.h>
 #include <gmonitor/gmontdb.h>
 /*#include <gmonitor/gmstring.h>*/
@@ -106,19 +42,6 @@ using namespace std;
 CGMServerWait *m_pServer;
 DPConfig *pConfig;
 
-const char *user_columns[] = {
-	"Usuario",
-	"Clave",
-	"Id_Sistema",
-	"Amazon_Key",
-	"Google_Key",
-	"Apple_Key",
-	"Other_Key",
-	"Errores",
-	"Ultima_Conexion",
-	"Estado",
-	0};
-
 const char *assign_columns[] = {
 	"System_Key",
 	"Id",
@@ -127,9 +50,8 @@ const char *assign_columns[] = {
 	"Tipo",
 	"Tipo_ASS",
 	"Estado",
-	"Icono_Apagado",
-	"Icono_Encendido",
-	"Icono_Auto",
+	"Icono0",
+	"Icono1",
 	"Grupo_Visual",
 	"Planta",
 	"Cord_x",
@@ -141,61 +63,12 @@ const char *assign_columns[] = {
 	"Flags",
 	0};
 
-int power2(int exp)
-{
-	switch(exp)
-	{
-		case 0x00: return 0x01;
-		case 0x01: return 0x02;
-		case 0x02: return 0x04;
-		case 0x03: return 0x08;
-		case 0x04: return 0x10;
-		case 0x05: return 0x20;
-		case 0x06: return 0x40;
-		case 0x07: return 0x80;
-		default:   return 0x00;
-	}
-}
 
 void OnClose(int sig);
-
-int QueryForNews(CMyDB* db, cJSON *response_array, const char *client_key)
-{
-	int rc;
-	char query[4096];
-
-	m_pServer->m_pLog->Add(100, "[QueryForNews] System_Key = [%s].", client_key);
-	sprintf(query, "SELECT * "
-					"FROM TB_DOMCLOUD_NOTIF "
-					"WHERE System_Key = \'%s\';", client_key);
-	m_pServer->m_pLog->Add(100, "[QUERY][%s]", query);
-	rc = db->Query(response_array, query);
-					
-	return rc;
-}
-
-void DeleteNotify(CMyDB *db, const char *client_key, time_t t)
-{
-	char query[4096];
-	m_pServer->m_pLog->Add(100, "[DeleteNotify] System_Key = [%s].", client_key);
-	sprintf(query, "DELETE FROM TB_DOMCLOUD_NOTIF "
-					"WHERE System_Key = \'%s\' AND Time_Stamp <= %lu;", client_key, t);
-	m_pServer->m_pLog->Add(100, "[QUERY][%s]", query);
-	db->Query(NULL, query);
-}
-
-int ExisteColumna(const char* columna, const char** lista)
-{
-	int i = 0;
-
-	if(!columna || !lista) return 0;
-	while(lista[i])
-	{
-		if( !strcmp(columna, lista[i])) return 1;
-		i++;
-	}
-	return 0;
-}
+int QueryForNews(CMyDB* db, cJSON *response_array, const char *client_key);
+void DeleteNotify(CMyDB *db, const char *client_key, time_t t);
+int ExcluirDeABM(const char* label);
+int ExisteColumna(const char* columna, const char** lista);
 
 int main(/*int argc, char** argv, char** env*/void)
 {
@@ -239,6 +112,10 @@ int main(/*int argc, char** argv, char** env*/void)
 	cJSON *json_Sistema;
 	cJSON *json_Grupo;
 	cJSON *json_Tipo;
+	cJSON *json_Amazon_Key;
+	cJSON *json_Google_Key;
+	cJSON *json_Apple_Key;
+	cJSON *json_Other_Key;
 
     cJSON *json_Accion;
     cJSON *json_Admin;
@@ -363,7 +240,7 @@ int main(/*int argc, char** argv, char** env*/void)
 									{
 										if(strlen(json_un_obj->string) && strlen(json_un_obj->valuestring))
 										{
-											if(ExisteColumna(json_un_obj->string, assign_columns))
+											if( !ExcluirDeABM(json_un_obj->string) && ExisteColumna(json_un_obj->string, assign_columns))
 											{
 												/* Armo las sentencias del UPDATE */
 												if( !strcmp(json_un_obj->string, "System_Key") ||
@@ -452,6 +329,8 @@ int main(/*int argc, char** argv, char** env*/void)
 							sprintf(query, "UPDATE TB_DOMCLOUD_ASSIGN SET %s WHERE %s;", query_set, query_where);
 							m_pServer->m_pLog->Add(100, "[QUERY][%s]", query);
 							rc = pDB->Query(NULL, query);
+							m_pServer->m_pLog->Add((pDB->LastQueryTime()>1)?1:100, "[QUERY] rc= %i, time= %li [%s]", rc, pDB->LastQueryTime(), query);
+							if(rc < 0) m_pServer->m_pLog->Add(1, "[QUERY] ERROR [%s] en [%s]", pDB->m_last_error_text, query);
 							if(rc == 0)
 							{
 								/* Si no actualiza nada hago un insert */
@@ -480,22 +359,40 @@ int main(/*int argc, char** argv, char** env*/void)
 					}
 					else if(json_User && json_Password) /* Actualizacion de usuario del sistema */
 					{
+						json_Amazon_Key = cJSON_GetObjectItemCaseSensitive(json_obj, "Amazon_Key");
+						json_Google_Key = cJSON_GetObjectItemCaseSensitive(json_obj, "Google_Key");
+						json_Apple_Key = cJSON_GetObjectItemCaseSensitive(json_obj, "Apple_Key");
+						json_Other_Key = cJSON_GetObjectItemCaseSensitive(json_obj, "Other_Key");
+						json_Estado = cJSON_GetObjectItemCaseSensitive(json_obj, "Estado");
 						m_pServer->m_pLog->Add(100, "[*** Update User ***] %s de System_Key: %s", json_User->valuestring, json_System_Key->valuestring);
 						sprintf(query, "UPDATE TB_DOMCLOUD_USER "
-													"SET Clave = \'%s\' , Id_Sistema = \'%s\' "
+													"SET Clave = \'%s\', Id_Sistema = \'%s\', Estado = \'%s\',  "
+													"Amazon_Key = \'%s\', Google_Key = \'%s\', Apple_Key = \'%s\', Other_Key = \'%s\' "
 													"WHERE Usuario = \'%s\';",
 												json_Password->valuestring,
 												json_System_Key->valuestring,
+												(json_Estado)?json_Estado->valuestring:"0",
+												(json_Amazon_Key)?json_Amazon_Key->valuestring:"",
+												(json_Google_Key)?json_Google_Key->valuestring:"",
+												(json_Apple_Key)?json_Apple_Key->valuestring:"",
+												(json_Other_Key)?json_Other_Key->valuestring:"",
 												json_User->valuestring);
 						m_pServer->m_pLog->Add(100, "[QUERY][%s]", query);
 						rc = pDB->Query(NULL, query);
+						m_pServer->m_pLog->Add((pDB->LastQueryTime()>1)?1:100, "[QUERY] rc= %i, time= %li [%s]", rc, pDB->LastQueryTime(), query);
+						if(rc < 0) m_pServer->m_pLog->Add(1, "[QUERY] ERROR [%s] en [%s]", pDB->m_last_error_text, query);
 						if(rc == 0)
 						{
-							sprintf(query, "INSERT INTO TB_DOMCLOUD_USER (Usuario, Clave, Id_Sistema, Errores, Ultima_Conexion, Estado) "
-														"VALUES (\'%s\', \'%s\', \'%s\', 0, 0, 1);",
+							sprintf(query, "INSERT INTO TB_DOMCLOUD_USER (Usuario, Clave, Id_Sistema, Estado, Amazon_Key, Google_Key, Apple_Key, Other_Key, Errores, Ultima_Conexion) "
+														"VALUES (\'%s\', \'%s\', \'%s\', \'%s\', \'%s\', \'%s\', \'%s\', \'%s\', 0, 0);",
 													json_User->valuestring,
 													json_Password->valuestring,
-													json_System_Key->valuestring);
+													json_System_Key->valuestring,
+													(json_Estado)?json_Estado->valuestring:"0",
+													(json_Amazon_Key)?json_Amazon_Key->valuestring:"",
+													(json_Google_Key)?json_Google_Key->valuestring:"",
+													(json_Apple_Key)?json_Apple_Key->valuestring:"",
+													(json_Other_Key)?json_Other_Key->valuestring:"");
 							m_pServer->m_pLog->Add(100, "[QUERY][%s]", query);
 							rc = pDB->Query(NULL, query);
 							m_pServer->m_pLog->Add((pDB->LastQueryTime()>1)?1:100, "[QUERY] rc= %i, time= %li [%s]", rc, pDB->LastQueryTime(), query);
@@ -504,10 +401,6 @@ int main(/*int argc, char** argv, char** env*/void)
 							{
 								m_pServer->m_pLog->Add(1, "ERROR: Al agregar [%s a %s]", json_User->valuestring, json_System_Key->valuestring);
 							}
-						}
-						else if(rc < 0)
-						{
-							m_pServer->m_pLog->Add(10, "ERROR: Al actualizar [%s de %s]", json_User->valuestring, json_System_Key->valuestring);
 						}
 					}
 					else /* Solo vino la Key */
@@ -521,6 +414,8 @@ int main(/*int argc, char** argv, char** env*/void)
 												json_System_Key->valuestring);
 						m_pServer->m_pLog->Add(100, "[QUERY][%s]", query);
 						rc = pDB->Query(NULL, query);
+						m_pServer->m_pLog->Add((pDB->LastQueryTime()>1)?1:100, "[QUERY] rc= %i, time= %li [%s]", rc, pDB->LastQueryTime(), query);
+						if(rc < 0) m_pServer->m_pLog->Add(1, "[QUERY] ERROR [%s] en [%s]", pDB->m_last_error_text, query);
 						if(rc == 0)
 						{
 							sprintf(query, "INSERT INTO TB_DOMCLOUD_ASSIGN (System_Key, Id, Ultimo_Update) "
@@ -532,14 +427,6 @@ int main(/*int argc, char** argv, char** env*/void)
 							rc = pDB->Query(NULL, query);
 							m_pServer->m_pLog->Add((pDB->LastQueryTime()>1)?1:100, "[QUERY] rc= %i, time= %li [%s]", rc, pDB->LastQueryTime(), query);
 							if(rc < 0) m_pServer->m_pLog->Add(1, "[QUERY] ERROR [%s] en [%s]", pDB->m_last_error_text, query);
-							if(rc < 0)
-							{
-								m_pServer->m_pLog->Add(1, "ERROR: Al agregar [%s]", json_System_Key->valuestring);
-							}
-						}
-						else if(rc < 0)
-						{
-							m_pServer->m_pLog->Add(10, "ERROR: Al actualizar [%s]", json_System_Key->valuestring);
 						}
 					}
 
@@ -897,7 +784,7 @@ int main(/*int argc, char** argv, char** env*/void)
 							{
 								if(strlen(json_un_obj->string) && strlen(json_un_obj->valuestring))
 								{
-									if(ExisteColumna(json_un_obj->string, user_columns))
+									if( !ExcluirDeABM(json_un_obj->string))
 									{
 										/* Dato */
 										if(strlen(query_into) == 0)
@@ -938,7 +825,7 @@ int main(/*int argc, char** argv, char** env*/void)
 				rc = pDB->Query(NULL, query);
 				m_pServer->m_pLog->Add((pDB->LastQueryTime()>1)?1:100, "[QUERY] rc= %i, time= %li [%s]", rc, pDB->LastQueryTime(), query);
 				if(rc < 0) m_pServer->m_pLog->Add(1, "[QUERY] ERROR [%s] en [%s]", pDB->m_last_error_text, query);
-				if(rc != 0)
+				if(rc < 0)
 				{
 					strcpy(message, "{\"response\":{\"resp_code\":\"1\", \"resp_msg\":\"Database Error\"}}");
 				}
@@ -965,7 +852,7 @@ int main(/*int argc, char** argv, char** env*/void)
 					rc = pDB->Query(NULL, query);
 					m_pServer->m_pLog->Add((pDB->LastQueryTime()>1)?1:100, "[QUERY] rc= %i, time= %li [%s]", rc, pDB->LastQueryTime(), query);
 					if(rc < 0) m_pServer->m_pLog->Add(1, "[QUERY] ERROR [%s] en [%s]", pDB->m_last_error_text, query);
-					if(rc != 0)
+					if(rc < 0)
 					{
 						strcpy(message, "{\"response\":{\"resp_code\":\"1\", \"resp_msg\":\"Database Error\"}}");
 					}
@@ -1007,7 +894,7 @@ int main(/*int argc, char** argv, char** env*/void)
 							{
 								if(strlen(json_un_obj->string) && strlen(json_un_obj->valuestring))
 								{
-									if(ExisteColumna(json_un_obj->string, user_columns))
+									if( !ExcluirDeABM(json_un_obj->string))
 									{
 										if( !strcmp(json_un_obj->string, "Usuario") )
 										{
@@ -1043,7 +930,7 @@ int main(/*int argc, char** argv, char** env*/void)
 					rc = pDB->Query(NULL, query);
 					m_pServer->m_pLog->Add((pDB->LastQueryTime()>1)?1:100, "[QUERY] rc= %i, time= %li [%s]", rc, pDB->LastQueryTime(), query);
 					if(rc < 0) m_pServer->m_pLog->Add(1, "[QUERY] ERROR [%s] en [%s]", pDB->m_last_error_text, query);
-					if(rc == 0)
+					if(rc < 0)
 					{
 						strcpy(message, "{\"response\":{\"resp_code\":\"1\", \"resp_msg\":\"Database Error\"}}");
 					}
@@ -1198,15 +1085,13 @@ int main(/*int argc, char** argv, char** env*/void)
 
 
 		}
-			/* Borro registros viejos no reclamados */
-			t = time(&t);
-			sprintf(query, "DELETE FROM TB_DOMCLOUD_NOTIF WHERE Time_Stamp < %lu;", t-60);
-			m_pServer->m_pLog->Add(100, "[QUERY][%s]", query);
-			rc = pDB->Query(NULL, query);
-			m_pServer->m_pLog->Add((pDB->LastQueryTime()>1)?1:100, "[QUERY] rc= %i, time= %li [%s]", rc, pDB->LastQueryTime(), query);
-			if(rc < 0) m_pServer->m_pLog->Add(1, "[QUERY] ERROR [%s] en [%s]", pDB->m_last_error_text, query);
-
-
+		/* Borro registros viejos no reclamados */
+		t = time(&t);
+		sprintf(query, "DELETE FROM TB_DOMCLOUD_NOTIF WHERE Time_Stamp < %lu;", t-60);
+		m_pServer->m_pLog->Add(100, "[QUERY][%s]", query);
+		rc = pDB->Query(NULL, query);
+		m_pServer->m_pLog->Add((pDB->LastQueryTime()>1)?1:100, "[QUERY] rc= %i, time= %li [%s]", rc, pDB->LastQueryTime(), query);
+		if(rc < 0) m_pServer->m_pLog->Add(1, "[QUERY] ERROR [%s] en [%s]", pDB->m_last_error_text, query);
 
 	}
 	m_pServer->m_pLog->Add(1, "ERROR en la espera de mensajes");
@@ -1234,4 +1119,53 @@ void OnClose(int sig)
 	delete pConfig;
 	delete m_pServer;
 	exit(0);
+}
+
+int QueryForNews(CMyDB* db, cJSON *response_array, const char *client_key)
+{
+	int rc;
+	char query[4096];
+
+	m_pServer->m_pLog->Add(100, "[QueryForNews] System_Key = [%s].", client_key);
+	sprintf(query, "SELECT * "
+					"FROM TB_DOMCLOUD_NOTIF "
+					"WHERE System_Key = \'%s\';", client_key);
+	m_pServer->m_pLog->Add(100, "[QUERY][%s]", query);
+	rc = db->Query(response_array, query);
+					
+	return rc;
+}
+
+void DeleteNotify(CMyDB *db, const char *client_key, time_t t)
+{
+	char query[4096];
+	m_pServer->m_pLog->Add(100, "[DeleteNotify] System_Key = [%s].", client_key);
+	sprintf(query, "DELETE FROM TB_DOMCLOUD_NOTIF "
+					"WHERE System_Key = \'%s\' AND Time_Stamp <= %lu;", client_key, t);
+	m_pServer->m_pLog->Add(100, "[QUERY][%s]", query);
+	db->Query(NULL, query);
+}
+
+int ExcluirDeABM(const char* label)
+{
+	if( !strcmp(label, "REMOTE_ADDR")) return 1;
+	if( !strcmp(label, "REQUEST_URI")) return 1;
+	if( !strcmp(label, "REQUEST_METHOD")) return 1;
+	if( !strcmp(label, "CONTENT_LENGTH")) return 1;
+	if( !strcmp(label, "GET")) return 1;
+	if( !strcmp(label, "POST")) return 1;
+	return 0;
+}
+
+int ExisteColumna(const char* columna, const char** lista)
+{
+	int i = 0;
+
+	if(!columna || !lista) return 0;
+	while(lista[i])
+	{
+		if( !strcmp(columna, lista[i])) return 1;
+		i++;
+	}
+	return 0;
 }
