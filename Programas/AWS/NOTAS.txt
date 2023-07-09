@@ -1,0 +1,34 @@
+Alexa Developer: https://developer.amazon.com/alexa/console/ask
+IAM Management Consile: https://us-east-1.console.aws.amazon.com/iamv2/home?region=us-east-1
+Panel Lambda: https://us-east-1.console.aws.amazon.com/lambda/home?region=us-east-1#/discover
+Cloud Watch: https://us-east-1.console.aws.amazon.com/cloudwatch/home?region=us-east-1#logsV2:log-groups
+
+Tutorial: Build a Smart Home Skill:
+    https://developer.amazon.com/en-US/docs/alexa/smarthome/smart-home-skill-tutorial.html
+
+    Step 1: Create a Smart Home Skill
+        https://developer.amazon.com/en-US/docs/alexa/smarthome/create-skill-tutorial.html
+
+    Step 2: Implement Skill Code
+        https://developer.amazon.com/en-US/docs/alexa/smarthome/implement-skill-tutorial.html
+
+        Smart Home Skill APIs
+            https://developer.amazon.com/en-US/docs/alexa/device-apis/smart-home-general-apis.html
+
+    Step 3: Configure the Service Endpoint
+        https://developer.amazon.com/en-US/docs/alexa/smarthome/configure-endpoint-tutorial.html
+
+    Step 4: Set up Account Linking
+        https://developer.amazon.com/en-US/docs/alexa/smarthome/set-up-account-linking-tutorial.html
+
+        Create a security profile
+
+        Configure account linking
+            Scope:
+                profile:user_id
+                profile:email
+
+        Add redirect URLs to your security profile
+
+    Step 5: Test the Skill
+        https://developer.amazon.com/en-US/docs/alexa/smarthome/test-the-skill-tutorial.html
