@@ -137,7 +137,7 @@ int main(/*int argc, char** argv, char** env*/void)
 	cJSON *json_Request;
 	cJSON *json_Data;
 	cJSON *json_User;
-	cJSON *json_User_Id;
+	cJSON *json_Amazon_eMail;
     cJSON *json_Response;
 	cJSON *json_Directive;
 	cJSON *json_Header;
@@ -217,14 +217,14 @@ int main(/*int argc, char** argv, char** env*/void)
 					{
 						if((json_User = cJSON_GetObjectItemCaseSensitive(json_Request, "user")) != nullptr )
 						{
-							if((json_User_Id = cJSON_GetObjectItemCaseSensitive(json_User, "user_id")) != nullptr )
+							if((json_Amazon_eMail = cJSON_GetObjectItemCaseSensitive(json_User, "email")) != nullptr )
 							{
 								if((json_Directive = cJSON_GetObjectItemCaseSensitive(json_Data, "directive")) != nullptr )
 								{
 									/* Busco el sistema por el cliente  */
 									sprintf(query, "SELECT Id_Sistema "
 										"FROM TB_DOMCLOUD_USER "
-										"WHERE Amazon_Key = \'%s\';", json_User_Id->valuestring);
+										"WHERE Amazon_Key = \'%s\';", json_Amazon_eMail->valuestring);
 									m_pServer->m_pLog->Add(100, "[QUERY][%s]", query);
 									json_Query_Result = cJSON_CreateArray();
 									rc = pDB->Query(json_Query_Result, query);
@@ -292,7 +292,7 @@ int main(/*int argc, char** argv, char** env*/void)
 									else
 									{
 										strcpy(message, "{\"response\":{\"resp_code\":\"10\", \"resp_msg\":\"Error interno USUARIO\"}}");
-										m_pServer->m_pLog->Add(1, "[AMAZON:Discover] Usuario no vinculado ID: %s", json_User_Id->valuestring);
+										m_pServer->m_pLog->Add(1, "[AMAZON:Discover] Usuario no vinculado ID: %s", json_Amazon_eMail->valuestring);
 									}
 									cJSON_Delete(json_Query_Result);
 								}
@@ -342,7 +342,7 @@ int main(/*int argc, char** argv, char** env*/void)
 					{
 						if((json_User = cJSON_GetObjectItemCaseSensitive(json_Request, "user")) != nullptr )
 						{
-							if((json_User_Id = cJSON_GetObjectItemCaseSensitive(json_User, "user_id")) != nullptr )
+							if((json_Amazon_eMail = cJSON_GetObjectItemCaseSensitive(json_User, "email")) != nullptr )
 							{
 								if((json_Directive = cJSON_GetObjectItemCaseSensitive(json_Data, "directive")) != nullptr )
 								{
@@ -351,7 +351,7 @@ int main(/*int argc, char** argv, char** env*/void)
 										/* Busco el sistema por el cliente  */
 										sprintf(query, "SELECT Id_Sistema "
 											"FROM TB_DOMCLOUD_USER "
-											"WHERE Amazon_Key = \'%s\';", json_User_Id->valuestring);
+											"WHERE Amazon_Key = \'%s\';", json_Amazon_eMail->valuestring);
 										m_pServer->m_pLog->Add(100, "[QUERY][%s]", query);
 										json_Query_Result = cJSON_CreateArray();
 										rc = pDB->Query(json_Query_Result, query);
@@ -422,7 +422,7 @@ int main(/*int argc, char** argv, char** env*/void)
 										else
 										{
 											strcpy(message, "{\"response\":{\"resp_code\":\"10\", \"resp_msg\":\"Error interno USUARIO\"}}");
-											m_pServer->m_pLog->Add(50, "[AMAZON:ReporState] Usuario no vinculado ID: %s", json_User_Id->valuestring);
+											m_pServer->m_pLog->Add(50, "[AMAZON:ReporState] Usuario no vinculado ID: %s", json_Amazon_eMail->valuestring);
 										}
 										cJSON_Delete(json_Query_Result);
 									}
@@ -477,7 +477,7 @@ int main(/*int argc, char** argv, char** env*/void)
 					{
 						if((json_User = cJSON_GetObjectItemCaseSensitive(json_Request, "user")) != nullptr )
 						{
-							if((json_User_Id = cJSON_GetObjectItemCaseSensitive(json_User, "user_id")) != nullptr )
+							if((json_Amazon_eMail = cJSON_GetObjectItemCaseSensitive(json_User, "email")) != nullptr )
 							{
 								if((json_Directive = cJSON_GetObjectItemCaseSensitive(json_Data, "directive")) != nullptr )
 								{
@@ -486,7 +486,7 @@ int main(/*int argc, char** argv, char** env*/void)
 										/* Busco el sistema por el cliente  */
 										sprintf(query, "SELECT Id_Sistema "
 											"FROM TB_DOMCLOUD_USER "
-											"WHERE Amazon_Key = \'%s\';", json_User_Id->valuestring);
+											"WHERE Amazon_Key = \'%s\';", json_Amazon_eMail->valuestring);
 										m_pServer->m_pLog->Add(100, "[QUERY][%s]", query);
 										json_Query_Result = cJSON_CreateArray();
 										rc = pDB->Query(json_Query_Result, query);
@@ -542,7 +542,7 @@ int main(/*int argc, char** argv, char** env*/void)
 										else
 										{
 											strcpy(message, "{\"response\":{\"resp_code\":\"10\", \"resp_msg\":\"Error interno USUARIO\"}}");
-											m_pServer->m_pLog->Add(50, "[AMAZON:TurnOn] Usuario no vinculado ID: %s", json_User_Id->valuestring);
+											m_pServer->m_pLog->Add(50, "[AMAZON:TurnOn] Usuario no vinculado ID: %s", json_Amazon_eMail->valuestring);
 										}
 										cJSON_Delete(json_Query_Result);
 									}
@@ -597,7 +597,7 @@ int main(/*int argc, char** argv, char** env*/void)
 					{
 						if((json_User = cJSON_GetObjectItemCaseSensitive(json_Request, "user")) != nullptr )
 						{
-							if((json_User_Id = cJSON_GetObjectItemCaseSensitive(json_User, "user_id")) != nullptr )
+							if((json_Amazon_eMail = cJSON_GetObjectItemCaseSensitive(json_User, "email")) != nullptr )
 							{
 								if((json_Directive = cJSON_GetObjectItemCaseSensitive(json_Data, "directive")) != nullptr )
 								{
@@ -606,7 +606,7 @@ int main(/*int argc, char** argv, char** env*/void)
 										/* Busco el sistema por el cliente  */
 										sprintf(query, "SELECT Id_Sistema "
 											"FROM TB_DOMCLOUD_USER "
-											"WHERE Amazon_Key = \'%s\';", json_User_Id->valuestring);
+											"WHERE Amazon_Key = \'%s\';", json_Amazon_eMail->valuestring);
 										m_pServer->m_pLog->Add(100, "[QUERY][%s]", query);
 										json_Query_Result = cJSON_CreateArray();
 										rc = pDB->Query(json_Query_Result, query);
@@ -662,7 +662,7 @@ int main(/*int argc, char** argv, char** env*/void)
 										else
 										{
 											strcpy(message, "{\"response\":{\"resp_code\":\"10\", \"resp_msg\":\"Error interno USUARIO\"}}");
-											m_pServer->m_pLog->Add(50, "[AMAZON:TurnOff] Usuario no vinculado ID: %s", json_User_Id->valuestring);
+											m_pServer->m_pLog->Add(50, "[AMAZON:TurnOff] Usuario no vinculado ID: %s", json_Amazon_eMail->valuestring);
 										}
 										cJSON_Delete(json_Query_Result);
 									}
