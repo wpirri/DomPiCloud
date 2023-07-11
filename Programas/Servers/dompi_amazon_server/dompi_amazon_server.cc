@@ -191,6 +191,8 @@ int main(/*int argc, char** argv, char** env*/void)
 	m_pServer->Suscribe("amazon_ReportState", GM_MSG_TYPE_CR);
 	m_pServer->Suscribe("amazon_TurnOn", GM_MSG_TYPE_CR);
 	m_pServer->Suscribe("amazon_TurnOff", GM_MSG_TYPE_CR);
+	m_pServer->Suscribe("amazon_Lock", GM_MSG_TYPE_CR);
+	m_pServer->Suscribe("amazon_Unlock", GM_MSG_TYPE_CR);
 
 	m_pServer->m_pLog->Add(1, "Servicios de interface con Amazon inicializados.");
 
@@ -374,7 +376,7 @@ int main(/*int argc, char** argv, char** env*/void)
 															if(*p == '-') *p = ' ';
 															p++;
 														}
-														sprintf(query, "SELECT Id, Objeto, Estado, Ultimo_Update "
+														sprintf(query, "SELECT Id, Objeto, Estado, Grupo_Visual, Ultimo_Update "
 																				"FROM TB_DOMCLOUD_ASSIGN "
 																				"WHERE System_Key = \'%s\' AND UPPER(Objeto) = UPPER(\'%s\') AND Id > 0;", 
 																				json_Id_Sistema->valuestring, str_tmp);
@@ -703,6 +705,147 @@ int main(/*int argc, char** argv, char** env*/void)
 				}
 				cJSON_Delete(json_Message);
 			}
+			/* ****************************************************************
+			* Lock
+			**************************************************************** */
+			else if( !strcmp(fn, "amazon_Lock"))
+			{
+				json_Message = cJSON_Parse(message);
+				message[0] = 0;
+
+				sprintf(message, "{ \"response\": {\"resp_code\": \"0\", \"resp_msg\": \"Ok\", \"Objeto\": \"%s\", \"Estado\": \"0\", \"Ultimo_Update\": \"%04i-%02i-%02i %02i:%02i:%02i\" } }",
+						str_tmp,
+						p_tm->tm_year+1900, p_tm->tm_mon+1, p_tm->tm_mday,
+						p_tm->tm_hour, p_tm->tm_min, p_tm->tm_sec);
+
+				m_pServer->m_pLog->Add(90, "%s:(R)[%s]", fn, message);
+				if(m_pServer->Resp(message, strlen(message), GME_OK) != GME_OK)
+				{
+					/* error al responder */
+					m_pServer->m_pLog->Add(1, "ERROR al responder mensaje [%s]", fn);
+				}
+				cJSON_Delete(json_Message);
+			}
+			/* ****************************************************************
+			* Unlock
+			**************************************************************** */
+			else if( !strcmp(fn, "amazon_Unlock"))
+			{
+				json_Message = cJSON_Parse(message);
+				message[0] = 0;
+
+				if((json_Request = cJSON_GetObjectItemCaseSensitive(json_Message, "request")) != nullptr )
+				{
+					if((json_Data = cJSON_GetObjectItemCaseSensitive(json_Request, "data")) != nullptr )
+					{
+						if((json_User = cJSON_GetObjectItemCaseSensitive(json_Request, "user")) != nullptr )
+						{
+							if((json_Amazon_eMail = cJSON_GetObjectItemCaseSensitive(json_User, "email")) != nullptr )
+							{
+								if((json_Directive = cJSON_GetObjectItemCaseSensitive(json_Data, "directive")) != nullptr )
+								{
+									if((json_EndPoint = cJSON_GetObjectItemCaseSensitive(json_Directive, "endpoint")) != nullptr )
+									{
+										/* Busco el sistema por el cliente  */
+										sprintf(query, "SELECT Id_Sistema "
+											"FROM TB_DOMCLOUD_USER "
+											"WHERE Amazon_Key = \'%s\';", json_Amazon_eMail->valuestring);
+										m_pServer->m_pLog->Add(100, "[QUERY][%s]", query);
+										json_Query_Result = cJSON_CreateArray();
+										rc = pDB->Query(json_Query_Result, query);
+										m_pServer->m_pLog->Add((pDB->LastQueryTime()>1)?1:100, "[QUERY] rc= %i, time= %li [%s]", rc, pDB->LastQueryTime(), query);
+										if(rc < 0) m_pServer->m_pLog->Add(1, "[QUERY] ERROR [%s] en [%s]", pDB->m_last_error_text, query);
+										if(rc > 0)
+										{
+											cJSON_ArrayForEach(json_Query_Row, json_Query_Result) { break; }
+											if(json_Query_Row)
+											{
+												if((json_Id_Sistema = cJSON_GetObjectItemCaseSensitive(json_Query_Row, "Id_Sistema")) != nullptr )
+												{
+													if((json_EndPoint_Id = cJSON_GetObjectItemCaseSensitive(json_EndPoint, "endpointId")) != nullptr )
+													{
+														/* Reemplazo '-' por ' ' en el Id */
+														strcpy(str_tmp, json_EndPoint_Id->valuestring);
+														p = &str_tmp[0];
+														while(*p)
+														{
+															if(*p == '-') *p = ' ';
+															p++;
+														}
+														sprintf(query, "INSERT INTO TB_DOMCLOUD_NOTIF (System_Key, Time_Stamp, Objeto, Accion) "
+																			"VALUES (\'%s\', %lu, \'%s\', \'pulse\');",
+																			json_Id_Sistema->valuestring,
+																			t,
+																			str_tmp);
+														m_pServer->m_pLog->Add(100, "[QUERY][%s]", query);
+														rc = pDB->Query(NULL, query);
+														m_pServer->m_pLog->Add((pDB->LastQueryTime()>1)?1:100, "[QUERY] rc= %i, time= %li [%s]", rc, pDB->LastQueryTime(), query);
+														if(rc < 0) m_pServer->m_pLog->Add(1, "[QUERY] ERROR [%s] en [%s]", pDB->m_last_error_text, query);
+
+														sprintf(message, "{ \"response\": {\"resp_code\": \"0\", \"resp_msg\": \"Ok\", \"Objeto\": \"%s\", \"Estado\": \"1\", \"Ultimo_Update\": \"%04i-%02i-%02i %02i:%02i:%02i\" } }",
+																str_tmp,
+																p_tm->tm_year+1900, p_tm->tm_mon+1, p_tm->tm_mday,
+																p_tm->tm_hour, p_tm->tm_min, p_tm->tm_sec);
+													}
+													else
+													{
+														strcpy(message, "{\"response\":{\"resp_code\":\"10\", \"resp_msg\":\"Falta objeto endpointId\"}}");
+													}
+												}
+												else
+												{
+													strcpy(message, "{\"response\":{\"resp_code\":\"10\", \"resp_msg\":\"Error interno Id_Sistema\"}}");
+												}
+											}
+											else
+											{
+												strcpy(message, "{\"response\":{\"resp_code\":\"10\", \"resp_msg\":\"Usuario no relacionado con sistema\"}}");
+											}
+										}
+										else
+										{
+											strcpy(message, "{\"response\":{\"resp_code\":\"10\", \"resp_msg\":\"Error interno USUARIO\"}}");
+											m_pServer->m_pLog->Add(50, "[AMAZON:TurnOff] Usuario no vinculado ID: %s", json_Amazon_eMail->valuestring);
+										}
+										cJSON_Delete(json_Query_Result);
+									}
+									else
+									{
+										strcpy(message, "{\"response\":{\"resp_code\":\"10\", \"resp_msg\":\"endpoint\"}}");
+									}
+								}
+								else
+								{
+									strcpy(message, "{\"response\":{\"resp_code\":\"10\", \"resp_msg\":\"Falta Objeto directive\"}}");
+								}
+							}
+							else
+							{
+								strcpy(message, "{\"response\":{\"resp_code\":\"10\", \"resp_msg\":\"Falta Objeto user_id\"}}");
+							}
+						}
+						else
+						{
+							strcpy(message, "{\"response\":{\"resp_code\":\"10\", \"resp_msg\":\"Falta Objeto user\"}}");
+						}
+					}
+					else
+					{
+						strcpy(message, "{\"response\":{\"resp_code\":\"10\", \"resp_msg\":\"Falta Objeto data\"}}");
+					}
+				}
+				else
+				{
+					strcpy(message, "{\"response\":{\"resp_code\":\"10\", \"resp_msg\":\"Falta Objeto request\"}}");
+				}
+				m_pServer->m_pLog->Add(90, "%s:(R)[%s]", fn, message);
+				if(m_pServer->Resp(message, strlen(message), GME_OK) != GME_OK)
+				{
+					/* error al responder */
+					m_pServer->m_pLog->Add(1, "ERROR al responder mensaje [%s]", fn);
+				}
+				cJSON_Delete(json_Message);
+			}
 
 
 
@@ -748,6 +891,8 @@ void OnClose(int sig)
 	m_pServer->UnSuscribe("amazon_ReportState", GM_MSG_TYPE_CR);
 	m_pServer->UnSuscribe("amazon_TurnOn", GM_MSG_TYPE_CR);
 	m_pServer->UnSuscribe("amazon_TurnOff", GM_MSG_TYPE_CR);
+	m_pServer->UnSuscribe("amazon_Lock", GM_MSG_TYPE_CR);
+	m_pServer->UnSuscribe("amazon_Unlock", GM_MSG_TYPE_CR);
 
 	delete pConfig;
 	delete m_pServer;

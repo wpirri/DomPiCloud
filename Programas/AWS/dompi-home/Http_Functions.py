@@ -26,7 +26,7 @@ def GetBearerTokenInfo(token):
     return json.loads(response_data)
 
 def QueryExternalHost(fcn, request, context, user):
-    external_host="witchblade.com.ar:8443"
+    external_host="pueyrredon2679.com.ar:8443"
     alexa_api_url="/cgi-bin/dompi_cloud_amazon.cgi"
 
     nocertverify = ssl._create_unverified_context()

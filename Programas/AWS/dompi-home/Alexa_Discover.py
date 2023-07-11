@@ -11,6 +11,12 @@ def AlexaDiscover(request, context):
     dompi_response = QueryExternalHost(header["name"], request, context, user)
     endpoints = []
     for dompi_object in dompi_response["response"]:
+        # IMPORTANTE #
+        # El valor True del objeto "retrievable" debe estar sin comillas
+        # El "endpointId" solo permite caracteres alfanuméricos '.' y '-'
+        #    no permite '@' ni ASCII extendido (nada de 'n', 'Ñ' o acentos)
+        endpointId = dompi_object["Objeto"].replace(" ", "-")
+        friendlyName = dompi_object["Objeto"]
         #if dompi_object["Tipo"] == "1":
             # Entradas digitales
         if dompi_object["Tipo"] == "0" or dompi_object["Tipo"] == "3" or dompi_object["Tipo"] == "5":
@@ -18,25 +24,29 @@ def AlexaDiscover(request, context):
             #if dompi_object["Grupo_Visual"] == "1":
                 # Alarma
             if dompi_object["Grupo_Visual"] == "2":
-                # Luces
-                endpointId = dompi_object["Objeto"].replace(" ", "-")
-                friendlyName = dompi_object["Objeto"]
-                # IMPORTANTE #
-                # El valor True del objeto "retrievable" debe estar sin comillas
-                # El "endpointId" solo permite caracteres alfanuméricos '.' y '-'
-                #    no permite '@' ni ASCII extendido (nada de 'n', 'Ñ' o acentos)
+                # Luces - Alexa.PowerController
                 endpoints.append( { "endpointId": endpointId,
                                     "manufacturerName": "WGP",
                                     "friendlyName": friendlyName,
-                                    "description": "Objeto DomPiWeb",
+                                    "description": "Iluminacion",
                                     "displayCategories": ["LIGHT"],
                                     "capabilities": [ 
-                                        { "interface": "Alexa.PowerController", "version": "3", "type": "AlexaInterface", "properties":  { "supported": [ { "name": "powerState"} ], "retrievable": True } },
-                                        { "type": "AlexaInterface", "interface": "Alexa.EndpointHealth", "version": "3.2", "properties": { "supported": [ { "name": "connectivity" } ], "retrievable": True } },
+                                        { "interface": "Alexa.PowerController", "version": "3", "type": "AlexaInterface", "properties":  { "supported": [ { "name": "powerState"} ], "proactivelyReported": True, "retrievable": True } },
+                                        { "type": "AlexaInterface", "interface": "Alexa.EndpointHealth", "version": "3.2", "properties": { "supported": [ { "name": "connectivity" } ], "proactivelyReported": True, "retrievable": True } },
                                         { "type": "AlexaInterface", "interface": "Alexa", "version": "3" } ] } )
 
-            #if dompi_object["Grupo_Visual"] == "3":
-                # Puertas
+            if dompi_object["Grupo_Visual"] == "3":
+                # Puertas - Alexa.LockController
+                endpoints.append( { "endpointId": endpointId,
+                                    "manufacturerName": "WGP",
+                                    "friendlyName": friendlyName,
+                                    "description": "Puerta",
+                                    "displayCategories": ["SMARTLOCK"],
+                                    "capabilities": [ 
+                                        { "interface": "Alexa.LockController", "version": "3", "type": "AlexaInterface", "properties":  { "supported": [ { "name": "lockState"} ], "proactivelyReported": True, "retrievable": True } },
+                                        { "type": "AlexaInterface", "interface": "Alexa.EndpointHealth", "version": "3.2", "properties": { "supported": [ { "name": "connectivity" } ], "proactivelyReported": True, "retrievable": True } },
+                                        { "type": "AlexaInterface", "interface": "Alexa", "version": "3" } ] } )
+
             #if dompi_object["Grupo_Visual"] == "4":
                 # Climatizacion
             #if dompi_object["Grupo_Visual"] == "5":

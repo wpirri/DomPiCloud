@@ -14,6 +14,7 @@ def AlexaOn(request, context):
         object_status = "OFF"
     else:
         object_status = "ON"
+        
     timeOfSample = dompi_response["response"]["Ultimo_Update"].replace(" ", "T") + ".00Z"
     properties = [ {
         "namespace": "Alexa.PowerController",

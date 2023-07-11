@@ -10,14 +10,27 @@ def AlexaStatus(request, context):
     endpoint = request["directive"]["endpoint"]
     user = GetBearerTokenInfo(request["directive"]["endpoint"]["scope"]["token"])
     dompi_response = QueryExternalHost(header["name"], request, context, user)
-    if dompi_response["response"]["Estado"] == "0":
-        object_status = "OFF"
+    if dompi_response["response"]["Grupo_Visual"] == "3":
+        # Alexa.LockController
+        name = "lockState"
+        name_space = "Alexa.LockController"
+        if dompi_response["response"]["Estado"] == "0":
+            object_status = "LOCKED"
+        else:
+            object_status = "UNLOCKED"
     else:
-        object_status = "ON"
+        # Alexa.PowerController
+        name = "powerState"
+        name_space = "Alexa.PowerController"
+        if dompi_response["response"]["Estado"] == "0":
+            object_status = "OFF"
+        else:
+            object_status = "ON"
+
     timeOfSample = dompi_response["response"]["Ultimo_Update"].replace(" ", "T") + ".00Z"
     properties = [ {
-        "namespace": "Alexa.PowerController",
-        "name": "powerState",
+        "namespace": name_space,
+        "name": name,
         "value": object_status,
         "timeOfSample": timeOfSample,
         "uncertaintyInMilliseconds": 0
