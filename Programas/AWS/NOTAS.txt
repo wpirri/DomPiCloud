@@ -14,7 +14,13 @@ Tutorial: Build a Smart Home Skill:
 
         Smart Home Skill APIs
             https://developer.amazon.com/en-US/docs/alexa/device-apis/smart-home-general-apis.html
-
+            Alexa.PowerController - (on / off)
+            Alexa.LockController - (lock / unlock)
+            Alexa.DoorbellEventSource - 
+            Alexa.SecurityPanelController - 
+            Alexa.TemperatureSensor - 
+            Alexa.ThermostatController - 
+ 
     Step 3: Configure the Service Endpoint
         https://developer.amazon.com/en-US/docs/alexa/smarthome/configure-endpoint-tutorial.html
 
