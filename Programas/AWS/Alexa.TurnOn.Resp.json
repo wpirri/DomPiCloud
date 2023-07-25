@@ -1,0 +1,29 @@
+{
+    'event': {
+        'header': {
+            'messageId': '794a6881-1bc7-49a9-95d6-f773d0c0602d', 
+            'namespace': 'Alexa.PowerController', 
+            'name': 'Response', 
+            'payloadVersion': '3', 
+            'correlationToken': 'SUdTVEs6AAE6AAg6eyJpZCI6IjA5MzE3OTg3LTA4YzEtNGE4MC04MzYwLWQ4NzY1YTA2ZDJmYyIsInVyaSI6Imh0dHBzOi8vZC1hY3JzLW5hLXAtNWEzLTlmN2UzYjI3LnVzLWVhc3QtMS5hbWF6b24uY29tOjk0NDQiLCJzZXNzaW9uSWQiOiJiMzE0NmYzNy0wMDQyLTQyY2MtYTBkMi0yMDlkYmIwYzQzMWUifQ=='
+        }, 'endpoint': {
+            'scope': {
+                'type': 'BearerToken', 
+                'token': 'Atza|IwEBIL1KQRAUWIO-IieBX0qdIAgRoBd8e0dEdVTtbHkSwl6uN3dN9V0wvpwqLispfFK5Ibfcmb7FUMCCanJFpgIfsLayzGQFFs5eUmnXRtZej9U9gni16wglQyB6oxJ22-0lc3cG2rX3jb1JLBWuxkA51d_xf41GGQ5DxJusS1JKx_y9eWc4OK-j6WSmTUVh2y08NW_YTEkPqaeYEp2858PfRKBeZ874RIpzUVkP4AC8eJ9piOXahAVCOtnm7gOryzpjfK7bZGl8vZLyvBChfM9RYlLZm-m6h8vGU5QHAMcx4SRwiSPd1GTkZXsCDwwQQI2Ws-g2oOWwouQq7EXOQnRdX8oYUVXStFe-o7NHYgnIsuNKww'
+            }, 
+            'endpointId': 'Luz-Bano-Planta-Baja', 
+            'cookie': {}
+        }, 
+        'payload': {}
+    }, 'context': {
+        'properties': [
+            {
+                'namespace': 'Alexa.PowerController', 
+                'name': 'powerState', 
+                'value': 'ON', 
+                'timeOfSample': '2023-06-30T07:27:50.00Z', 
+                'uncertaintyInMilliseconds': 0
+            }
+        ]
+    }
+}

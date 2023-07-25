@@ -31,14 +31,13 @@ if( isset($_SESSION['auth_token']) )
         //syslog(LOG_DEBUG, "SESSION User:    ".$saved_auth["User"]); 
         //syslog(LOG_DEBUG, "SESSION Pass:    ".$saved_auth["Password"]); 
         //syslog(LOG_DEBUG, "SESSION Browser: ".$saved_auth["ClientBrowser"]); 
-        if( /*$auth["ClientIP"] == $saved_auth["ClientIP"] &&*/
-            $auth["ClientBrowser"] == $saved_auth["ClientBrowser"] &&
-            $auth["User"] == "**********" &&
+        if( $auth["ClientBrowser"] == $saved_auth["ClientBrowser"] &&
+            $auth["User"] == $saved_auth["User"] &&
             $auth["Password"] == "**********" )
         {
             /* Si el token salvado es válido sobreescribo el del formulario */
             //syslog(LOG_DEBUG, "Usando auth_token de SESSION"); 
-            $auth["User"] = $saved_auth["User"];
+            //$auth["User"] = $saved_auth["User"];
             $auth["Password"] = $saved_auth["Password"];
         }
     }

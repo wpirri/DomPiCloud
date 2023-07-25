@@ -46,6 +46,7 @@
 
 /usr/local/sbin/dompi_amazon_server
 /usr/local/sbin/dompi_cloud_server
+/usr/local/sbin/dompi_abm
 
 /etc/sysconfig/gmonitor
 /etc/xinetd.d/gmonitor

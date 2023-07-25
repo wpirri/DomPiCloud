@@ -16,7 +16,7 @@ if( isset($_GET["auth_token"]) )
       if( $auth["Remember"] == "on" )
       {
         $_SESSION['auth_token'] = $auth_token_cript;
-        $user = "**********";
+        $user = $auth["User"];
         $pass = "**********";
       }
     }

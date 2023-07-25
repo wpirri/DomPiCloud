@@ -38,3 +38,8 @@ Tutorial: Build a Smart Home Skill:
 
     Step 5: Test the Skill
         https://developer.amazon.com/en-US/docs/alexa/smarthome/test-the-skill-tutorial.html
+
+
+Test Account:
+test.alexa@pirri.com.ar
+t3st.4lex4@p1rr1.c0m.4r
