@@ -1,8 +1,6 @@
 #!/usr/bin/make -f
 
-DBPATH=/var/lib/DomPiWeb
-DATABASE=.DomPiWebDB.sqll3
-SQL=/usr/bin/sqlite3
+include ../configure.mk
 
 all: install
 

@@ -1,12 +1,8 @@
 #!/usr/bin/make -f
-DOCUMENT_ROOT=/var/www/html/dpc/
-CGI_ROOT=/usr/lib/cgi-bin/
 
-CP=cp -uva
+include ../../configure.mk
 
-
-#.cc.o:
-#	$(CC) $(CFLAGS) $(CXXFLAGS) $(INCLUDE) $(DEFINE) -c $<
+DOCUMENT_ROOT=
 
 all: none
 
@@ -14,16 +10,15 @@ none:
 	echo "implementado solamente make install"
 
 install:
-	mkdir -p $(DOCUMENT_ROOT)
-	$(CP) * $(DOCUMENT_ROOT)
-	mkdir -p $(DOCUMENT_ROOT)/admin/upload
-	chmod 0777 $(DOCUMENT_ROOT)/admin/upload
+	$(MKDIR) $(INST_HTMLDIR)
+	$(CP_UVA) * $(INST_HTMLDIR)
+	$(MKDIR) $(INST_HTMLDIR)/admin/upload
+	$(CHMOD) 0777 $(INST_HTMLDIR)/admin/upload
 
 uninstall:
-	rm -rf $(DOCUMENT_ROOT)
+	$(RMR) $(INST_HTMLDIR)
 
 reinstall:
-	rm -rf $(DOCUMENT_ROOT)
-	mkdir -p $(DOCUMENT_ROOT)
-	$(CP) * $(DOCUMENT_ROOT)
-
+	$(RMR) $(INST_HTMLDIR)
+	$(MKDIR) $(INST_HTMLDIR)
+	$(CP_UVA) * $(INST_HTMLDIR)

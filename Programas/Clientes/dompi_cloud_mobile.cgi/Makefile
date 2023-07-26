@@ -1,6 +1,8 @@
 #!/usr/bin/make -f
 
-INCLUDE=-I../../Common/
+include ../../../configure.mk
+
+INCLUDE=-I../../Common/ -I/usr/local/include -I/usr/local/include/gmonitor
 CXXFLAGS=-g -Wall -Wextra -MMD -O2
 LIBS=-lstdc++ -lgmshared -lgmc -lcjson -lssl -lcrypto
 OBJECTS=dompi_cloud_mobile.cgi.o config.o strfunc.o
@@ -27,8 +29,7 @@ clean:
 	$(RM) $(OBJECTS) $(OUTPUT) *.d
 
 install:
-	cp $(OUTPUT) /usr/lib/cgi-bin/
+	$(CP) $(OUTPUT) $(INST_CGIDIR)
 
 uninstall:
-	$(RM) /usr/lib/cgi-bin/$(OUTPUT)
-
+	$(RM) $(INST_CGIDIR)/$(OUTPUT)
