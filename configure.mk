@@ -23,16 +23,6 @@ SQL=/usr/bin/sqlite3
 UPDATE_FILE=gmonitor_dompicloud_update.tar.gz
 INSTALL_FILE=gmonitor_dompicloud_install.tar.gz
 
-BIN_MONITOR=\"$(INST_BINDIR)/gmt\"
-MONITOR_CONFIG_PATH=\"$(INST_VARDIR)\"
-LOG_FILES=\"$(INST_LOGDIR)\"
-SAF_FILES=\"$(INST_VARDIR)/saf\"
-
-GM_CONFIG_KEY=0x131313
-GM_COMM_MSG_LEN=10240
-MAX_SERVERS=255
-MAX_SERVICES=4096
-
 CP=cp
 CP_UVA=cp -uva
 RM=rm -f

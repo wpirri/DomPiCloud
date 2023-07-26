@@ -10,45 +10,37 @@
 /home/gmonitor/html
 /home/gmonitor/cgi
 
-/usr/sbin/gmd
-/usr/sbin/gmt
-/usr/sbin/gmq
-/usr/sbin/gm_default
-/usr/sbin/gm_config
-/usr/sbin/gm_sbuffer
-/usr/sbin/gm_squeue
-/usr/sbin/gm_timer
-/usr/sbin/gm_transac
+/usr/local/sbin/gmd
+/usr/local/sbin/gmt
+/usr/local/sbin/gmq
+/usr/local/sbin/gm_default
+/usr/local/sbin/gm_config
+/usr/local/sbin/gm_sbuffer
+/usr/local/sbin/gm_squeue
+/usr/local/sbin/gm_timer
+/usr/local/sbin/gm_transac
 
-/usr/sbin/gmon_config
-/usr/sbin/gmon_start
-/usr/sbin/gmon_status
-/usr/sbin/gmon_stop
-/usr/sbin/gmonitor-start.sh
-/usr/sbin/gmonitor-stop.sh
+/usr/local/sbin/gmon_config
+/usr/local/sbin/gmon_start
+/usr/local/sbin/gmon_status
+/usr/local/sbin/gmon_stop
+/usr/local/sbin/gmonitor-start.sh
+/usr/local/sbin/gmonitor-stop.sh
 
-/usr/bin/gm_loglevel
-/usr/bin/gm_safcfg
-/usr/bin/gm_viewcfg
+/usr/local/bin/gm_loglevel
+/usr/local/bin/gm_safcfg
+/usr/local/bin/gm_viewcfg
 
-/usr/lib/libgmc.a
-/usr/lib/libgmc.la
-/usr/lib/libgmc.so.0.0.0
-/usr/lib/libgmq.a
-/usr/lib/libgmq.la
-/usr/lib/libgmq.so.0.0.0
-/usr/lib/libgmqw.a
-/usr/lib/libgmqw.la
-/usr/lib/libgmqw.so.0.0.0
-/usr/lib/libgmshared.a
-/usr/lib/libgmshared.la
-/usr/lib/libgmshared.so.0.0.0
+/usr/lib/libgmc.so
+/usr/lib/libgmq.so
+/usr/lib/libgmqw.so
+/usr/lib/libgmshared.so
 
 /usr/local/sbin/dompi_amazon_server
 /usr/local/sbin/dompi_cloud_server
-/usr/local/sbin/dompi_abm
+/usr/local/sbin/dompi_cloud_abm
 
-/etc/sysconfig/gmonitor
+/etc/gmonitor/gmonitor
 /etc/xinetd.d/gmonitor
 /etc/cron.daily/clean-gmonitor-logs
 /usr/local/sbin/clean-gmonitor-old-logs.sh
