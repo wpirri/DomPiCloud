@@ -75,7 +75,7 @@ cp -v $SYTEM_HOME/dompicloud.config /etc/
 
 echo "Agregando script de aranque..."
 # Agrego el script de arranque
-cp -v $SYTEM_HOME/gmond /etc/init.d
+ln -s /usr/local/sbin/gmond /etc/init.d/gmond
 
 echo "Generando arbol web..."
 # Copio el arbol web y cgi

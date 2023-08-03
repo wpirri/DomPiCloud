@@ -20,6 +20,7 @@
 /usr/local/sbin/gm_timer
 /usr/local/sbin/gm_transac
 
+/usr/local/sbin/gmond
 /usr/local/sbin/gmon_config
 /usr/local/sbin/gmon_start
 /usr/local/sbin/gmon_status
