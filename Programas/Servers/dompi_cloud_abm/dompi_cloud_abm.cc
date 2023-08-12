@@ -169,7 +169,7 @@ int main(/*int argc, char** argv, char** env*/void)
 
 	m_pServer->m_pLog->Add(1, "Servicios de Domotica en la nube inicializados.");
 
-	while((rc = m_pServer->Wait(fn, typ, message, MAX_BUFFER_LEN, &message_len, 3000 )) >= 0)
+	while((rc = m_pServer->Wait(fn, typ, message, MAX_BUFFER_LEN, &message_len, 6000 )) >= 0)
 	{
 		if(rc > 0)
 		{
@@ -790,12 +790,7 @@ int main(/*int argc, char** argv, char** env*/void)
 
 
 		}
-		else
-		{
-			m_pServer->m_pLog->Add(1, "[WARNING] Mas de 30 segundos sin transacciones.");
 
-
-		}
 		/* Borro registros viejos no reclamados */
 		t = time(&t);
 		sprintf(query, "DELETE FROM TB_DOMCLOUD_NOTIF WHERE Time_Stamp < %lu;", t-60);

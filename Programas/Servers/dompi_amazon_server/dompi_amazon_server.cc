@@ -196,7 +196,7 @@ int main(/*int argc, char** argv, char** env*/void)
 
 	m_pServer->m_pLog->Add(1, "Servicios de interface con Amazon inicializados.");
 
-	while((rc = m_pServer->Wait(fn, typ, message, MAX_BUFFER_LEN, &message_len, 3000 )) >= 0)
+	while((rc = m_pServer->Wait(fn, typ, message, MAX_BUFFER_LEN, &message_len, (-1) )) >= 0)
 	{
 		if(rc > 0)
 		{
@@ -862,20 +862,6 @@ int main(/*int argc, char** argv, char** env*/void)
 
 
 		}
-		else
-		{
-			/* Vencimiento del timer */
-
-
-
-
-		}
-		/* Se procesó un mensaje o time-out */
-
-
-
-
-
 
 	}
 	m_pServer->m_pLog->Add(1, "ERROR en la espera de mensajes");

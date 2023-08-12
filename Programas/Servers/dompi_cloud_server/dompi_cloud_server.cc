@@ -158,7 +158,7 @@ int main(/*int argc, char** argv, char** env*/void)
 
 	m_pServer->m_pLog->Add(1, "Servicios de Domotica en la nube inicializados.");
 
-	while((rc = m_pServer->Wait(fn, typ, message, MAX_BUFFER_LEN, &message_len, 3000 )) >= 0)
+	while((rc = m_pServer->Wait(fn, typ, message, MAX_BUFFER_LEN, &message_len, (-1) )) >= 0)
 	{
 		if(rc > 0)
 		{
@@ -473,19 +473,7 @@ int main(/*int argc, char** argv, char** env*/void)
 				m_pServer->Resp(NULL, 0, GME_SVC_NOTFOUND);
 			}
 		}
-		else
-		{
-			m_pServer->m_pLog->Add(1, "[WARNING] Mas de 30 segundos sin transacciones.");
 
-
-		}
-		/* Borro registros viejos no reclamados */
-		t = time(&t);
-		sprintf(query, "DELETE FROM TB_DOMCLOUD_NOTIF WHERE Time_Stamp < %lu;", t-60);
-		m_pServer->m_pLog->Add(100, "[QUERY][%s]", query);
-		rc = pDB->Query(NULL, query);
-		m_pServer->m_pLog->Add((pDB->LastQueryTime()>1)?1:100, "[QUERY] rc= %i, time= %li [%s]", rc, pDB->LastQueryTime(), query);
-		if(rc < 0) m_pServer->m_pLog->Add(1, "[QUERY] ERROR [%s] en [%s]", pDB->m_last_error_text, query);
 
 	}
 	m_pServer->m_pLog->Add(1, "ERROR en la espera de mensajes");
