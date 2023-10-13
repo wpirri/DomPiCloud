@@ -92,29 +92,30 @@ function LoadData(msg) {
 }
 
 function UpdateStatus(msg) {
-    // actualizo el estado de los objetos
-	var i = 0;
-	var json_list = JSON.parse(msg).response;
-    var filename = '';
+    try {
+        // actualizo el estado de los objetos
+        var i = 0;
+        var json_list = JSON.parse(msg).response;
+        var filename = '';
 
-    if(!json_list) return;
+        if(!json_list) return;
 
-	for (i = 0; i < json_list.length; i++) {
-        if(json_list[i].Estado == 0)
-        {
-            filename = json_list[i].Icono_Apagado;
+        for (i = 0; i < json_list.length; i++) {
+            if(json_list[i].Estado == 0)
+            {
+                filename = json_list[i].Icono_Apagado;
+            }
+            else if(json_list[i].Estado == 1)
+            {
+                filename = json_list[i].Icono_Encendido;
+            }
+            else if(json_list[i].Estado == 2)
+            {
+                filename = json_list[i].Icono_Auto;
+            }
+            document.getElementById('boton' + i).src = '../images/' + filename;
         }
-        else if(json_list[i].Estado == 1)
-        {
-            filename = json_list[i].Icono_Encendido;
-        }
-        else if(json_list[i].Estado == 2)
-        {
-            filename = json_list[i].Icono_Auto;
-        }
-        document.getElementById('boton' + i).src = '../images/' + filename;
-    }
-
+	} catch (e) { return; }
 }
 
 function InitUpdate() {
