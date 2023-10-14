@@ -1,0 +1,16 @@
+Instalar en Linux
+---------------------------------------
+build-essential (solo para desarrollo)
+xinetd 
+apache2 
+php 
+libapache2-mod-php 
+default-mysql-server 
+libcjson-dev (solo para desarrollo)
+libcjson1
+GMonitor (solo para desarrollo)
+
+Modificar en php.ini:
+---------------------------------------
+upload_max_filesize=10M
+post_max_size=11M
