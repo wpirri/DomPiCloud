@@ -61,6 +61,7 @@ CheckUpdate()
 
 case $1 in
   start)
+    /etc/init.d/xinetd stop
     #update sniffer
     x=`ps -eaf | grep -v grep | grep /usr/local/sbin/dompi_cloud_check_for_updates.sh`
     if [ "X${x}" = "X" ]; then
@@ -68,12 +69,15 @@ case $1 in
     fi
     #ulimit -c unlimited
     CheckUpdate
+    sleep 10
     #$SU "${SERVER_BIN}/gmd -d --mode=listener" $SU_USER
     $SU "${SERVER_BIN}/gmt -d --debug $LOG_LEVEL" $SU_USER
     sleep 3
     $SERVER_BIN/gmon_start all
+    /etc/init.d/xinetd start
   ;;
   stop)
+    /etc/init.d/xinetd stop
     $SERVER_BIN/gmon_stop all
 
     gmt_pid=`ps -eaf | grep -v grep | grep $SERVER_BIN/gmt | awk '{ print $2; }'`
