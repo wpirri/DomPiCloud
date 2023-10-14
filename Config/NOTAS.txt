@@ -14,3 +14,9 @@ Modificar en php.ini:
 ---------------------------------------
 upload_max_filesize=10M
 post_max_size=11M
+
+Agregar en /etc/sysctl.conf
+---------------------------------------
+net.ipv4.tcp_keepalive_intvl=75
+net.ipv4.tcp_keepalive_probes=8
+net.ipv4.tcp_keepalive_time=75
