@@ -17,6 +17,7 @@ def AlexaDiscover(request, context):
         #    no permite '@' ni ASCII extendido (nada de 'n', 'Ñ' o acentos)
         endpointId = dompi_object["Objeto"].replace(" ", "-")
         friendlyName = dompi_object["Objeto"]
+        objectIcon = dompi_object["Icono_Apagado"]
         #if dompi_object["Tipo"] == "1":
             # Entradas digitales
         if dompi_object["Tipo"] == "0" or dompi_object["Tipo"] == "3" or dompi_object["Tipo"] == "5":
@@ -24,7 +25,7 @@ def AlexaDiscover(request, context):
             #if dompi_object["Grupo_Visual"] == "1":
                 # Alarma
             if dompi_object["Grupo_Visual"] == "2":
-                # Luces - Alexa.PowerController
+                # Luces - Alexa.PowerController (Luz)
                 endpoints.append( { "endpointId": endpointId,
                                     "manufacturerName": "WGP",
                                     "friendlyName": friendlyName,
@@ -47,8 +48,26 @@ def AlexaDiscover(request, context):
                                         { "type": "AlexaInterface", "interface": "Alexa.EndpointHealth", "version": "3.2", "properties": { "supported": [ { "name": "connectivity" } ], "proactivelyReported": True, "retrievable": True } },
                                         { "type": "AlexaInterface", "interface": "Alexa", "version": "3" } ] } )
 
-            #if dompi_object["Grupo_Visual"] == "4":
-                # Climatizacion
+            if dompi_object["Grupo_Visual"] == "4":
+                # Climatizacion - Alexa.PowerController (Aire acondicionado, Calefactor,Ventilador)
+                if objectIcon.startswith('aire'):
+                    categoryName = "AIR_CONDITIONER"
+                else:
+                    if objectIcon.startswith('calef'):
+                        categoryName = "THERMOSTAT"
+                    else:
+                        categoryName = "FAN"
+
+                endpoints.append( { "endpointId": endpointId,
+                                    "manufacturerName": "WGP",
+                                    "friendlyName": friendlyName,
+                                    "description": "Climatizacion",
+                                    "displayCategories": [categoryName],
+                                    "capabilities": [ 
+                                        { "interface": "Alexa.PowerController", "version": "3", "type": "AlexaInterface", "properties":  { "supported": [ { "name": "powerState"} ], "proactivelyReported": True, "retrievable": True } },
+                                        { "type": "AlexaInterface", "interface": "Alexa.EndpointHealth", "version": "3.2", "properties": { "supported": [ { "name": "connectivity" } ], "proactivelyReported": True, "retrievable": True } },
+                                        { "type": "AlexaInterface", "interface": "Alexa", "version": "3" } ] } )
+
             #if dompi_object["Grupo_Visual"] == "5":
                 # Camaras
             #if dompi_object["Grupo_Visual"] == "6":

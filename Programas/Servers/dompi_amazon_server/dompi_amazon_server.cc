@@ -243,7 +243,7 @@ int main(/*int argc, char** argv, char** env*/void)
 												{
 													if((json_Header = cJSON_GetObjectItemCaseSensitive(json_Directive, "header")) != nullptr )
 													{
-														sprintf(query, "SELECT Id, Objeto, Tipo, Grupo_Visual "
+														sprintf(query, "SELECT Id, Objeto, Tipo, Grupo_Visual, Icono_Apagado "
 																				"FROM TB_DOMCLOUD_ASSIGN "
 																				"WHERE System_Key = \'%s\' AND Id > 0;", 
 																				json_Id_Sistema->valuestring);
