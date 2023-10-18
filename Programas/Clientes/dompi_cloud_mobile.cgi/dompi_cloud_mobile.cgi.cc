@@ -134,7 +134,7 @@ int main(int /*argc*/, char** /*argv*/, char** env)
  
   if(trace)
   {
-    openlog("dompi_cloud_auth.cgi", 0, LOG_USER);
+    openlog("dompi_cloud_mobile.cgi", 0, LOG_USER);
 
     syslog(LOG_DEBUG, "REMOTE_ADDR: %s",remote_addr);
     syslog(LOG_DEBUG, "REQUEST_URI: [%s]",request_uri);
