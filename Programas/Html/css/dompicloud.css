@@ -231,3 +231,10 @@ body {
 .abm-edit-input-text {
 	background: darkgrey;
 }
+
+.abm-result-message {
+	position: relative;
+	color: white;
+	background: black;
+	text-align: center;
+}

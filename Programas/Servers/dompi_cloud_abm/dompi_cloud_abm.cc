@@ -83,13 +83,10 @@ int main(/*int argc, char** argv, char** env*/void)
 	char query[4096];
 	char query_into[2048];
 	char query_values[2048];
-	char query_set[2048];
 	char query_where[512];
 	char str_tmp[1024];
 
 	time_t t;
-	struct tm *p_tm;
-	char save_client_key[256];
 
 	STRFunc Strf;
 	//CPgDB *pDB;
@@ -99,11 +96,9 @@ int main(/*int argc, char** argv, char** env*/void)
     cJSON *json_arr;
     cJSON *json_row;
     cJSON *json_un_obj;
-    cJSON *json_Id;
     cJSON *json_System_Key;
 	cJSON *json_Objeto;
 	cJSON *json_Estado;
-	cJSON *json_Time_Stamp;
 	cJSON *json_User;
 	cJSON *json_Password;
 	cJSON *json_Time;
@@ -111,10 +106,6 @@ int main(/*int argc, char** argv, char** env*/void)
 	cJSON *json_Sistema;
 	cJSON *json_Grupo;
 	cJSON *json_Tipo;
-	cJSON *json_Amazon_Key;
-	cJSON *json_Google_Key;
-	cJSON *json_Apple_Key;
-	cJSON *json_Other_Key;
 
     cJSON *json_Accion;
     cJSON *json_Admin;
@@ -365,7 +356,8 @@ int main(/*int argc, char** argv, char** env*/void)
 
 				json_arr = cJSON_CreateArray();
 				strcpy(query, "SELECT Usuario, Id_Sistema, Estado "
-								"FROM TB_DOMCLOUD_USER;");
+								"FROM TB_DOMCLOUD_USER "
+								"ORDER BY Usuario ASC;");
 				m_pServer->m_pLog->Add(100, "[QUERY][%s]", query);
 				rc = pDB->Query(json_arr, query);
 				m_pServer->m_pLog->Add((pDB->LastQueryTime()>1)?1:100, "[QUERY] rc= %i, time= %li [%s]", rc, pDB->LastQueryTime(), query);
@@ -672,7 +664,8 @@ int main(/*int argc, char** argv, char** env*/void)
 					json_arr = cJSON_CreateArray();
 					sprintf(query, "SELECT Id,Objeto,Estado,Icono_Apagado,Icono_Encendido,Icono_Auto "
 								   "FROM TB_DOMCLOUD_ASSIGN "
-					               "WHERE System_Key = \'%s\' AND Grupo_Visual = %s;",
+					               "WHERE System_Key = \'%s\' AND Grupo_Visual = %s "
+								   "ORDER BY Objeto ASC;",
 								   json_Sistema->valuestring,
 								   json_Grupo->valuestring);
 					m_pServer->m_pLog->Add(100, "[QUERY][%s]", query);

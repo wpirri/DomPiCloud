@@ -87,7 +87,6 @@ int main(/*int argc, char** argv, char** env*/void)
 	char query_values[2048];
 	char query_set[2048];
 	char query_where[512];
-	char str_tmp[1024];
 
 	time_t t;
 	struct tm *p_tm;
@@ -99,27 +98,17 @@ int main(/*int argc, char** argv, char** env*/void)
 
     cJSON *json_obj;
     cJSON *json_arr;
-    cJSON *json_row;
     cJSON *json_un_obj;
     cJSON *json_Id;
     cJSON *json_System_Key;
-	cJSON *json_Objeto;
 	cJSON *json_Estado;
 	cJSON *json_Time_Stamp;
 	cJSON *json_User;
 	cJSON *json_Password;
-	cJSON *json_Time;
-	cJSON *json_Id_Sistema;
-	cJSON *json_Sistema;
-	cJSON *json_Grupo;
-	cJSON *json_Tipo;
 	cJSON *json_Amazon_Key;
 	cJSON *json_Google_Key;
 	cJSON *json_Apple_Key;
 	cJSON *json_Other_Key;
-
-    cJSON *json_Accion;
-    cJSON *json_Admin;
 
 	signal(SIGPIPE, SIG_IGN);
 	signal(SIGKILL, OnClose);
