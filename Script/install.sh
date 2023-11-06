@@ -17,39 +17,43 @@ CGI_ROOT=/usr/lib/cgi-bin/
 
 if [ ! -x /usr/bin/mysql ]; then
     echo "No se encuentra mysql"
-    echo "Se debe instalar xinetd apache2 php libapache2-mod-php default-mysql-client/default-mysql-server libcjson-dev"
+    echo "Se debe instalar xinetd apache2 php libapache2-mod-php default-mysql-client/default-mysql-server libcjson1"
     exit 1
 fi
 
 if [ ! -x /usr/sbin/xinetd ]; then
     echo "No se encuentra xinetd"
-    echo "Se debe instalar xinetd apache2 php libapache2-mod-php default-mysql-client/default-mysql-server libcjson-dev"
+    echo "Se debe instalar xinetd apache2 php libapache2-mod-php default-mysql-client/default-mysql-server libcjson1"
     exit 1
 fi
 
 if [ ! -x /usr/sbin/apache2 ]; then
     echo "No se encuentra apache2"
-    echo "Se debe instalar xinetd apache2 php libapache2-mod-php default-mysql-client/default-mysql-server libcjson-dev"
+    echo "Se debe instalar xinetd apache2 php libapache2-mod-php default-mysql-client/default-mysql-server libcjson1"
     exit 1
 fi
 
 if [ ! -x /usr/bin/php ]; then
     echo "No se encuentra php"
-    echo "Se debe instalar xinetd apache2 php libapache2-mod-php default-mysql-client/default-mysql-server libcjson-dev"
+    echo "Se debe instalar xinetd apache2 php libapache2-mod-php default-mysql-client/default-mysql-server libcjson1"
     exit 1
 fi
 
 if [ ! -x /usr/share/doc/libapache2-mod-php ]; then
     echo "No se encuentra libapache2-mod-php"
-    echo "Se debe instalar xinetd apache2 php libapache2-mod-php default-mysql-client/default-mysql-server libcjson-dev"
+    echo "Se debe instalar xinetd apache2 php libapache2-mod-php default-mysql-client/default-mysql-server libcjson1"
     exit 1
 fi
 
 if [ ! -x /usr/lib/x86_64-linux-gnu/libcjson.so && ! -L /usr/lib/x86_64-linux-gnu/libcjson.so ]; then
     echo "No se encuentra libcjson.so"
-    echo "Se debe instalar xinetd apache2 php libapache2-mod-php default-mysql-client/default-mysql-server libcjson-dev"
+    echo "Se debe instalar xinetd apache2 php libapache2-mod-php default-mysql-client/default-mysql-server libcjson1"
     exit 1
 fi
+
+echo "Agregando usuario ${GMON_USER}"
+useradd -d $SYTEM_LIB $GMON_USER
+passwd -d $GMON_USER
 
 echo "Creando directorios..."
 # Creo los directorios necesarios

@@ -15,6 +15,10 @@ install:
 	ln -s /usr/local/sbin/gmond /etc/init.d/gmond
 	$(CP) drop_ipc.sh /usr/local/sbin 
 	$(CHMOD) 0755 /usr/local/sbin/drop_ipc.sh
+	$(CP) make-db-backup.sh /etc/cron.monthly/
+	$(CHMOD) 0755 /etc/cron.monthly/make-db-backup.sh
+	$(CP) make-domclouddb-backup.sh /usr/local/sbin/
+	$(CHMOD) 0755 /usr/local/sbin/make-domclouddb-backup.sh
 
 uninstall:
 	$(RM) /etc/cron.daily/clean-gmonitor-logs
@@ -23,3 +27,5 @@ uninstall:
 	$(RM) /usr/local/sbin/gmond
 	$(RM) /etc/init.d/gmond
 	$(RM) /usr/local/sbin/drop_ipc.sh
+	$(RM) /etc/cron.monthly/make-db-backup.sh
+	$(RM) /usr/local/sbin/make-domclouddb-backup.sh

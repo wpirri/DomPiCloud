@@ -68,29 +68,31 @@ function fillAbmList(json_list, dst_div, title, index_label, edit_link, delete_l
 	output += '<th>Borrar</th>';
 	output += '</tr>\n';
 	// Datos
-	for (i = 0; i < json_list.length; i++) { 
-		output += '<tr>';
-		index_value = '';
-		for (j = 0; j < headers.length; j++) { 
-			var val = json_list[i][headers[j]]; 
-			// If there is any key, which is matching 
-			// with the column name 
-			if (val == null) val = "&nbsp;";   
-			output += '<td>';
-			output += val;
-			output += '</td>';
-			if(index_label == headers[j]) {
-				index_value = val;
+	for (i = 0; i < json_list.length; i++) {
+		if(json_list[i]['Id'] > 0) {
+			output += '<tr>';
+			index_value = '';
+			for (j = 0; j < headers.length; j++) { 
+				var val = json_list[i][headers[j]]; 
+				// If there is any key, which is matching 
+				// with the column name 
+				if (val == null) val = "&nbsp;";   
+				output += '<td>';
+				output += val;
+				output += '</td>';
+				if(index_label == headers[j]) {
+					index_value = val;
+				}
+			} 
+			// Agrego los links de edición y borrado
+			if(edit_link.length > 0) {
+				val = '<td><a href="' + edit_link + '?' + index_label + '=' + index_value + '"><img src="../images/edit.png"></a></td>' 
+				output += val;
 			}
-		} 
-		// Agrego los links de edición y borrado
-		if(edit_link.length > 0) {
-			val = '<td><a href="' + edit_link + '?' + index_label + '=' + index_value + '"><img src="../images/edit.png"></a></td>' 
+			val = '<td><a href="' + delete_link + '?' + index_label + '=' + index_value + '"><img src="../images/delete.png"></a></td>' 
 			output += val;
+			output += '</tr>\n';
 		}
-		val = '<td><a href="' + delete_link + '?' + index_label + '=' + index_value + '"><img src="../images/delete.png"></a></td>' 
-		output += val;
-		output += '</tr>\n';
 	}
 	output += '</table>\n';
 	document.getElementById(dst_div).innerHTML = output;

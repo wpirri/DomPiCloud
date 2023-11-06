@@ -46,4 +46,6 @@
 /etc/cron.daily/clean-gmonitor-logs
 /usr/local/sbin/clean-gmonitor-old-logs.sh
 /usr/local/sbin/drop_ipc.sh
+/etc/cron.monthly/make-db-backup.sh
+/usr/local/sbin/make-domclouddb-backup.sh
 /usr/local/sbin/dompi_cloud_check_for_updates.sh
