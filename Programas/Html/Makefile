@@ -14,6 +14,8 @@ install:
 	$(CP_UVA) * $(INST_HTMLDIR)
 	$(MKDIR) $(INST_HTMLDIR)/admin/upload
 	$(CHMOD) 0777 $(INST_HTMLDIR)/admin/upload
+	$(MKDIR) $(INST_HTMLDIR)/clients_uploads
+	$(CHMOD) 0777 $(INST_HTMLDIR)/clients_uploads
 
 uninstall:
 	$(RMR) $(INST_HTMLDIR)

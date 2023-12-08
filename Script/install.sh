@@ -67,6 +67,8 @@ mkdir -v -p $DOCUMENT_ROOT
 # Directorio para upload
 mkdir -v -p $DOCUMENT_ROOT/admin/upload
 chmod 0777 $DOCUMENT_ROOT/admin/upload
+mkdir -v -p $DOCUMENT_ROOT/clients_uploads
+chmod 0777 $DOCUMENT_ROOT/clients_uploads
 
 echo "Agregando la configuracion de gmonitor y DomPiWeb..."
 # Agrego los la configuración de gmonitor y DomPiWeb
