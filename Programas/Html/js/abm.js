@@ -69,7 +69,7 @@ function fillAbmList(json_list, dst_div, title, index_label, edit_link, delete_l
 	output += '</tr>\n';
 	// Datos
 	for (i = 0; i < json_list.length; i++) {
-		if(json_list[i]['Id'] > 0) {
+		//if(json_list[i]['Id'] > 0) {
 			output += '<tr>';
 			index_value = '';
 			for (j = 0; j < headers.length; j++) { 
@@ -92,7 +92,7 @@ function fillAbmList(json_list, dst_div, title, index_label, edit_link, delete_l
 			val = '<td><a href="' + delete_link + '?' + index_label + '=' + index_value + '"><img src="../images/delete.png"></a></td>' 
 			output += val;
 			output += '</tr>\n';
-		}
+		//}
 	}
 	output += '</table>\n';
 	document.getElementById(dst_div).innerHTML = output;

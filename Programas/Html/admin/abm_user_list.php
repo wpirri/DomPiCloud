@@ -13,9 +13,11 @@ if(isset($resp_code) && isset($resp_msg) && isset($sistema))
 	<img id='user_list_back_icon' class='icon-btn' src='../images/back.png'>&nbsp;Volver
 </div>
 
+<!--
 <div id='user_list_add_btn' class='abm-add-btn' onclick="window.location.replace('abm_user_add.php');" >
 	<img id='user_list_add__icon' class='icon-btn' src='../images/add.png'>&nbsp;Nuevo
 </div>
+-->
 
 <div id='user_list_table_div' class='abm-div'></div>
 

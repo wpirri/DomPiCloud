@@ -61,6 +61,7 @@ CheckUpdate()
 
 case $1 in
   start)
+    /etc/init.d/apache2 stop
     /etc/init.d/xinetd stop
     #update sniffer
     x=`ps -eaf | grep -v grep | grep /usr/local/sbin/dompi_cloud_check_for_updates.sh`
@@ -75,8 +76,10 @@ case $1 in
     sleep 3
     $SERVER_BIN/gmon_start all
     /etc/init.d/xinetd start
+    /etc/init.d/apache2 start
   ;;
   stop)
+    /etc/init.d/apache2 stop
     /etc/init.d/xinetd stop
     $SERVER_BIN/gmon_stop all
 
