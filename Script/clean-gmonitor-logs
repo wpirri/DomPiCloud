@@ -1,3 +1,0 @@
-#!/bin/sh
-/usr/local/sbin/clean-gmonitor-old-logs.sh
-
