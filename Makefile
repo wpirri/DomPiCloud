@@ -36,7 +36,6 @@ installer:
 
 	cp Database/create.sql $(RUN_HOME)/
 	cp Database/init.sql $(RUN_HOME)/
-	cp Script/gmond $(RUN_HOME)/
 	cp Script/install.sh $(RUN_HOME)/
 	cp Config/dompicloud.config $(RUN_HOME)/
 	cp Config/funcion.tab $(RUN_HOME)/

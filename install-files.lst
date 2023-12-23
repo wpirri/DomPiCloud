@@ -48,4 +48,5 @@
 /usr/local/sbin/drop_ipc.sh
 /etc/cron.monthly/make-db-backup.sh
 /usr/local/sbin/make-domclouddb-backup.sh
-/usr/local/sbin/dompi_cloud_check_for_updates.sh
+/usr/local/sbin/check_for_updates.sh
+/lib/systemd/system/gmonitor.service

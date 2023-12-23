@@ -79,8 +79,12 @@ cp -v $SYTEM_HOME/server_parametro.tab $SYTEM_LIB
 chown -v -R $GMON_USER: $SYTEM_LIB
 cp -v $SYTEM_HOME/dompicloud.config /etc/
 
-echo "Agregando script de aranque..."
+echo "Agregando script de arranque..."
 # Agrego el script de arranque
+systemctl daemon-reload
+systemctl enable gmonitor.service
+#systemctl start gmonitor.service
+rm /etc/init.d/gmond
 ln -s /usr/local/sbin/gmond /etc/init.d/gmond
 
 echo "Generando arbol web..."
