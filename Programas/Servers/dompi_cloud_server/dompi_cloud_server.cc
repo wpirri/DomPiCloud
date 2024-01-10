@@ -41,6 +41,8 @@ using namespace std;
 
 CGMServerWait *m_pServer;
 DPConfig *pConfig;
+//CPgDB *pDB;
+CMyDB *pDB;
 
 const char *assign_columns[] = {
 	"System_Key",
@@ -93,14 +95,14 @@ int main(/*int argc, char** argv, char** env*/void)
 	char save_client_key[256];
 
 	STRFunc Strf;
-	//CPgDB *pDB;
-	CMyDB *pDB;
 
-    cJSON *json_obj;
+    cJSON *json_Message;
     cJSON *json_arr;
     cJSON *json_un_obj;
-    cJSON *json_Id;
     cJSON *json_System_Key;
+    cJSON *json_AssId;
+    cJSON *json_Array_Alarma;
+    cJSON *json_Alarma;
 	cJSON *json_Estado;
 	cJSON *json_Time_Stamp;
 	cJSON *json_User;
@@ -109,18 +111,38 @@ int main(/*int argc, char** argv, char** env*/void)
 	cJSON *json_Google_Key;
 	cJSON *json_Apple_Key;
 	cJSON *json_Other_Key;
+	cJSON *json_Id_Alarma;
+	cJSON *json_Nombre;
+	cJSON *json_Estado_Activacion;
+	cJSON *json_Estado_Memoria;
+	cJSON *json_Estado_Alarma;
+	cJSON *json_Entradas;
+	cJSON *json_Entrada;
+	cJSON *json_Salidas;
+	cJSON *json_Salida;
+	cJSON *json_Id_Zona;
+	cJSON *json_Nombre_Zona;
+	cJSON *json_Tipo_Zona;
+	cJSON *json_Grupo_Zona;
+	cJSON *json_Zona_Activa;
+	cJSON *json_Estado_Zona;
+	cJSON *json_Id_Salida;
+	cJSON *json_Nombre_Salida;
+	cJSON *json_Tipo_Salida;
+	cJSON *json_Estado_Salida;
 
 	signal(SIGPIPE, SIG_IGN);
 	signal(SIGKILL, OnClose);
 	signal(SIGTERM, OnClose);
-	signal(SIGSTOP, OnClose);
-	signal(SIGABRT, OnClose);
-	signal(SIGQUIT, OnClose);
-	signal(SIGINT,  OnClose);
-	signal(SIGILL,  OnClose);
-	signal(SIGFPE,  OnClose);
-	signal(SIGSEGV, OnClose);
-	signal(SIGBUS,  OnClose);
+	/* Dejo de capturar interrupciones para permitir Core Dumps */
+	//signal(SIGSTOP, OnClose);
+	//signal(SIGABRT, OnClose);
+	//signal(SIGQUIT, OnClose);
+	//signal(SIGINT,  OnClose);
+	//signal(SIGILL,  OnClose);
+	//signal(SIGFPE,  OnClose);
+	//signal(SIGSEGV, OnClose);
+	//signal(SIGBUS,  OnClose);
 
 	m_pServer = new CGMServerWait;
 	m_pServer->Init("dompi_cloud_server");
@@ -162,17 +184,18 @@ int main(/*int argc, char** argv, char** env*/void)
 				t = time(&t);
 				p_tm = localtime(&t);
 
-				json_obj = cJSON_Parse(message);
+				json_Message = cJSON_Parse(message);
 
-				json_System_Key = cJSON_GetObjectItemCaseSensitive(json_obj, "System_Key");
-				json_Id = cJSON_GetObjectItemCaseSensitive(json_obj, "Id");
-				if(!json_Id)
+				json_System_Key = cJSON_GetObjectItemCaseSensitive(json_Message, "System_Key");
+				json_AssId = cJSON_GetObjectItemCaseSensitive(json_Message, "Id");
+				json_Array_Alarma = cJSON_GetObjectItemCaseSensitive(json_Message, "Alarma");
+				if(!json_AssId)
 				{
-					json_Id = cJSON_GetObjectItemCaseSensitive(json_obj, "ASS_Id");
+					json_AssId = cJSON_GetObjectItemCaseSensitive(json_Message, "ASS_Id");
 				}
 
-				json_User = cJSON_GetObjectItemCaseSensitive(json_obj, "Usuario_Cloud");
-				json_Password = cJSON_GetObjectItemCaseSensitive(json_obj, "Clave_Cloud");
+				json_User = cJSON_GetObjectItemCaseSensitive(json_Message, "Usuario_Cloud");
+				json_Password = cJSON_GetObjectItemCaseSensitive(json_Message, "Clave_Cloud");
 
 				if(json_System_Key)
 				{
@@ -186,12 +209,12 @@ int main(/*int argc, char** argv, char** env*/void)
 							/* error al responder */
 							m_pServer->m_pLog->Add(1, "ERROR al responder mensaje [%s]", fn);
 						}
-						cJSON_Delete(json_obj);
+						cJSON_Delete(json_Message);
 
 						continue;
 					}
 
-					if(json_Id)
+					if(json_AssId)
 					{
 						query[0] = 0;
 						query_into[0] = 0;
@@ -201,7 +224,7 @@ int main(/*int argc, char** argv, char** env*/void)
 
 						m_pServer->m_pLog->Add(100, "[*** Update Objeto ***] System_Key: %s", json_System_Key->valuestring);
 
-						json_un_obj = json_obj;
+						json_un_obj = json_Message;
 						while( json_un_obj )
 						{
 							/* Voy hasta el elemento con datos */
@@ -336,11 +359,11 @@ int main(/*int argc, char** argv, char** env*/void)
 					}
 					else if(json_User && json_Password) /* Actualizacion de usuario del sistema */
 					{
-						json_Amazon_Key = cJSON_GetObjectItemCaseSensitive(json_obj, "Amazon_Key");
-						json_Google_Key = cJSON_GetObjectItemCaseSensitive(json_obj, "Google_Key");
-						json_Apple_Key = cJSON_GetObjectItemCaseSensitive(json_obj, "Apple_Key");
-						json_Other_Key = cJSON_GetObjectItemCaseSensitive(json_obj, "Other_Key");
-						json_Estado = cJSON_GetObjectItemCaseSensitive(json_obj, "Estado");
+						json_Amazon_Key = cJSON_GetObjectItemCaseSensitive(json_Message, "Amazon_Key");
+						json_Google_Key = cJSON_GetObjectItemCaseSensitive(json_Message, "Google_Key");
+						json_Apple_Key = cJSON_GetObjectItemCaseSensitive(json_Message, "Apple_Key");
+						json_Other_Key = cJSON_GetObjectItemCaseSensitive(json_Message, "Other_Key");
+						json_Estado = cJSON_GetObjectItemCaseSensitive(json_Message, "Estado");
 						m_pServer->m_pLog->Add(100, "[*** Update User ***] %s de System_Key: %s", json_User->valuestring, json_System_Key->valuestring);
 						sprintf(query, "UPDATE TB_DOMCLOUD_USER "
 													"SET Clave = \'%s\', Id_Sistema = \'%s\', Estado = \'%s\',  "
@@ -380,6 +403,200 @@ int main(/*int argc, char** argv, char** env*/void)
 							}
 						}
 					}
+					else if(json_Array_Alarma)
+					{
+						/* Actualizacion de estado de alarma */
+						m_pServer->m_pLog->Add(100, "[*** Update Alarma ***] System_Key: %s", json_System_Key->valuestring);
+						/*
+						{"Alarma":[
+							{"Id":"1","Nombre":"Casa","Estado_Activacion":"0","Estado_Memoria":"0","Estado_Alarma":"0",
+								"Zonas":[
+									{"Id":"1","Objeto":"Zona 1","Tipo_Zona":"0","Grupo":"0","Activa":"1","Estado":"0"},
+									{"Id":"2","Objeto":"Zona 2","Tipo_Zona":"0","Grupo":"0","Activa":"1","Estado":"0"},
+									{"Id":"3","Objeto":"Zona 3","Tipo_Zona":"0","Grupo":"0","Activa":"1","Estado":"0"},
+									{"Id":"4","Objeto":"Zona 4","Tipo_Zona":"0","Grupo":"0","Activa":"1","Estado":"0"},
+									{"Id":"5","Objeto":"Zona 5","Tipo_Zona":"0","Grupo":"0","Activa":"1","Estado":"0"},
+									{"Id":"6","Objeto":"Zona 6","Tipo_Zona":"0","Grupo":"0","Activa":"1","Estado":"0"}],
+								"Salidas":[
+									{"Id":"1","Objeto":"Sirena Exterior","Tipo_Salida":"0","Estado":"0"}]},
+							{"Id":"2","Nombre":"Taller","Estado_Activacion":"0","Estado_Memoria":"0","Estado_Alarma":"0"}],
+						"System_Key":"D3S4RR0LL0-0001"}
+						*/
+						/* Viene informado un array de particiones de alarma */
+						cJSON_ArrayForEach(json_Alarma, json_Array_Alarma)
+						{
+							json_Id_Alarma = cJSON_GetObjectItemCaseSensitive(json_Alarma, "Id");
+							json_Nombre = cJSON_GetObjectItemCaseSensitive(json_Alarma, "Nombre");
+							json_Estado_Activacion = cJSON_GetObjectItemCaseSensitive(json_Alarma, "Estado_Activacion");
+							json_Estado_Memoria = cJSON_GetObjectItemCaseSensitive(json_Alarma, "Estado_Memoria");
+							json_Estado_Alarma = cJSON_GetObjectItemCaseSensitive(json_Alarma, "Estado_Alarma");
+
+							if(json_Id_Alarma && json_Nombre && json_Estado_Activacion && json_Estado_Memoria && json_Estado_Alarma)
+							{
+								sprintf(query, "UPDATE TB_DOMCLOUD_ALARM "
+												"SET Particion = \'%s\', "
+													"Estado_Activacion = %s, "
+													"Estado_Memoria = %s, "
+													"Estado_Alarma = %s, "
+													"Ultimo_Update = \'%04i-%02i-%02i %02i:%02i:%02i\' "
+												"WHERE System_Key = \'%s\' AND Id = %s;", 
+												json_Nombre->valuestring,
+												json_Estado_Activacion->valuestring,
+												json_Estado_Memoria->valuestring,
+												json_Estado_Alarma->valuestring,
+												p_tm->tm_year+1900, p_tm->tm_mon+1, p_tm->tm_mday,
+												p_tm->tm_hour, p_tm->tm_min, p_tm->tm_sec,
+												json_System_Key->valuestring,
+												json_Id_Alarma->valuestring);
+								m_pServer->m_pLog->Add(100, "[QUERY][%s]", query);
+								rc = pDB->Query(NULL, query);
+								m_pServer->m_pLog->Add((pDB->LastQueryTime()>1)?1:100, "[QUERY] rc= %i, time= %li [%s]", rc, pDB->LastQueryTime(), query);
+								if(rc < 0) m_pServer->m_pLog->Add(1, "[QUERY] ERROR [%s] en [%s]", pDB->m_last_error_text, query);
+								if(rc == 0)
+								{
+									/* Si no se actualiza nada va un insert */
+									sprintf(query, "INSERT INTO TB_DOMCLOUD_ALARM (System_Key,Id,Particion,Estado_Activacion,Estado_Memoria,Estado_Alarma,Ultimo_Update) "
+														"VALUES (\'%s\',%s,\'%s\',%s,%s,%s,\'%04i-%02i-%02i %02i:%02i:%02i\');",
+													json_System_Key->valuestring,
+													json_Id_Alarma->valuestring,
+													json_Nombre->valuestring,
+													json_Estado_Activacion->valuestring,
+													json_Estado_Memoria->valuestring,
+													json_Estado_Alarma->valuestring,
+													p_tm->tm_year+1900, p_tm->tm_mon+1, p_tm->tm_mday,
+													p_tm->tm_hour, p_tm->tm_min, p_tm->tm_sec);
+									m_pServer->m_pLog->Add(100, "[QUERY][%s]", query);
+									rc = pDB->Query(NULL, query);
+									m_pServer->m_pLog->Add((pDB->LastQueryTime()>1)?1:100, "[QUERY] rc= %i, time= %li [%s]", rc, pDB->LastQueryTime(), query);
+									if(rc < 0) m_pServer->m_pLog->Add(1, "[QUERY] ERROR [%s] en [%s]", pDB->m_last_error_text, query);
+								}
+							}
+							/* Si actualizó o insertó sigo con las entradas y salidas */
+							if(rc == 1)
+							{
+								/* Entradas / Zonas */
+								/*
+								"Zonas":[
+									{"Id":"1","Objeto":"Zona 1","Tipo_Zona":"0","Grupo":"0","Activa":"1","Estado":"0"},
+								*/
+								json_Entradas = cJSON_GetObjectItemCaseSensitive(json_Alarma, "Zonas");
+								if(json_Entradas)
+								{
+									cJSON_ArrayForEach(json_Entrada, json_Entradas)
+									{
+										json_Id_Zona = cJSON_GetObjectItemCaseSensitive(json_Entrada, "Id");
+										json_Nombre_Zona = cJSON_GetObjectItemCaseSensitive(json_Entrada, "Objeto");
+										json_Tipo_Zona = cJSON_GetObjectItemCaseSensitive(json_Entrada, "Tipo_Zona");
+										json_Grupo_Zona = cJSON_GetObjectItemCaseSensitive(json_Entrada, "Grupo");
+										json_Zona_Activa = cJSON_GetObjectItemCaseSensitive(json_Entrada, "Activa");
+										json_Estado_Zona = cJSON_GetObjectItemCaseSensitive(json_Entrada, "Estado");
+
+										if(	json_Id_Zona && json_Nombre_Zona && json_Tipo_Zona && json_Grupo_Zona && json_Zona_Activa && json_Estado_Zona )
+										{
+											sprintf(query, "UPDATE TB_DOMCLOUD_ALARM_ENTRADA "
+															"SET Entrada = \'%s\', "
+																"Tipo_Entrada = %s, "
+																"Grupo = %s, "
+																"Activa = %s, "
+																"Estado_Entrada = %s, "
+																"Ultimo_Update = \'%04i-%02i-%02i %02i:%02i:%02i\' "
+															"WHERE System_Key = \'%s\' AND Id = %s AND Particion = %s;", 
+															json_Nombre_Zona->valuestring,
+															json_Tipo_Zona->valuestring,
+															json_Grupo_Zona->valuestring,
+															json_Zona_Activa->valuestring,
+															json_Estado_Zona->valuestring,
+															p_tm->tm_year+1900, p_tm->tm_mon+1, p_tm->tm_mday,
+															p_tm->tm_hour, p_tm->tm_min, p_tm->tm_sec,
+															json_System_Key->valuestring,
+															json_Id_Zona->valuestring,
+															json_Id_Alarma->valuestring);
+											m_pServer->m_pLog->Add(100, "[QUERY][%s]", query);
+											rc = pDB->Query(NULL, query);
+											m_pServer->m_pLog->Add((pDB->LastQueryTime()>1)?1:100, "[QUERY] rc= %i, time= %li [%s]", rc, pDB->LastQueryTime(), query);
+											if(rc < 0) m_pServer->m_pLog->Add(1, "[QUERY] ERROR [%s] en [%s]", pDB->m_last_error_text, query);
+											if(rc == 0)
+											{
+												/* Si no se actualiza nada va un insert */
+												sprintf(query, "INSERT INTO TB_DOMCLOUD_ALARM_ENTRADA (System_Key,Id,Particion,Entrada,Tipo_Entrada,Grupo,Activa,Estado_Entrada,Ultimo_Update) "
+																"VALUES ( \'%s\',%s,%s,\'%s\',%s,%s,%s,%s,\'%04i-%02i-%02i %02i:%02i:%02i\');",
+																json_System_Key->valuestring,
+																json_Id_Zona->valuestring,
+																json_Id_Alarma->valuestring,
+																json_Nombre_Zona->valuestring,
+																json_Tipo_Zona->valuestring,
+																json_Grupo_Zona->valuestring,
+																json_Zona_Activa->valuestring,
+																json_Estado_Zona->valuestring,
+																p_tm->tm_year+1900, p_tm->tm_mon+1, p_tm->tm_mday,
+																p_tm->tm_hour, p_tm->tm_min, p_tm->tm_sec);
+												m_pServer->m_pLog->Add(100, "[QUERY][%s]", query);
+												rc = pDB->Query(NULL, query);
+												m_pServer->m_pLog->Add((pDB->LastQueryTime()>1)?1:100, "[QUERY] rc= %i, time= %li [%s]", rc, pDB->LastQueryTime(), query);
+												if(rc < 0) m_pServer->m_pLog->Add(1, "[QUERY] ERROR [%s] en [%s]", pDB->m_last_error_text, query);
+											}
+										}
+									}
+								}
+								/*
+								"Salidas":[
+									{"Id":"1","Objeto":"Sirena Exterior","Tipo_Salida":"0","Estado":"0"}]},
+								*/
+								/* Salidas */
+								json_Salidas = cJSON_GetObjectItemCaseSensitive(json_Alarma, "Salidas");
+								if(json_Salidas)
+								{
+									cJSON_ArrayForEach(json_Salida, json_Salidas)
+									{
+										json_Id_Salida = cJSON_GetObjectItemCaseSensitive(json_Salida, "Id");
+										json_Nombre_Salida = cJSON_GetObjectItemCaseSensitive(json_Salida, "Objeto");
+										json_Tipo_Salida = cJSON_GetObjectItemCaseSensitive(json_Salida, "Tipo_Salida");
+										json_Estado_Salida = cJSON_GetObjectItemCaseSensitive(json_Salida, "Estado");
+
+										if( json_Id_Salida && json_Nombre_Salida && json_Tipo_Salida && json_Estado_Salida )
+										{
+											sprintf(query, "UPDATE TB_DOMCLOUD_ALARM_SALIDA "
+															"SET Salida = \'%s\', "
+																"Tipo_Salida = %s, "
+																"Estado_Salida = %s, "
+																"Ultimo_Update = \'%04i-%02i-%02i %02i:%02i:%02i\' "
+															"WHERE System_Key = \'%s\' AND Id = %s AND Particion = %s;", 
+															json_Nombre_Salida->valuestring,
+															json_Tipo_Salida->valuestring,
+															json_Estado_Salida->valuestring,
+															p_tm->tm_year+1900, p_tm->tm_mon+1, p_tm->tm_mday,
+															p_tm->tm_hour, p_tm->tm_min, p_tm->tm_sec,
+															json_System_Key->valuestring,
+															json_Id_Salida->valuestring,
+															json_Id_Alarma->valuestring);
+											m_pServer->m_pLog->Add(100, "[QUERY][%s]", query);
+											rc = pDB->Query(NULL, query);
+											m_pServer->m_pLog->Add((pDB->LastQueryTime()>1)?1:100, "[QUERY] rc= %i, time= %li [%s]", rc, pDB->LastQueryTime(), query);
+											if(rc < 0) m_pServer->m_pLog->Add(1, "[QUERY] ERROR [%s] en [%s]", pDB->m_last_error_text, query);
+											if(rc == 0)
+											{
+												/* Si no se actualiza nada va un insert */
+												sprintf(query, "INSERT INTO TB_DOMCLOUD_ALARM_SALIDA (System_Key,Id,Particion,Salida,Tipo_Salida,Estado_Salida,Ultimo_Update) "
+																	"VALUES (\'%s\',%s,%s,\'%s\',%s,%s,\'%04i-%02i-%02i %02i:%02i:%02i\');",
+															json_System_Key->valuestring,
+															json_Id_Salida->valuestring,
+															json_Id_Alarma->valuestring,
+															json_Nombre_Salida->valuestring,
+															json_Tipo_Salida->valuestring,
+															json_Estado_Salida->valuestring,
+															p_tm->tm_year+1900, p_tm->tm_mon+1, p_tm->tm_mday,
+															p_tm->tm_hour, p_tm->tm_min, p_tm->tm_sec);
+												m_pServer->m_pLog->Add(100, "[QUERY][%s]", query);
+												rc = pDB->Query(NULL, query);
+												m_pServer->m_pLog->Add((pDB->LastQueryTime()>1)?1:100, "[QUERY] rc= %i, time= %li [%s]", rc, pDB->LastQueryTime(), query);
+												if(rc < 0) m_pServer->m_pLog->Add(1, "[QUERY] ERROR [%s] en [%s]", pDB->m_last_error_text, query);
+											}
+										}
+									}
+								}
+							}
+						}
+					}
 					else /* Solo vino la Key */
 					{
 						m_pServer->m_pLog->Add(100, "[*** Keep Alive ***] System_Key: %s", json_System_Key->valuestring);
@@ -412,12 +629,12 @@ int main(/*int argc, char** argv, char** env*/void)
 					strcpy(save_client_key, json_System_Key->valuestring);
 					if(QueryForNews(pDB, json_arr, save_client_key))
 					{
-						cJSON_Delete(json_obj);
-						json_obj = cJSON_CreateObject();
-						cJSON_AddStringToObject(json_obj, "resp_code", "0");
-						cJSON_AddStringToObject(json_obj, "resp_msg", "Ok");
-						cJSON_AddItemToObject(json_obj, "response", json_arr);
-						cJSON_PrintPreallocated(json_obj, message, MAX_BUFFER_LEN, 0);
+						cJSON_Delete(json_Message);
+						json_Message = cJSON_CreateObject();
+						cJSON_AddStringToObject(json_Message, "resp_code", "0");
+						cJSON_AddStringToObject(json_Message, "resp_msg", "Ok");
+						cJSON_AddItemToObject(json_Message, "response", json_arr);
+						cJSON_PrintPreallocated(json_Message, message, MAX_BUFFER_LEN, 0);
 
 						t = 0;
 						cJSON_ArrayForEach(json_un_obj, json_arr)
@@ -452,7 +669,7 @@ int main(/*int argc, char** argv, char** env*/void)
 					/* error al responder */
 					m_pServer->m_pLog->Add(1, "ERROR al responder mensaje [%s]", fn);
 				}
-				cJSON_Delete(json_obj);
+				cJSON_Delete(json_Message);
 			}
 
 
@@ -476,8 +693,9 @@ void OnClose(int sig)
 	m_pServer->m_pLog->Add(1, "Exit on signal %i", sig);
 	m_pServer->UnSuscribe("dompi_web_notif", GM_MSG_TYPE_CR);
 
-	delete pConfig;
 	delete m_pServer;
+	delete pConfig;
+	delete pDB;
 	exit(0);
 }
 

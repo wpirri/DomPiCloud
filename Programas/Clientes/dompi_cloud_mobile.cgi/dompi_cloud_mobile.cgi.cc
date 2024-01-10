@@ -165,8 +165,6 @@ int main(int /*argc*/, char** /*argv*/, char** env)
 
   pClient = new CGMClient(&gminit);
 
-  json_obj = cJSON_CreateObject();
-
   if(strchr(request_uri, '?'))
   {
     strcpy(buffer, strchr(request_uri, '?')+1);

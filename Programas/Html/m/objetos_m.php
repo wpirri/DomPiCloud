@@ -37,11 +37,7 @@ function LoadData(msg) {
     if(!json_list) return;
 
     // Cabecera
-    <?php if($grupo == 1) { ?>
-    output += '<div class="list-head" id="list-head1"  >\n';
-	output += '<img id="icon-image1" class="icon-image" src="../images/lock.png" >&nbsp;Alarma\n';
-    output += '</div>\n';
-    <?php } else if($grupo == 2) { ?>
+    <?php if($grupo == 2) { ?>
     output += '<div class="list-head" id="list-head2" >\n';
 	output += '<img id="icon-image2" class="icon-image" src="../images/lamp1.png" >&nbsp;Luces\n';
     output += '</div>\n';

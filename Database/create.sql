@@ -4,6 +4,9 @@ USE DB_DOMPICLOUD;
 DROP TABLE IF EXISTS TB_DOMCLOUD_USER;
 DROP TABLE IF EXISTS TB_DOMCLOUD_NOTIF;
 DROP TABLE IF EXISTS TB_DOMCLOUD_ASSIGN;
+DROP TABLE IF EXISTS TB_DOMCLOUD_ALARM;
+DROP TABLE IF EXISTS TB_DOMCLOUD_ALARM_ENTRADA;
+DROP TABLE IF EXISTS TB_DOMCLOUD_ALARM_SALIDA;
 
 CREATE TABLE TB_DOMCLOUD_USER (
 Usuario varchar(256),
@@ -46,4 +49,39 @@ Time_Stamp bigint,
 Objeto varchar(128),
 Accion varchar(16),
 PRIMARY KEY (System_Key, Time_Stamp)
+);
+
+CREATE TABLE TB_DOMCLOUD_ALARM (
+System_Key varchar(256),
+Id integer,
+Particion varchar(128),
+Estado_Activacion integer,
+Estado_Memoria integer,
+Estado_Alarma integer,
+Ultimo_Update varchar(32),
+PRIMARY KEY (System_Key, Id)
+);
+
+CREATE TABLE TB_DOMCLOUD_ALARM_ENTRADA (
+System_Key varchar(256),
+Id integer,
+Particion integer, 
+Entrada varchar(128),
+Tipo_Entrada integer,
+Grupo integer,
+Activa integer,
+Estado_Entrada integer,
+Ultimo_Update varchar(32),
+PRIMARY KEY (System_Key, Id, Particion)
+);
+
+CREATE TABLE TB_DOMCLOUD_ALARM_SALIDA (
+System_Key varchar(256),
+Id integer,
+Particion integer, 
+Salida varchar(128),
+Tipo_Salida integer,
+Estado_Salida integer,
+Ultimo_Update varchar(32),
+PRIMARY KEY (System_Key, Id, Particion)
 );

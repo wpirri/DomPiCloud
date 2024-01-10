@@ -12,10 +12,8 @@ if(isset($resp_code) && isset($resp_msg) && isset($sistema))
 <div class="desktop-group" id="desktop">
 
 <!-- Grupos -->
-<div class="menu-btn" id="menu1" onclick="window.location.replace('objetos_m.php?grupo=1');">
-	<img id="alarm1-icon" class="icon-image" src="../images/lock.png" >&nbsp;Alarma
-	<div class="status-text" id="alarm1_status_arm">&nbsp;* ????</div>
-	<div class="status-text" id="alarm1_status_rdy">&nbsp;* ????</div>
+<div class="menu-btn" id="menu1" onclick="window.location.replace('particiones_m.php');">
+	<img id="alarm1-icon" class="icon-image" src="../images/lock0.png" >&nbsp;Alarma
 </div>
 
 <div class="menu-btn" id="menu2" onclick="window.location.replace('objetos_m.php?grupo=2');">

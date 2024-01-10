@@ -105,6 +105,8 @@ using namespace std;
 
 CGMServerWait *m_pServer;
 DPConfig *pConfig;
+//CPgDB *pDB;
+CMyDB *pDB;
 
 void OnClose(int sig);
 
@@ -129,8 +131,6 @@ int main(/*int argc, char** argv, char** env*/void)
 	struct tm *p_tm;
 
 	STRFunc Strf;
-	//CPgDB *pDB;
-	CMyDB *pDB;
 
     cJSON *json_Message;
 
@@ -151,14 +151,15 @@ int main(/*int argc, char** argv, char** env*/void)
 	signal(SIGPIPE, SIG_IGN);
 	signal(SIGKILL, OnClose);
 	signal(SIGTERM, OnClose);
-	signal(SIGSTOP, OnClose);
-	signal(SIGABRT, OnClose);
-	signal(SIGQUIT, OnClose);
-	signal(SIGINT,  OnClose);
-	signal(SIGILL,  OnClose);
-	signal(SIGFPE,  OnClose);
-	signal(SIGSEGV, OnClose);
-	signal(SIGBUS,  OnClose);
+	/* Dejo de capturar interrupciones para permitir Core Dumps */
+	//signal(SIGSTOP, OnClose);
+	//signal(SIGABRT, OnClose);
+	//signal(SIGQUIT, OnClose);
+	//signal(SIGINT,  OnClose);
+	//signal(SIGILL,  OnClose);
+	//signal(SIGFPE,  OnClose);
+	//signal(SIGSEGV, OnClose);
+	//signal(SIGBUS,  OnClose);
 
 	m_pServer = new CGMServerWait;
 	m_pServer->Init("dompi_amazon_server");
@@ -880,7 +881,8 @@ void OnClose(int sig)
 	m_pServer->UnSuscribe("amazon_Lock", GM_MSG_TYPE_CR);
 	m_pServer->UnSuscribe("amazon_Unlock", GM_MSG_TYPE_CR);
 
-	delete pConfig;
 	delete m_pServer;
+	delete pConfig;
+	delete pDB;
 	exit(0);
 }

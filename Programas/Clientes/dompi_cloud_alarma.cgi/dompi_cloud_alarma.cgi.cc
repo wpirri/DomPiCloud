@@ -81,7 +81,7 @@ int main(int /*argc*/, char** /*argv*/, char** env)
     return 0;
   }
 
-  if( pConfig->GetParam("TRACE-AUTH.CGI", s))
+  if( pConfig->GetParam("TRACE-ALARMA.CGI", s))
   {
     trace = atoi(s);
   }
@@ -128,13 +128,12 @@ int main(int /*argc*/, char** /*argv*/, char** env)
   fputs("Content-Type: text/html\r\n", stdout);
   fputs("Cache-Control: no-cache\r\n\r\n", stdout);
 
-
   Str.EscapeHttp(request_uri, request_uri);
   Str.EscapeHttp(post_data, post_data);
- 
+
   if(trace)
   {
-    openlog("dompi_cloud_auth.cgi", 0, LOG_USER);
+    openlog("dompi_cloud_mobile.cgi", 0, LOG_USER);
 
     syslog(LOG_DEBUG, "REMOTE_ADDR: %s",remote_addr);
     syslog(LOG_DEBUG, "REQUEST_URI: [%s]",request_uri);
@@ -157,8 +156,6 @@ int main(int /*argc*/, char** /*argv*/, char** env)
   {
     syslog(LOG_DEBUG, "POST_DATA: [%s]",post_data);
   }
-
-
 
   gminit.m_host = server_address;
   gminit.m_port = 5533;
@@ -194,7 +191,36 @@ int main(int /*argc*/, char** /*argv*/, char** env)
     }
   }
 
-  strcpy(funcion_call, "dompi_cloud_check_user");
+  /* Particion */
+  if( !strcmp(funcion, "list_part"))
+  {
+    strcpy(funcion_call, "dompi_alarm_part_list");
+  }
+  else if( !strcmp(funcion, "status_part"))
+  {
+    strcpy(funcion_call, "dompi_alarm_part_status");
+  }
+  else if( !strcmp(funcion, "switch_part"))
+  {
+    strcpy(funcion_call, "dompi_alarm_part_switch");
+  }
+  /* Zona */
+  else if( !strcmp(funcion, "switch_zona"))
+  {
+    strcpy(funcion_call, "dompi_alarm_zona_switch");
+  }
+  /* Salida */
+  else if( !strcmp(funcion, "pulse_salida"))
+  {
+    strcpy(funcion_call, "dompi_alarm_salida_pulse");
+  }
+  else
+  {
+    fprintf(stdout, "{ \"rc\":\"1\", \"msg\":\"funcion [%s] desconocida\" }\r\n", funcion);
+    delete pClient;
+    return 0;
+  }
+
 
   /* Paso el objeto json a un buffer */
   cJSON_PrintPreallocated(json_obj, buffer, 4095, 0);

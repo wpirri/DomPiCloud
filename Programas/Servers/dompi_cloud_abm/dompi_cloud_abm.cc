@@ -41,6 +41,8 @@ using namespace std;
 
 CGMServerWait *m_pServer;
 DPConfig *pConfig;
+//CPgDB *pDB;
+CMyDB *pDB;
 
 const char *assign_columns[] = {
 	"System_Key",
@@ -89,15 +91,13 @@ int main(/*int argc, char** argv, char** env*/void)
 	time_t t;
 
 	STRFunc Strf;
-	//CPgDB *pDB;
-	CMyDB *pDB;
 
-    cJSON *json_obj;
-    cJSON *json_arr;
+    cJSON *json_Message;
+    cJSON *json_Query_Result;
     cJSON *json_row;
     cJSON *json_un_obj;
     cJSON *json_System_Key;
-	cJSON *json_Objeto;
+	cJSON *json_Messageeto;
 	cJSON *json_Estado;
 	cJSON *json_User;
 	cJSON *json_Password;
@@ -113,14 +113,15 @@ int main(/*int argc, char** argv, char** env*/void)
 	signal(SIGPIPE, SIG_IGN);
 	signal(SIGKILL, OnClose);
 	signal(SIGTERM, OnClose);
-	signal(SIGSTOP, OnClose);
-	signal(SIGABRT, OnClose);
-	signal(SIGQUIT, OnClose);
-	signal(SIGINT,  OnClose);
-	signal(SIGILL,  OnClose);
-	signal(SIGFPE,  OnClose);
-	signal(SIGSEGV, OnClose);
-	signal(SIGBUS,  OnClose);
+	/* Dejo de capturar interrupciones para permitir Core Dumps */
+	//signal(SIGSTOP, OnClose);
+	//signal(SIGABRT, OnClose);
+	//signal(SIGQUIT, OnClose);
+	//signal(SIGINT,  OnClose);
+	//signal(SIGILL,  OnClose);
+	//signal(SIGFPE,  OnClose);
+	//signal(SIGSEGV, OnClose);
+	//signal(SIGBUS,  OnClose);
 
 	m_pServer = new CGMServerWait;
 	m_pServer->Init("dompi_cloud_abm");
@@ -145,7 +146,6 @@ int main(/*int argc, char** argv, char** env*/void)
 
 	m_pServer->Suscribe("dompi_cloud_list_objects", GM_MSG_TYPE_CR);
 	m_pServer->Suscribe("dompi_cloud_touch_object", GM_MSG_TYPE_CR);
-	
 
 	m_pServer->m_pLog->Add(10, "Conectado a la base de datos...");
 	pDB = new CMyDB(db_host, db_name, db_user, db_password);
@@ -158,7 +158,7 @@ int main(/*int argc, char** argv, char** env*/void)
 		m_pServer->m_pLog->Add(1, "ERROR: En Open a la base de datos.");
 	}
 
-	m_pServer->m_pLog->Add(1, "Servicios de Domotica en la nube inicializados.");
+	m_pServer->m_pLog->Add(1, "Servidor de ABM Nube de Domotica inicializado.");
 
 	while((rc = m_pServer->Wait(fn, typ, message, MAX_BUFFER_LEN, &message_len, 6000 )) >= 0)
 	{
@@ -171,25 +171,25 @@ int main(/*int argc, char** argv, char** env*/void)
 			**************************************************************** */
 			if( !strcmp(fn, "dompi_cloud_status"))
 			{
-				json_obj = cJSON_Parse(message);
+				json_Message = cJSON_Parse(message);
 
-				json_System_Key = cJSON_GetObjectItemCaseSensitive(json_obj, "System_Key");
-				json_Accion = cJSON_GetObjectItemCaseSensitive(json_obj, "Accion");
-				json_Admin = cJSON_GetObjectItemCaseSensitive(json_obj, "Admin");
+				json_System_Key = cJSON_GetObjectItemCaseSensitive(json_Message, "System_Key");
+				json_Accion = cJSON_GetObjectItemCaseSensitive(json_Message, "Accion");
+				json_Admin = cJSON_GetObjectItemCaseSensitive(json_Message, "Admin");
 				if(json_Accion)
 				{
-					json_Objeto = cJSON_GetObjectItemCaseSensitive(json_obj, "Objeto");
-					if(json_Objeto)
+					json_Messageeto = cJSON_GetObjectItemCaseSensitive(json_Message, "Objeto");
+					if(json_Messageeto)
 					{
 						t = time(&t);
 						m_pServer->m_pLog->Add(50, "Establecer / Cambiar estado de Objeto: %s de %s",
-							json_Objeto->valuestring,
+							json_Messageeto->valuestring,
 							json_System_Key->valuestring);
 						sprintf(query, "INSERT INTO TB_DOMCLOUD_NOTIF (System_Key, Time_Stamp, Objeto, Accion) "
 											"VALUES (\'%s\', %lu, \'%s\', \'%s\') ",
 											json_System_Key->valuestring,
 											t,
-											json_Objeto->valuestring,
+											json_Messageeto->valuestring,
 											json_Accion->valuestring);
 						m_pServer->m_pLog->Add(100, "[QUERY][%s]", query);
 						rc = pDB->Query(NULL, query);
@@ -224,53 +224,53 @@ int main(/*int argc, char** argv, char** env*/void)
 				else if(json_System_Key)
 				{
 					m_pServer->m_pLog->Add(50, "Estado de Objetos: [%s]", json_System_Key->valuestring);
-					json_arr = cJSON_CreateArray();
+					json_Query_Result = cJSON_CreateArray();
 					sprintf(query, "SELECT Objeto, Estado, Ultimo_Update "
 											"FROM TB_DOMCLOUD_ASSIGN "
 											"WHERE System_Key = \'%s\' AND Id > 0;", json_System_Key->valuestring);
 					m_pServer->m_pLog->Add(100, "[QUERY][%s]", query);
-					rc = pDB->Query(json_arr, query);
+					rc = pDB->Query(json_Query_Result, query);
 					m_pServer->m_pLog->Add((pDB->LastQueryTime()>1)?1:100, "[QUERY] rc= %i, time= %li [%s]", rc, pDB->LastQueryTime(), query);
 					if(rc < 0) m_pServer->m_pLog->Add(1, "[QUERY] ERROR [%s] en [%s]", pDB->m_last_error_text, query);
 					if(rc > 0)
 					{
-						cJSON_Delete(json_obj);
-						json_obj = cJSON_CreateObject();
-						cJSON_AddStringToObject(json_obj, "resp_code", "0");
-						cJSON_AddStringToObject(json_obj, "resp_msg", "Ok");
-						cJSON_AddItemToObject(json_obj, "response", json_arr);
-						cJSON_PrintPreallocated(json_obj, message, MAX_BUFFER_LEN, 0);
+						cJSON_Delete(json_Message);
+						json_Message = cJSON_CreateObject();
+						cJSON_AddStringToObject(json_Message, "resp_code", "0");
+						cJSON_AddStringToObject(json_Message, "resp_msg", "Ok");
+						cJSON_AddItemToObject(json_Message, "response", json_Query_Result);
+						cJSON_PrintPreallocated(json_Message, message, MAX_BUFFER_LEN, 0);
 					}
 					else
 					{
 						strcpy(message, "{\"response\":{\"resp_code\":\"1\", \"resp_msg\":\"Listado vacio\"}}");
-						cJSON_Delete(json_arr);
+						cJSON_Delete(json_Query_Result);
 					}
 				}
 				else
 				{
 					m_pServer->m_pLog->Add(50, "Listado de clientes");
-					json_arr = cJSON_CreateArray();
+					json_Query_Result = cJSON_CreateArray();
 					sprintf(query, "SELECT System_Key "
 											"FROM TB_DOMCLOUD_ASSIGN "
 											"WHERE Id = 0;");
 					m_pServer->m_pLog->Add(100, "[QUERY][%s]", query);
-					rc = pDB->Query(json_arr, query);
+					rc = pDB->Query(json_Query_Result, query);
 					m_pServer->m_pLog->Add((pDB->LastQueryTime()>1)?1:100, "[QUERY] rc= %i, time= %li [%s]", rc, pDB->LastQueryTime(), query);
 					if(rc < 0) m_pServer->m_pLog->Add(1, "[QUERY] ERROR [%s] en [%s]", pDB->m_last_error_text, query);
 					if(rc > 0)
 					{
-						cJSON_Delete(json_obj);
-						json_obj = cJSON_CreateObject();
-						cJSON_AddStringToObject(json_obj, "resp_code", "0");
-						cJSON_AddStringToObject(json_obj, "resp_msg", "Ok");
-						cJSON_AddItemToObject(json_obj, "response", json_arr);
-						cJSON_PrintPreallocated(json_obj, message, MAX_BUFFER_LEN, 0);
+						cJSON_Delete(json_Message);
+						json_Message = cJSON_CreateObject();
+						cJSON_AddStringToObject(json_Message, "resp_code", "0");
+						cJSON_AddStringToObject(json_Message, "resp_msg", "Ok");
+						cJSON_AddItemToObject(json_Message, "response", json_Query_Result);
+						cJSON_PrintPreallocated(json_Message, message, MAX_BUFFER_LEN, 0);
 					}
 					else
 					{
 						strcpy(message, "{\"response\":{\"resp_code\":\"1\", \"resp_msg\":\"Listado vacio\"}}");
-						cJSON_Delete(json_arr);
+						cJSON_Delete(json_Query_Result);
 					}
 				}
 				m_pServer->m_pLog->Add(50, "%s:(R)[%s]", fn, message);
@@ -279,33 +279,33 @@ int main(/*int argc, char** argv, char** env*/void)
 					/* error al responder */
 					m_pServer->m_pLog->Add(1, "ERROR al responder mensaje [%s]", fn);
 				}
-				cJSON_Delete(json_obj);
+				cJSON_Delete(json_Message);
 			}
 			/* ****************************************************************
 			*		dompi_cloud_check_user - 
 			**************************************************************** */
 			else if( !strcmp(fn, "dompi_cloud_check_user"))
 			{
-				json_obj = cJSON_Parse(message);
+				json_Message = cJSON_Parse(message);
 
-				json_User = cJSON_GetObjectItemCaseSensitive(json_obj, "User");
-				json_Password = cJSON_GetObjectItemCaseSensitive(json_obj, "Password");
-				json_Time = cJSON_GetObjectItemCaseSensitive(json_obj, "Time");
+				json_User = cJSON_GetObjectItemCaseSensitive(json_Message, "User");
+				json_Password = cJSON_GetObjectItemCaseSensitive(json_Message, "Password");
+				json_Time = cJSON_GetObjectItemCaseSensitive(json_Message, "Time");
 				if(json_User && json_Password && json_Time)
 				{
-					json_arr = cJSON_CreateArray();
+					json_Query_Result = cJSON_CreateArray();
 					sprintf(query, "SELECT Id_Sistema, Errores, Ultima_Conexion, Estado "
 											"FROM TB_DOMCLOUD_USER "
 											"WHERE UPPER(Usuario) = UPPER(\'%s\') AND Clave = \'%s\';",
 											json_User->valuestring,
 											json_Password->valuestring);
 					m_pServer->m_pLog->Add(100, "[QUERY][%s]", query);
-					rc = pDB->Query(json_arr, query);
+					rc = pDB->Query(json_Query_Result, query);
 					m_pServer->m_pLog->Add((pDB->LastQueryTime()>1)?1:100, "[QUERY] rc= %i, time= %li [%s]", rc, pDB->LastQueryTime(), query);
 					if(rc < 0) m_pServer->m_pLog->Add(1, "[QUERY] ERROR [%s] en [%s]", pDB->m_last_error_text, query);
 					if(rc > 0)
 					{
-						cJSON_ArrayForEach(json_un_obj, json_arr)
+						cJSON_ArrayForEach(json_un_obj, json_Query_Result)
 						{
 							json_Id_Sistema = cJSON_GetObjectItemCaseSensitive(json_un_obj, "Id_Sistema");
 							//json_Errores = cJSON_GetObjectItemCaseSensitive(json_un_obj, "Errores");
@@ -314,12 +314,12 @@ int main(/*int argc, char** argv, char** env*/void)
 
 							if( atoi(json_Estado->valuestring) == 1)
 							{
-								//cJSON_Delete(json_obj);
-								//json_obj = cJSON_CreateObject();
-								//cJSON_AddStringToObject(json_obj, "resp_code", "0");
-								//cJSON_AddStringToObject(json_obj, "resp_msg", "Ok");
-								//cJSON_AddItemToObject(json_obj, "response", json_arr);
-								//cJSON_PrintPreallocated(json_obj, message, MAX_BUFFER_LEN, 0);
+								//cJSON_Delete(json_Message);
+								//json_Message = cJSON_CreateObject();
+								//cJSON_AddStringToObject(json_Message, "resp_code", "0");
+								//cJSON_AddStringToObject(json_Message, "resp_msg", "Ok");
+								//cJSON_AddItemToObject(json_Message, "response", json_Query_Result);
+								//cJSON_PrintPreallocated(json_Message, message, MAX_BUFFER_LEN, 0);
 								sprintf(message, "{\"response\":{\"resp_code\":\"0\", \"resp_msg\":\"Ok\", \"sistema\":\"%s\"}}", json_Id_Sistema->valuestring);
 							}
 							else
@@ -332,7 +332,7 @@ int main(/*int argc, char** argv, char** env*/void)
 					{
 						strcpy(message, "{\"response\":{\"resp_code\":\"9999\", \"resp_msg\":\"Auth Error\"}}");
 					}
-					cJSON_Delete(json_arr);
+					cJSON_Delete(json_Query_Result);
 				}
 				else
 				{
@@ -345,7 +345,7 @@ int main(/*int argc, char** argv, char** env*/void)
 					/* error al responder */
 					m_pServer->m_pLog->Add(1, "ERROR al responder mensaje [%s]", fn);
 				}
-				cJSON_Delete(json_obj);
+				cJSON_Delete(json_Message);
 			}
 			/* ****************************************************************
 			*		dompi_cloud_user_list
@@ -354,24 +354,24 @@ int main(/*int argc, char** argv, char** env*/void)
 			{
 				message[0] = 0;
 
-				json_arr = cJSON_CreateArray();
+				json_Query_Result = cJSON_CreateArray();
 				strcpy(query, "SELECT Usuario, Id_Sistema, Estado "
 								"FROM TB_DOMCLOUD_USER "
 								"ORDER BY Usuario ASC;");
 				m_pServer->m_pLog->Add(100, "[QUERY][%s]", query);
-				rc = pDB->Query(json_arr, query);
+				rc = pDB->Query(json_Query_Result, query);
 				m_pServer->m_pLog->Add((pDB->LastQueryTime()>1)?1:100, "[QUERY] rc= %i, time= %li [%s]", rc, pDB->LastQueryTime(), query);
 				if(rc < 0) m_pServer->m_pLog->Add(1, "[QUERY] ERROR [%s] en [%s]", pDB->m_last_error_text, query);
 				if(rc > 0)
 				{
-					json_obj = cJSON_CreateObject();
-					cJSON_AddItemToObject(json_obj, "response", json_arr);
-					cJSON_PrintPreallocated(json_obj, message, MAX_BUFFER_LEN, 0);
-					cJSON_Delete(json_obj);
+					json_Message = cJSON_CreateObject();
+					cJSON_AddItemToObject(json_Message, "response", json_Query_Result);
+					cJSON_PrintPreallocated(json_Message, message, MAX_BUFFER_LEN, 0);
+					cJSON_Delete(json_Message);
 				}
 				else
 				{
-					cJSON_Delete(json_arr);
+					cJSON_Delete(json_Query_Result);
 				}
 
 				m_pServer->m_pLog->Add(90, "%s:(R)[%s]", fn, message);
@@ -388,22 +388,22 @@ int main(/*int argc, char** argv, char** env*/void)
 			{
 				message[0] = 0;
 
-				json_arr = cJSON_CreateArray();
+				json_Query_Result = cJSON_CreateArray();
 				strcpy(query, "SELECT * FROM TB_DOMCLOUD_USER;");
 				m_pServer->m_pLog->Add(100, "[QUERY][%s]", query);
-				rc = pDB->Query(json_arr, query);
+				rc = pDB->Query(json_Query_Result, query);
 				m_pServer->m_pLog->Add((pDB->LastQueryTime()>1)?1:100, "[QUERY] rc= %i, time= %li [%s]", rc, pDB->LastQueryTime(), query);
 				if(rc < 0) m_pServer->m_pLog->Add(1, "[QUERY] ERROR [%s] en [%s]", pDB->m_last_error_text, query);
 				if(rc > 0)
 				{
-					json_obj = cJSON_CreateObject();
-					cJSON_AddItemToObject(json_obj, "response", json_arr);
-					cJSON_PrintPreallocated(json_obj, message, MAX_BUFFER_LEN, 0);
-					cJSON_Delete(json_obj);
+					json_Message = cJSON_CreateObject();
+					cJSON_AddItemToObject(json_Message, "response", json_Query_Result);
+					cJSON_PrintPreallocated(json_Message, message, MAX_BUFFER_LEN, 0);
+					cJSON_Delete(json_Message);
 				}
 				else
 				{
-					cJSON_Delete(json_arr);
+					cJSON_Delete(json_Query_Result);
 				}
 
 				m_pServer->m_pLog->Add(90, "%s:(R)[%s]", fn, message);
@@ -418,21 +418,21 @@ int main(/*int argc, char** argv, char** env*/void)
 			**************************************************************** */
 			else if( !strcmp(fn, "dompi_cloud_user_get"))
 			{
-				json_obj = cJSON_Parse(message);
+				json_Message = cJSON_Parse(message);
 				message[0] = 0;
-				json_un_obj = cJSON_GetObjectItemCaseSensitive(json_obj, "Usuario");
+				json_un_obj = cJSON_GetObjectItemCaseSensitive(json_Message, "Usuario");
 				if(json_un_obj)
 				{
-					json_arr = cJSON_CreateArray();
+					json_Query_Result = cJSON_CreateArray();
 					sprintf(query, "SELECT * FROM TB_DOMCLOUD_USER WHERE Usuario = %s;", json_un_obj->valuestring);
 					m_pServer->m_pLog->Add(100, "[QUERY][%s]", query);
-					rc = pDB->Query(json_arr, query);
+					rc = pDB->Query(json_Query_Result, query);
 					m_pServer->m_pLog->Add((pDB->LastQueryTime()>1)?1:100, "[QUERY] rc= %i, time= %li [%s]", rc, pDB->LastQueryTime(), query);
 					if(rc < 0) m_pServer->m_pLog->Add(1, "[QUERY] ERROR [%s] en [%s]", pDB->m_last_error_text, query);
 					if(rc > 0)
 					{
 						/* reemplazo las claves por 16* */
-						cJSON_ArrayForEach(json_row, json_arr)
+						cJSON_ArrayForEach(json_row, json_Query_Result)
 						{
 							if(cJSON_GetObjectItemCaseSensitive(json_row, "Clave"))
 							{
@@ -440,13 +440,13 @@ int main(/*int argc, char** argv, char** env*/void)
 								cJSON_AddStringToObject(json_row, "Clave", "****************");
 							}
 						}
-						cJSON_Delete(json_obj);
-						json_obj = cJSON_CreateObject();
-						cJSON_AddItemToObject(json_obj, "response", json_arr);
-						cJSON_PrintPreallocated(json_obj, message, MAX_BUFFER_LEN, 0);
+						cJSON_Delete(json_Message);
+						json_Message = cJSON_CreateObject();
+						cJSON_AddItemToObject(json_Message, "response", json_Query_Result);
+						cJSON_PrintPreallocated(json_Message, message, MAX_BUFFER_LEN, 0);
 					}
 				}
-				cJSON_Delete(json_obj);
+				cJSON_Delete(json_Message);
 
 				m_pServer->m_pLog->Add(90, "%s:(R)[%s]", fn, message);
 				if(m_pServer->Resp(message, strlen(message), GME_OK) != GME_OK)
@@ -460,13 +460,13 @@ int main(/*int argc, char** argv, char** env*/void)
 			**************************************************************** */
 			else if( !strcmp(fn, "dompi_cloud_user_add"))
 			{
-				json_obj = cJSON_Parse(message);
+				json_Message = cJSON_Parse(message);
 				strcpy(message, "{\"response\":{\"resp_code\":\"0\", \"resp_msg\":\"Ok\"}}");
 				query[0] = 0;
 				query_into[0] = 0;
 				query_values[0] = 0;
 
-				json_un_obj = json_obj;
+				json_un_obj = json_Message;
 
 				while( json_un_obj )
 				{
@@ -514,7 +514,7 @@ int main(/*int argc, char** argv, char** env*/void)
 						json_un_obj = json_un_obj->next;
 					}
 				}
-				cJSON_Delete(json_obj);
+				cJSON_Delete(json_Message);
 
 				strcat(query_into, ")");
 				strcat(query_values, ")");
@@ -541,9 +541,9 @@ int main(/*int argc, char** argv, char** env*/void)
 			**************************************************************** */
 			else if( !strcmp(fn, "dompi_cloud_user_delete"))
 			{
-				json_obj = cJSON_Parse(message);
+				json_Message = cJSON_Parse(message);
 				strcpy(message, "{\"response\":{\"resp_code\":\"0\", \"resp_msg\":\"Ok\"}}");
-				json_un_obj = cJSON_GetObjectItemCaseSensitive(json_obj, "Usuario");
+				json_un_obj = cJSON_GetObjectItemCaseSensitive(json_Message, "Usuario");
 				if(json_un_obj)
 				{
 					sprintf(query, "DELETE FROM TB_DOMCLOUD_USER WHERE Usuario = \'%s\';", json_un_obj->valuestring);
@@ -556,7 +556,7 @@ int main(/*int argc, char** argv, char** env*/void)
 						strcpy(message, "{\"response\":{\"resp_code\":\"1\", \"resp_msg\":\"Database Error\"}}");
 					}
 				}
-				cJSON_Delete(json_obj);
+				cJSON_Delete(json_Message);
 
 				m_pServer->m_pLog->Add(90, "%s:(R)[%s]", fn, message);
 				if(m_pServer->Resp(message, strlen(message), GME_OK) != GME_OK)
@@ -570,14 +570,14 @@ int main(/*int argc, char** argv, char** env*/void)
 			**************************************************************** */
 			else if( !strcmp(fn, "dompi_cloud_user_update"))
 			{
-				json_obj = cJSON_Parse(message);
+				json_Message = cJSON_Parse(message);
 				strcpy(message, "{\"response\":{\"resp_code\":\"0\", \"resp_msg\":\"Ok\"}}");
 				query[0] = 0;
 				query_into[0] = 0;
 				query_values[0] = 0;
 				query_where[0] = 0;
 // cJSON_ArrayForEach(element, array) for(element = (array != NULL) ? (array)->child : NULL; element != NULL; element = element->next)
-				json_un_obj = json_obj;
+				json_un_obj = json_Message;
 				while( json_un_obj )
 				{
 					/* Voy hasta el elemento con datos */
@@ -625,7 +625,7 @@ int main(/*int argc, char** argv, char** env*/void)
 						json_un_obj = json_un_obj->next;
 					}
 				}
-				cJSON_Delete(json_obj);
+				cJSON_Delete(json_Message);
 				if(strlen(query_where))
 				{
 					sprintf(query, "UPDATE TB_DOMCLOUD_USER SET %s WHERE %s;", query_values, query_where);
@@ -655,13 +655,13 @@ int main(/*int argc, char** argv, char** env*/void)
 			**************************************************************** */
 			else if( !strcmp(fn, "dompi_cloud_list_objects"))
 			{
-				json_obj = cJSON_Parse(message);
+				json_Message = cJSON_Parse(message);
 				message[0] = 0;
-				json_Sistema = cJSON_GetObjectItemCaseSensitive(json_obj, "sistema");
-				json_Grupo = cJSON_GetObjectItemCaseSensitive(json_obj, "grupo");
+				json_Sistema = cJSON_GetObjectItemCaseSensitive(json_Message, "sistema");
+				json_Grupo = cJSON_GetObjectItemCaseSensitive(json_Message, "grupo");
 				if(json_Sistema && json_Grupo)
 				{
-					json_arr = cJSON_CreateArray();
+					json_Query_Result = cJSON_CreateArray();
 					sprintf(query, "SELECT Id,Objeto,Estado,Icono_Apagado,Icono_Encendido,Icono_Auto "
 								   "FROM TB_DOMCLOUD_ASSIGN "
 					               "WHERE System_Key = \'%s\' AND Grupo_Visual = %s "
@@ -669,18 +669,18 @@ int main(/*int argc, char** argv, char** env*/void)
 								   json_Sistema->valuestring,
 								   json_Grupo->valuestring);
 					m_pServer->m_pLog->Add(100, "[QUERY][%s]", query);
-					rc = pDB->Query(json_arr, query);
+					rc = pDB->Query(json_Query_Result, query);
 					m_pServer->m_pLog->Add((pDB->LastQueryTime()>1)?1:100, "[QUERY] rc= %i, time= %li [%s]", rc, pDB->LastQueryTime(), query);
 					if(rc < 0) m_pServer->m_pLog->Add(1, "[QUERY] ERROR [%s] en [%s]", pDB->m_last_error_text, query);
 					if(rc > 0)
 					{
-						cJSON_Delete(json_obj);
-						json_obj = cJSON_CreateObject();
-						cJSON_AddItemToObject(json_obj, "response", json_arr);
-						cJSON_PrintPreallocated(json_obj, message, MAX_BUFFER_LEN, 0);
+						cJSON_Delete(json_Message);
+						json_Message = cJSON_CreateObject();
+						cJSON_AddItemToObject(json_Message, "response", json_Query_Result);
+						cJSON_PrintPreallocated(json_Message, message, MAX_BUFFER_LEN, 0);
 					}
 				}
-				cJSON_Delete(json_obj);
+				cJSON_Delete(json_Message);
 
 				m_pServer->m_pLog->Add(90, "%s:(R)[%s]", fn, message);
 				if(m_pServer->Resp(message, strlen(message), GME_OK) != GME_OK)
@@ -694,29 +694,29 @@ int main(/*int argc, char** argv, char** env*/void)
 			**************************************************************** */
 			else if( !strcmp(fn, "dompi_cloud_touch_object"))
 			{
-				json_obj = cJSON_Parse(message);
+				json_Message = cJSON_Parse(message);
 				message[0] = 0;
 				str_tmp[0] = 0;
 
-				json_System_Key = cJSON_GetObjectItemCaseSensitive(json_obj, "sistema");
-				json_Objeto = cJSON_GetObjectItemCaseSensitive(json_obj, "objeto");
-				if(json_System_Key && json_Objeto)
+				json_System_Key = cJSON_GetObjectItemCaseSensitive(json_Message, "sistema");
+				json_Messageeto = cJSON_GetObjectItemCaseSensitive(json_Message, "objeto");
+				if(json_System_Key && json_Messageeto)
 				{
-					json_arr = cJSON_CreateArray();
+					json_Query_Result = cJSON_CreateArray();
 					m_pServer->m_pLog->Add(50, "Touch Objeto: %s de %s",
-						json_Objeto->valuestring,
+						json_Messageeto->valuestring,
 						json_System_Key->valuestring);
 					sprintf(query, "SELECT * FROM TB_DOMCLOUD_ASSIGN "
 									"WHERE System_Key = \'%s\' AND Objeto = \'%s\';",
 									json_System_Key->valuestring,
-									json_Objeto->valuestring);
+									json_Messageeto->valuestring);
 					m_pServer->m_pLog->Add(100, "[QUERY][%s]", query);
-					rc = pDB->Query(json_arr, query);
+					rc = pDB->Query(json_Query_Result, query);
 					m_pServer->m_pLog->Add((pDB->LastQueryTime()>1)?1:100, "[QUERY] rc= %i, time= %li [%s]", rc, pDB->LastQueryTime(), query);
 					if(rc < 0) m_pServer->m_pLog->Add(1, "[QUERY] ERROR [%s] en [%s]", pDB->m_last_error_text, query);
 					if(rc > 0)
 					{
-						cJSON_ArrayForEach(json_un_obj, json_arr) { break; }
+						cJSON_ArrayForEach(json_un_obj, json_Query_Result) { break; }
 						json_Estado = cJSON_GetObjectItemCaseSensitive(json_un_obj, "Estado");
 						json_Tipo = cJSON_GetObjectItemCaseSensitive(json_un_obj, "Tipo");
 						if(json_Estado && json_Tipo)
@@ -747,7 +747,7 @@ int main(/*int argc, char** argv, char** env*/void)
 											"VALUES (\'%s\', %lu, \'%s\', \'%s\');",
 											json_System_Key->valuestring,
 											t,
-											json_Objeto->valuestring,
+											json_Messageeto->valuestring,
 											str_tmp);
 						m_pServer->m_pLog->Add(100, "[QUERY][%s]", query);
 						rc = pDB->Query(NULL, query);
@@ -759,13 +759,13 @@ int main(/*int argc, char** argv, char** env*/void)
 					{
 						strcpy(message, "{\"response\":{\"resp_code\":\"2\", \"resp_msg\":\"Objeto no encontrado\"}}");
 					}
-					cJSON_Delete(json_arr);
+					cJSON_Delete(json_Query_Result);
 				}
 				else
 				{
 					strcpy(message, "{\"response\":{\"resp_code\":\"10\", \"resp_msg\":\"Objeto no definido\"}}");
 				}
-				cJSON_Delete(json_obj);
+				cJSON_Delete(json_Message);
 
 				m_pServer->m_pLog->Add(90, "%s:(R)[%s]", fn, message);
 				if(m_pServer->Resp(message, strlen(message), GME_OK) != GME_OK)
@@ -774,13 +774,12 @@ int main(/*int argc, char** argv, char** env*/void)
 					m_pServer->m_pLog->Add(1, "ERROR al responder mensaje [%s]", fn);
 				}
 			}
+
 			else
 			{
 				m_pServer->m_pLog->Add(50, "GME_SVC_NOTFOUND");
 				m_pServer->Resp(NULL, 0, GME_SVC_NOTFOUND);
 			}
-
-
 
 		}
 
@@ -814,8 +813,9 @@ void OnClose(int sig)
 	m_pServer->UnSuscribe("dompi_cloud_list_objects", GM_MSG_TYPE_CR);
 	m_pServer->UnSuscribe("dompi_cloud_touch_object", GM_MSG_TYPE_CR);
 
-	delete pConfig;
 	delete m_pServer;
+	delete pConfig;
+	delete pDB;
 	exit(0);
 }
 
