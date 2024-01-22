@@ -3,12 +3,14 @@
 include configure.mk
 
 all:
+	find . -name "*.sh" -exec sed -i 's/\r//g' {} \;
 	make -C Programas
 
 clean:
 	make -C Programas clean
 
 install:
+	sed -i 's/\r//g' Config/*
 	make -C Script install
 	make -C Programas install
 
@@ -26,6 +28,7 @@ installer:
 	rm $(RUN_HOME)/html/config.php
 	rm $(RUN_HOME)/html/Makefile
 	cp Programas/Clientes/dompi_cloud_abmuser.cgi/dompi_cloud_abmuser.cgi $(RUN_HOME)/cgi/
+	cp Programas/Clientes/dompi_cloud_alarma.cgi/dompi_cloud_alarma.cgi $(RUN_HOME)/cgi/
 	cp Programas/Clientes/dompi_cloud_amazon.cgi/dompi_cloud_amazon.cgi $(RUN_HOME)/cgi/
 	cp Programas/Clientes/dompi_cloud_auth.cgi/dompi_cloud_auth.cgi $(RUN_HOME)/cgi/
 	cp Programas/Clientes/dompi_cloud_mobile.cgi/dompi_cloud_mobile.cgi $(RUN_HOME)/cgi/

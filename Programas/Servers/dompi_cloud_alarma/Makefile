@@ -36,7 +36,9 @@ clean:
 	$(RM) $(OBJECTS) $(OUTPUT) *.d
 
 install:
+	sed -i 's/\r//g' conf/*
 	$(CHMOD) +x install_server.sh
+	$(CHMOD) +x update-tables.sh
 	./install_server.sh $(INST_SBINDIR) $(OUTPUT) $(INST_VARDIR)
 
 uninstall:

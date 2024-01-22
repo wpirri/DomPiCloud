@@ -11,6 +11,10 @@ include("head_m.php");
 
 <div class="desktop-group" id="desktop">
 
+<div class="head-list" id="event-head">
+&nbsp;
+</div>
+
 <div class="scroll-list" id="event-list">
 &nbsp;
 </div>
@@ -66,6 +70,7 @@ function LoadData(msg) {
         }
         else
         {
+            // cabecera
             output += '<div class="list-head" id="list-head1" onClick="ChangeParticion(\'' + part.Nombre + '\');" >\n';
             output += '<img id="icon-alarma" class="icon-image" ';
             if(part.Estado_Activacion > 0) {
@@ -75,11 +80,14 @@ function LoadData(msg) {
             }
             output += ' />&nbsp;' + part.Nombre + '\n';
             output += '</div>\n';
+            document.getElementById('event-head').innerHTML = output;
 
+            // listado
+            output = '';
             for (i = 0; i < zonas.length; i++) {
                 output += '<div class="list-btn-group1" ';
                 output += 'onClick="ChangeZona(\'' + part.Nombre + '\',\'' + zonas[i].Objeto + '\');">\n';
-                output += '<img id="icon-zona' + i + '" ';
+                output += '&nbsp;&nbsp;<img class="mini-icon-image" id="icon-zona' + i + '" ';
                 if(zonas[i].Activa > 0) {
                     if (zonas[i].Estado > 0) {
                         output += 'src="../images/led_rojo1.png"';
@@ -96,7 +104,7 @@ function LoadData(msg) {
             for (i = 0; i < salidas.length; i++) {
                 output += '<div class="list-btn-group1" ';
                 output += 'onClick="ChangeSalida(\'' + part.Nombre + '\',\'' + salidas[i].Objeto + '\');">\n';
-                output += '<img id="icon-salida' + i + '"'; 
+                output += '&nbsp;&nbsp;<img class="mini-icon-image" id="icon-salida' + i + '"'; 
                 if (salidas[i].Estado > 0) {
                     output += 'src="../images/sirena_mini1.png"';
                 } else {
@@ -105,7 +113,6 @@ function LoadData(msg) {
                 output += ' >&nbsp;' + salidas[i].Objeto + '\n';
                 output += '</div>\n';
             }    
-
             document.getElementById('event-list').innerHTML = output;
         }
     } catch (e) { }

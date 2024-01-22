@@ -7,6 +7,10 @@ include("head_m.php");
 
 <div class="desktop-group" id="desktop">
 
+<div class="head-list" id="event-head">
+&nbsp;
+</div>
+
 <div class="scroll-list" id="event-list">
 &nbsp;
 </div>
@@ -49,7 +53,10 @@ function LoadData(msg) {
             output += '<div class="list-head" id="list-head1"  >\n';
             output += '<img id="icon-head" id="icon-image1" class="icon-image" src="../images/lock0.png" />&nbsp;Particiones\n';
             output += '</div>\n';
+            document.getElementById('event-head').innerHTML = output;
 
+            // listado
+            output = '';
             for (i = 0; i < json_list.length; i++) {
                 if( json_list[i].Id > 0 )
                 {
@@ -65,8 +72,8 @@ function LoadData(msg) {
                     output += '\n</div>\n';
                 }
             }    
-
             document.getElementById('event-list').innerHTML = output;
+
         }
 	} catch (e) { }
 }

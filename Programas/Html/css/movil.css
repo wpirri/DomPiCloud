@@ -29,31 +29,18 @@ body {
 	z-index: 10;
 	padding: 2px;
 	height: 75px;
-	border: 1px dotted #fff;
+	border-radius: 10px 10px 10px 10px;
 	cursor: pointer;
 	}
 
-.menu-back-btn {
-	position: absolute; 
-	left: 5%; 
-	top: 85%; 
-	color: white;
-	z-index: 10;
-	padding: 2px;
-	height: 75px;
-	width: 50%;
-	border: 1px dotted #fff;
-	background: green;
-	cursor: pointer;
-}
-
 .list-head {
+	font-weight: bold;
 	color: white;
 	z-index: 10;
 	padding: 2px;
-	height: 75px;
-	width: 100%;
-	border: 1px dotted #fff;
+	height: 60px;
+	width: 95%;
+	border-radius: 10px 10px 10px 10px;
 	cursor: pointer;
 	}
 		
@@ -87,8 +74,9 @@ body {
 	z-index: 10;
 	padding: 2px;
 	height: 40px;
-	width: 100%;
-	border: 1px dotted #fff;
+	width: 95%;
+	border: 2px solid black;
+	border-radius: 10px 10px 10px 10px;
 	cursor: pointer;
 	}
 
@@ -98,8 +86,9 @@ body {
 	z-index: 10;
 	padding: 2px;
 	height: 40px;
-	width: 100%;
-	border: 1px dotted #fff;
+	width: 95%;
+	border: 2px solid black;
+	border-radius: 10px 10px 10px 10px;
 	cursor: pointer;
 	}
 		
@@ -109,8 +98,9 @@ body {
 	z-index: 10;
 	padding: 2px;
 	height: 40px;
-	width: 100%;
-	border: 1px dotted #fff;
+	width: 95%;
+	border: 2px solid black;
+	border-radius: 10px 10px 10px 10px;
 	cursor: pointer;
 	}
 	
@@ -120,8 +110,9 @@ body {
 	z-index: 10;
 	padding: 2px;
 	height: 40px;
-	width: 100%;
-	border: 1px dotted #fff;
+	width: 95%;
+	border: 2px solid black;
+	border-radius: 10px 10px 10px 10px;
 	cursor: pointer;
 	}
 	
@@ -131,8 +122,9 @@ body {
 	z-index: 10;
 	padding: 2px;
 	height: 40px;
-	width: 100%;
-	border: 1px dotted #fff;
+	width: 95%;
+	border: 2px solid black;
+	border-radius: 10px 10px 10px 10px;
 	cursor: pointer;
 	}
 			
@@ -142,8 +134,9 @@ body {
 	z-index: 10;
 	padding: 2px;
 	height: 40px;
-	width: 100%;
-	border: 1px dotted #fff;
+	width: 95%;
+	border: 2px solid black;
+	border-radius: 10px 10px 10px 10px;
 	cursor: pointer;
 	}
 	
@@ -153,10 +146,10 @@ body {
 	top: 85%; 
 	color: white;
 	z-index: 10;
-	padding: 2px;
-	height: 75px;
-	width: 50%;
-	border: 1px dotted #fff;
+	padding: 5px;
+	height: 65px;
+	width: 140px;
+	border-radius: 10px 10px 10px 10px;
 	background: green;
 	cursor: pointer;
 	}
@@ -172,13 +165,31 @@ body {
 	height: 32px;
 	}
 
-.scroll-list {
+.mini-icon-image {
+	border: 0px;
+	width: 16px;
+	height: 16px;
+	}
+	
+.head-list {
 	position: absolute; 
 	left: 5%; 
 	top: 10px; 
-	width: 90%;
-	height: 80%;
-	border: 1px dotted #fff;
+	width: 95%;
+	height: 60px;
+	padding: 2px;
+	color: white;
+	background: black;
+	overflow: hidden;
+	overflow-x: hidden;
+	}
+
+.scroll-list {
+	position: absolute; 
+	left: 5%; 
+	top: 75px; 
+	width: 95%;
+	height: 70%;
 	padding: 2px;
 	color: white;
 	background: black;

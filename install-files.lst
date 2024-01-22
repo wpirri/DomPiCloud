@@ -23,8 +23,6 @@
 /usr/local/sbin/gmon_start
 /usr/local/sbin/gmon_status
 /usr/local/sbin/gmon_stop
-/usr/local/sbin/gmonitor-start.sh
-/usr/local/sbin/gmonitor-stop.sh
 
 /usr/local/bin/gm_loglevel
 /usr/local/bin/gm_safcfg
@@ -48,3 +46,4 @@
 /lib/systemd/system/gmonitor.service
 /usr/local/sbin/make-domclouddb-backup.sh
 /usr/local/sbin/check_for_updates.sh
+/usr/local/sbin/gmond

@@ -1,6 +1,7 @@
 #!/usr/bin/make -f
 
 all:
+	find . -name "*.sh" -exec sed -i 's/\r//g' {} \;
 	make -C Clientes
 	make -C Servers
 
