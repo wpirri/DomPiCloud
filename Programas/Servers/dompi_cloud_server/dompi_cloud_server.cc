@@ -214,150 +214,7 @@ int main(/*int argc, char** argv, char** env*/void)
 						continue;
 					}
 
-					if(json_AssId)
-					{
-						query[0] = 0;
-						query_into[0] = 0;
-						query_values[0] = 0;
-						query_set[0] = 0;
-						query_where[0] = 0;
-
-						m_pServer->m_pLog->Add(100, "[*** Update Objeto ***] System_Key: %s", json_System_Key->valuestring);
-
-						json_un_obj = json_Message;
-						while( json_un_obj )
-						{
-							/* Voy hasta el elemento con datos */
-							if(json_un_obj->type == cJSON_Object)
-							{
-								json_un_obj = json_un_obj->child;
-							}
-							else
-							{
-								if(json_un_obj->type == cJSON_String)
-								{
-									if(json_un_obj->string && json_un_obj->valuestring)
-									{
-										if(strlen(json_un_obj->string) && strlen(json_un_obj->valuestring))
-										{
-											if( !ExcluirDeABM(json_un_obj->string) && ExisteColumna(json_un_obj->string, assign_columns))
-											{
-												/* Armo las sentencias del UPDATE */
-												if( !strcmp(json_un_obj->string, "System_Key") ||
-													!strcmp(json_un_obj->string, "ASS_Id") ||
-													!strcmp(json_un_obj->string, "Id"))
-												{
-													if(strlen(query_where) > 0)
-													{
-														strcat(query_where, " AND ");
-													}
-													if( !strcmp(json_un_obj->string, "ASS_Id"))
-													{
-														strcat(query_where, "Id");
-													}
-													else
-													{
-														strcat(query_where, json_un_obj->string);
-													}
-													strcat(query_where, "='");
-													strcat(query_where, json_un_obj->valuestring);
-													strcat(query_where, "'");
-												}
-												else
-												{
-													/* Dato = Valor */
-													if(strlen(query_set) > 0)
-													{
-														strcat(query_set, ",");
-													}
-													if( !strcmp(json_un_obj->string, "Tipo_ASS"))
-													{
-														strcat(query_set, "Tipo");
-													}
-													else
-													{
-														strcat(query_set, json_un_obj->string);
-													}
-													strcat(query_set, "='");
-													strcat(query_set, json_un_obj->valuestring);
-													strcat(query_set, "'");
-												}
-												/* Armo las sentencias del insert */
-												/* Dato */
-												if(strlen(query_into) == 0)
-												{
-													strcpy(query_into, "(");
-												}
-												else
-												{
-													strcat(query_into, ",");
-												}
-												strcat(query_into, json_un_obj->string);
-												/* Valor */
-												if(strlen(query_values) == 0)
-												{
-													strcpy(query_values, "(");
-												}
-												else
-												{
-													strcat(query_values, ",");
-												}
-												strcat(query_values, "'");
-												strcat(query_values, json_un_obj->valuestring);
-												strcat(query_values, "'");
-											}
-										}
-									}
-								}
-								json_un_obj = json_un_obj->next;
-							}
-						}
-
-						if(strlen(query_where))
-						{
-							/* agrego Ultimo_Update */
-							if(strlen(query_set) > 0)
-							{
-								strcat(query_set, ",");
-							}
-							strcat(query_set, "Ultimo_Update=");
-							sprintf(&query_set[strlen(query_set)], "\'%04i-%02i-%02i %02i:%02i:%02i\'",
-									p_tm->tm_year+1900, p_tm->tm_mon+1, p_tm->tm_mday,
-									p_tm->tm_hour, p_tm->tm_min, p_tm->tm_sec);
-
-							/* Trato de hacer un update */
-							sprintf(query, "UPDATE TB_DOMCLOUD_ASSIGN SET %s WHERE %s;", query_set, query_where);
-							m_pServer->m_pLog->Add(100, "[QUERY][%s]", query);
-							rc = pDB->Query(NULL, query);
-							m_pServer->m_pLog->Add((pDB->LastQueryTime()>1)?1:100, "[QUERY] rc= %i, time= %li [%s]", rc, pDB->LastQueryTime(), query);
-							if(rc < 0) m_pServer->m_pLog->Add(1, "[QUERY] ERROR [%s] en [%s]", pDB->m_last_error_text, query);
-							if(rc == 0)
-							{
-								/* Si no actualiza nada hago un insert */
-								if(strlen(query_into) && strlen(query_values))
-								{
-									/* Dato */
-									strcat(query_into, ",");
-									strcat(query_into, "Ultimo_Update");
-									/* Valor */
-									strcat(query_values, ",");
-									sprintf(&query_values[strlen(query_values)], "\'%04i-%02i-%02i %02i:%02i:%02i\'",
-											p_tm->tm_year+1900, p_tm->tm_mon+1, p_tm->tm_mday,
-											p_tm->tm_hour, p_tm->tm_min, p_tm->tm_sec);
-									/* Final */
-									strcat(query_into, ")");
-									strcat(query_values, ")");
-
-									sprintf(query, "INSERT INTO TB_DOMCLOUD_ASSIGN %s VALUES %s;", query_into, query_values);
-									m_pServer->m_pLog->Add(100, "[QUERY][%s]", query);
-									rc = pDB->Query(NULL, query);
-									m_pServer->m_pLog->Add((pDB->LastQueryTime()>1)?1:100, "[QUERY] rc= %i, time= %li [%s]", rc, pDB->LastQueryTime(), query);
-									if(rc < 0) m_pServer->m_pLog->Add(1, "[QUERY] ERROR [%s] en [%s]", pDB->m_last_error_text, query);
-								}
-							}
-						}
-					}
-					else if(json_User && json_Password) /* Actualizacion de usuario del sistema */
+					if(json_User && json_Password) /* Actualizacion de usuario del sistema */
 					{
 						json_Amazon_Key = cJSON_GetObjectItemCaseSensitive(json_Message, "Amazon_Key");
 						json_Google_Key = cJSON_GetObjectItemCaseSensitive(json_Message, "Google_Key");
@@ -593,6 +450,149 @@ int main(/*int argc, char** argv, char** env*/void)
 											}
 										}
 									}
+								}
+							}
+						}
+					}
+					else if(json_AssId)
+					{
+						query[0] = 0;
+						query_into[0] = 0;
+						query_values[0] = 0;
+						query_set[0] = 0;
+						query_where[0] = 0;
+
+						m_pServer->m_pLog->Add(100, "[*** Update Objeto ***] System_Key: %s", json_System_Key->valuestring);
+
+						json_un_obj = json_Message;
+						while( json_un_obj )
+						{
+							/* Voy hasta el elemento con datos */
+							if(json_un_obj->type == cJSON_Object)
+							{
+								json_un_obj = json_un_obj->child;
+							}
+							else
+							{
+								if(json_un_obj->type == cJSON_String)
+								{
+									if(json_un_obj->string && json_un_obj->valuestring)
+									{
+										if(strlen(json_un_obj->string) && strlen(json_un_obj->valuestring))
+										{
+											if( !ExcluirDeABM(json_un_obj->string) && ExisteColumna(json_un_obj->string, assign_columns))
+											{
+												/* Armo las sentencias del UPDATE */
+												if( !strcmp(json_un_obj->string, "System_Key") ||
+													!strcmp(json_un_obj->string, "ASS_Id") ||
+													!strcmp(json_un_obj->string, "Id"))
+												{
+													if(strlen(query_where) > 0)
+													{
+														strcat(query_where, " AND ");
+													}
+													if( !strcmp(json_un_obj->string, "ASS_Id"))
+													{
+														strcat(query_where, "Id");
+													}
+													else
+													{
+														strcat(query_where, json_un_obj->string);
+													}
+													strcat(query_where, "='");
+													strcat(query_where, json_un_obj->valuestring);
+													strcat(query_where, "'");
+												}
+												else
+												{
+													/* Dato = Valor */
+													if(strlen(query_set) > 0)
+													{
+														strcat(query_set, ",");
+													}
+													if( !strcmp(json_un_obj->string, "Tipo_ASS"))
+													{
+														strcat(query_set, "Tipo");
+													}
+													else
+													{
+														strcat(query_set, json_un_obj->string);
+													}
+													strcat(query_set, "='");
+													strcat(query_set, json_un_obj->valuestring);
+													strcat(query_set, "'");
+												}
+												/* Armo las sentencias del insert */
+												/* Dato */
+												if(strlen(query_into) == 0)
+												{
+													strcpy(query_into, "(");
+												}
+												else
+												{
+													strcat(query_into, ",");
+												}
+												strcat(query_into, json_un_obj->string);
+												/* Valor */
+												if(strlen(query_values) == 0)
+												{
+													strcpy(query_values, "(");
+												}
+												else
+												{
+													strcat(query_values, ",");
+												}
+												strcat(query_values, "'");
+												strcat(query_values, json_un_obj->valuestring);
+												strcat(query_values, "'");
+											}
+										}
+									}
+								}
+								json_un_obj = json_un_obj->next;
+							}
+						}
+
+						if(strlen(query_where))
+						{
+							/* agrego Ultimo_Update */
+							if(strlen(query_set) > 0)
+							{
+								strcat(query_set, ",");
+							}
+							strcat(query_set, "Ultimo_Update=");
+							sprintf(&query_set[strlen(query_set)], "\'%04i-%02i-%02i %02i:%02i:%02i\'",
+									p_tm->tm_year+1900, p_tm->tm_mon+1, p_tm->tm_mday,
+									p_tm->tm_hour, p_tm->tm_min, p_tm->tm_sec);
+
+							/* Trato de hacer un update */
+							sprintf(query, "UPDATE TB_DOMCLOUD_ASSIGN SET %s WHERE %s;", query_set, query_where);
+							m_pServer->m_pLog->Add(100, "[QUERY][%s]", query);
+							rc = pDB->Query(NULL, query);
+							m_pServer->m_pLog->Add((pDB->LastQueryTime()>1)?1:100, "[QUERY] rc= %i, time= %li [%s]", rc, pDB->LastQueryTime(), query);
+							if(rc < 0) m_pServer->m_pLog->Add(1, "[QUERY] ERROR [%s] en [%s]", pDB->m_last_error_text, query);
+							if(rc == 0)
+							{
+								/* Si no actualiza nada hago un insert */
+								if(strlen(query_into) && strlen(query_values))
+								{
+									/* Dato */
+									strcat(query_into, ",");
+									strcat(query_into, "Ultimo_Update");
+									/* Valor */
+									strcat(query_values, ",");
+									sprintf(&query_values[strlen(query_values)], "\'%04i-%02i-%02i %02i:%02i:%02i\'",
+											p_tm->tm_year+1900, p_tm->tm_mon+1, p_tm->tm_mday,
+											p_tm->tm_hour, p_tm->tm_min, p_tm->tm_sec);
+									/* Final */
+									strcat(query_into, ")");
+									strcat(query_values, ")");
+
+									sprintf(query, "INSERT INTO TB_DOMCLOUD_ASSIGN %s VALUES %s;", query_into, query_values);
+									m_pServer->m_pLog->Add(100, "[QUERY][%s]", query);
+									rc = pDB->Query(NULL, query);
+									m_pServer->m_pLog->Add((pDB->LastQueryTime()>1)?1:100, "[QUERY] rc= %i, time= %li [%s]", rc, pDB->LastQueryTime(), query);
+									if(rc < 0) m_pServer->m_pLog->Add(1, "[QUERY] ERROR [%s] en [%s]", pDB->m_last_error_text, query);
 								}
 							}
 						}
