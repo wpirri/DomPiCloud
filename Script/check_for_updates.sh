@@ -8,12 +8,13 @@ FILE_NAME=gmonitor_dompicloud_update.tar.gz
 UPDATE_FILE="/home/${SU_USER}/${FILE_NAME}"
 OLD_UPDATE_FILE="/home/${SU_USER}/old_gmonitor_dompicloud_update.tar.gz"
 
-CHECK_PATH=/var/www/html/upload
+CHECK_PATH=/var/www/html/dpc/admin/upload
 MOVE_TO=$SYTEM_HOME
 
 check_for_updates_daemon()
 {
 	if [ -f $CHECK_PATH/$FILE_NAME ]; then
+		sleep 10
 		mv $CHECK_PATH/$FILE_NAME $MOVE_TO/
 		logger "[DOMPICLOUD] Aplicando actualizacion y reiniciando"
 		/etc/init.d/gmond stop

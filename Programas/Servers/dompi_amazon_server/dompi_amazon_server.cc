@@ -145,6 +145,7 @@ int main(/*int argc, char** argv, char** env*/void)
 	cJSON *json_EndPoint_Id;
 	cJSON *json_Query_Row;
 	cJSON *json_Id_Sistema;
+	cJSON *json_Time_Stamp;
 
 	cJSON *json_Query_Result;
 
@@ -377,7 +378,7 @@ int main(/*int argc, char** argv, char** env*/void)
 															if(*p == '-') *p = ' ';
 															p++;
 														}
-														sprintf(query, "SELECT Id, Objeto, Estado, Grupo_Visual, Ultimo_Update "
+														sprintf(query, "SELECT Id, Objeto, Estado, Grupo_Visual, Time_Stamp "
 																				"FROM TB_DOMCLOUD_ASSIGN "
 																				"WHERE System_Key = \'%s\' AND UPPER(Objeto) = UPPER(\'%s\') AND Id > 0;", 
 																				json_Id_Sistema->valuestring, str_tmp);
@@ -394,6 +395,16 @@ int main(/*int argc, char** argv, char** env*/void)
 															if(json_Query_Row)
 															{
 																json_Response = cJSON_CreateObject();
+																json_Time_Stamp = cJSON_GetObjectItemCaseSensitive(json_Query_Row, "Time_Stamp");
+																if(json_Time_Stamp)
+																{
+																	t = atol(json_Time_Stamp->valuestring);
+																	p_tm = localtime(&t);
+																	sprintf(str_tmp, "%04i-%02i-%02i %02i:%02i:%02i", 
+																			p_tm->tm_year+1900, p_tm->tm_mon+1, p_tm->tm_mday,
+																			p_tm->tm_hour, p_tm->tm_min, p_tm->tm_sec);
+																	cJSON_AddStringToObject(json_Query_Row, "Ultimo_Update", str_tmp);
+																}
 																cJSON_AddItemToObject(json_Response, "response", json_Query_Row);
 																cJSON_PrintPreallocated(json_Response, message, MAX_BUFFER_LEN, 0);
 															}
