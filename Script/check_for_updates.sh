@@ -2,11 +2,11 @@
 
 SU_USER="gmonitor"
 SYTEM_HOME=/home/$SU_USER
-DOCUMENT_ROOT=/var/www/html
+DOCUMENT_ROOT=/var/www/html/dpc
 CGI_ROOT=/usr/lib/cgi-bin/
 FILE_NAME=gmonitor_dompicloud_update.tar.gz
 UPDATE_FILE="/home/${SU_USER}/${FILE_NAME}"
-OLD_UPDATE_FILE="/home/${SU_USER}/old_gmonitor_dompiweb_update.tar.gz"
+OLD_UPDATE_FILE="/home/${SU_USER}/old_gmonitor_dompicloud_update.tar.gz"
 
 CHECK_PATH=/var/www/html/upload
 MOVE_TO=$SYTEM_HOME
