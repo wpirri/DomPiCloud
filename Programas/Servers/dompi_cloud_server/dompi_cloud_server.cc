@@ -62,7 +62,7 @@ const char *assign_columns[] = {
 	"Coeficiente",
 	"Analog_Mult_Div",
 	"Analog_Mult_Div_Valor",
-	"Ultimo_Update",
+	"Time_Stamp",
 	"Flags",
 	0};
 
@@ -224,7 +224,8 @@ int main(/*int argc, char** argv, char** env*/void)
 						m_pServer->m_pLog->Add(100, "[*** Update User ***] %s de System_Key: %s", json_User->valuestring, json_System_Key->valuestring);
 						sprintf(query, "UPDATE TB_DOMCLOUD_USER "
 													"SET Clave = \'%s\', Id_Sistema = \'%s\', Estado = \'%s\',  "
-													"Amazon_Key = \'%s\', Google_Key = \'%s\', Apple_Key = \'%s\', Other_Key = \'%s\' "
+													"Amazon_Key = \'%s\', Google_Key = \'%s\', Apple_Key = \'%s\', Other_Key = \'%s\', "
+													"Time_Stamp = %li "
 													"WHERE Usuario = \'%s\';",
 												json_Password->valuestring,
 												json_System_Key->valuestring,
@@ -233,6 +234,7 @@ int main(/*int argc, char** argv, char** env*/void)
 												(json_Google_Key)?json_Google_Key->valuestring:"",
 												(json_Apple_Key)?json_Apple_Key->valuestring:"",
 												(json_Other_Key)?json_Other_Key->valuestring:"",
+												t,
 												json_User->valuestring);
 						m_pServer->m_pLog->Add(100, "[QUERY][%s]", query);
 						rc = pDB->Query(NULL, query);
@@ -240,8 +242,8 @@ int main(/*int argc, char** argv, char** env*/void)
 						if(rc < 0) m_pServer->m_pLog->Add(1, "[QUERY] ERROR [%s] en [%s]", pDB->m_last_error_text, query);
 						if(rc == 0)
 						{
-							sprintf(query, "INSERT INTO TB_DOMCLOUD_USER (Usuario, Clave, Id_Sistema, Estado, Amazon_Key, Google_Key, Apple_Key, Other_Key, Errores, Ultima_Conexion) "
-														"VALUES (\'%s\', \'%s\', \'%s\', \'%s\', \'%s\', \'%s\', \'%s\', \'%s\', 0, 0);",
+							sprintf(query, "INSERT INTO TB_DOMCLOUD_USER (Usuario, Clave, Id_Sistema, Estado, Amazon_Key, Google_Key, Apple_Key, Other_Key, Errores, Ultima_Conexion, Time_Stamp) "
+														"VALUES (\'%s\', \'%s\', \'%s\', \'%s\', \'%s\', \'%s\', \'%s\', \'%s\', 0, 0, %li);",
 													json_User->valuestring,
 													json_Password->valuestring,
 													json_System_Key->valuestring,
@@ -249,7 +251,8 @@ int main(/*int argc, char** argv, char** env*/void)
 													(json_Amazon_Key)?json_Amazon_Key->valuestring:"",
 													(json_Google_Key)?json_Google_Key->valuestring:"",
 													(json_Apple_Key)?json_Apple_Key->valuestring:"",
-													(json_Other_Key)?json_Other_Key->valuestring:"");
+													(json_Other_Key)?json_Other_Key->valuestring:"",
+													t);
 							m_pServer->m_pLog->Add(100, "[QUERY][%s]", query);
 							rc = pDB->Query(NULL, query);
 							m_pServer->m_pLog->Add((pDB->LastQueryTime()>1)?1:100, "[QUERY] rc= %i, time= %li [%s]", rc, pDB->LastQueryTime(), query);
@@ -295,14 +298,13 @@ int main(/*int argc, char** argv, char** env*/void)
 													"Estado_Activacion = %s, "
 													"Estado_Memoria = %s, "
 													"Estado_Alarma = %s, "
-													"Ultimo_Update = \'%04i-%02i-%02i %02i:%02i:%02i\' "
+													"Time_Stamp = %li "
 												"WHERE System_Key = \'%s\' AND Id = %s;", 
 												json_Nombre->valuestring,
 												json_Estado_Activacion->valuestring,
 												json_Estado_Memoria->valuestring,
 												json_Estado_Alarma->valuestring,
-												p_tm->tm_year+1900, p_tm->tm_mon+1, p_tm->tm_mday,
-												p_tm->tm_hour, p_tm->tm_min, p_tm->tm_sec,
+												t,
 												json_System_Key->valuestring,
 												json_Id_Alarma->valuestring);
 								m_pServer->m_pLog->Add(100, "[QUERY][%s]", query);
@@ -312,16 +314,15 @@ int main(/*int argc, char** argv, char** env*/void)
 								if(rc == 0)
 								{
 									/* Si no se actualiza nada va un insert */
-									sprintf(query, "INSERT INTO TB_DOMCLOUD_ALARM (System_Key,Id,Particion,Estado_Activacion,Estado_Memoria,Estado_Alarma,Ultimo_Update) "
-														"VALUES (\'%s\',%s,\'%s\',%s,%s,%s,\'%04i-%02i-%02i %02i:%02i:%02i\');",
+									sprintf(query, "INSERT INTO TB_DOMCLOUD_ALARM (System_Key,Id,Particion,Estado_Activacion,Estado_Memoria,Estado_Alarma,Time_Stamp) "
+														"VALUES (\'%s\',%s,\'%s\',%s,%s,%s,%li);",
 													json_System_Key->valuestring,
 													json_Id_Alarma->valuestring,
 													json_Nombre->valuestring,
 													json_Estado_Activacion->valuestring,
 													json_Estado_Memoria->valuestring,
 													json_Estado_Alarma->valuestring,
-													p_tm->tm_year+1900, p_tm->tm_mon+1, p_tm->tm_mday,
-													p_tm->tm_hour, p_tm->tm_min, p_tm->tm_sec);
+													t);
 									m_pServer->m_pLog->Add(100, "[QUERY][%s]", query);
 									rc = pDB->Query(NULL, query);
 									m_pServer->m_pLog->Add((pDB->LastQueryTime()>1)?1:100, "[QUERY] rc= %i, time= %li [%s]", rc, pDB->LastQueryTime(), query);
@@ -356,15 +357,14 @@ int main(/*int argc, char** argv, char** env*/void)
 																"Grupo = %s, "
 																"Activa = %s, "
 																"Estado_Entrada = %s, "
-																"Ultimo_Update = \'%04i-%02i-%02i %02i:%02i:%02i\' "
+																"Time_Stamp = %li "
 															"WHERE System_Key = \'%s\' AND Id = %s AND Particion = %s;", 
 															json_Nombre_Zona->valuestring,
 															json_Tipo_Zona->valuestring,
 															json_Grupo_Zona->valuestring,
 															json_Zona_Activa->valuestring,
 															json_Estado_Zona->valuestring,
-															p_tm->tm_year+1900, p_tm->tm_mon+1, p_tm->tm_mday,
-															p_tm->tm_hour, p_tm->tm_min, p_tm->tm_sec,
+															t,
 															json_System_Key->valuestring,
 															json_Id_Zona->valuestring,
 															json_Id_Alarma->valuestring);
@@ -375,8 +375,8 @@ int main(/*int argc, char** argv, char** env*/void)
 											if(rc == 0)
 											{
 												/* Si no se actualiza nada va un insert */
-												sprintf(query, "INSERT INTO TB_DOMCLOUD_ALARM_ENTRADA (System_Key,Id,Particion,Entrada,Tipo_Entrada,Grupo,Activa,Estado_Entrada,Ultimo_Update) "
-																"VALUES ( \'%s\',%s,%s,\'%s\',%s,%s,%s,%s,\'%04i-%02i-%02i %02i:%02i:%02i\');",
+												sprintf(query, "INSERT INTO TB_DOMCLOUD_ALARM_ENTRADA (System_Key,Id,Particion,Entrada,Tipo_Entrada,Grupo,Activa,Estado_Entrada,Time_Stamp) "
+																"VALUES ( \'%s\',%s,%s,\'%s\',%s,%s,%s,%s,%li);",
 																json_System_Key->valuestring,
 																json_Id_Zona->valuestring,
 																json_Id_Alarma->valuestring,
@@ -385,8 +385,7 @@ int main(/*int argc, char** argv, char** env*/void)
 																json_Grupo_Zona->valuestring,
 																json_Zona_Activa->valuestring,
 																json_Estado_Zona->valuestring,
-																p_tm->tm_year+1900, p_tm->tm_mon+1, p_tm->tm_mday,
-																p_tm->tm_hour, p_tm->tm_min, p_tm->tm_sec);
+																t);
 												m_pServer->m_pLog->Add(100, "[QUERY][%s]", query);
 												rc = pDB->Query(NULL, query);
 												m_pServer->m_pLog->Add((pDB->LastQueryTime()>1)?1:100, "[QUERY] rc= %i, time= %li [%s]", rc, pDB->LastQueryTime(), query);
@@ -416,13 +415,12 @@ int main(/*int argc, char** argv, char** env*/void)
 															"SET Salida = \'%s\', "
 																"Tipo_Salida = %s, "
 																"Estado_Salida = %s, "
-																"Ultimo_Update = \'%04i-%02i-%02i %02i:%02i:%02i\' "
+																"Time_Stamp = %li "
 															"WHERE System_Key = \'%s\' AND Id = %s AND Particion = %s;", 
 															json_Nombre_Salida->valuestring,
 															json_Tipo_Salida->valuestring,
 															json_Estado_Salida->valuestring,
-															p_tm->tm_year+1900, p_tm->tm_mon+1, p_tm->tm_mday,
-															p_tm->tm_hour, p_tm->tm_min, p_tm->tm_sec,
+															t,
 															json_System_Key->valuestring,
 															json_Id_Salida->valuestring,
 															json_Id_Alarma->valuestring);
@@ -433,16 +431,15 @@ int main(/*int argc, char** argv, char** env*/void)
 											if(rc == 0)
 											{
 												/* Si no se actualiza nada va un insert */
-												sprintf(query, "INSERT INTO TB_DOMCLOUD_ALARM_SALIDA (System_Key,Id,Particion,Salida,Tipo_Salida,Estado_Salida,Ultimo_Update) "
-																	"VALUES (\'%s\',%s,%s,\'%s\',%s,%s,\'%04i-%02i-%02i %02i:%02i:%02i\');",
+												sprintf(query, "INSERT INTO TB_DOMCLOUD_ALARM_SALIDA (System_Key,Id,Particion,Salida,Tipo_Salida,Estado_Salida,Time_Stamp) "
+																	"VALUES (\'%s\',%s,%s,\'%s\',%s,%s,%li);",
 															json_System_Key->valuestring,
 															json_Id_Salida->valuestring,
 															json_Id_Alarma->valuestring,
 															json_Nombre_Salida->valuestring,
 															json_Tipo_Salida->valuestring,
 															json_Estado_Salida->valuestring,
-															p_tm->tm_year+1900, p_tm->tm_mon+1, p_tm->tm_mday,
-															p_tm->tm_hour, p_tm->tm_min, p_tm->tm_sec);
+															t);
 												m_pServer->m_pLog->Add(100, "[QUERY][%s]", query);
 												rc = pDB->Query(NULL, query);
 												m_pServer->m_pLog->Add((pDB->LastQueryTime()>1)?1:100, "[QUERY] rc= %i, time= %li [%s]", rc, pDB->LastQueryTime(), query);
@@ -555,15 +552,13 @@ int main(/*int argc, char** argv, char** env*/void)
 
 						if(strlen(query_where))
 						{
-							/* agrego Ultimo_Update */
+							/* agrego Time_Stamp */
 							if(strlen(query_set) > 0)
 							{
 								strcat(query_set, ",");
 							}
-							strcat(query_set, "Ultimo_Update=");
-							sprintf(&query_set[strlen(query_set)], "\'%04i-%02i-%02i %02i:%02i:%02i\'",
-									p_tm->tm_year+1900, p_tm->tm_mon+1, p_tm->tm_mday,
-									p_tm->tm_hour, p_tm->tm_min, p_tm->tm_sec);
+							strcat(query_set, "Time_Stamp=");
+							sprintf(&query_set[strlen(query_set)], "%li", t);
 
 							/* Trato de hacer un update */
 							sprintf(query, "UPDATE TB_DOMCLOUD_ASSIGN SET %s WHERE %s;", query_set, query_where);
@@ -578,12 +573,10 @@ int main(/*int argc, char** argv, char** env*/void)
 								{
 									/* Dato */
 									strcat(query_into, ",");
-									strcat(query_into, "Ultimo_Update");
+									strcat(query_into, "Time_Stamp");
 									/* Valor */
 									strcat(query_values, ",");
-									sprintf(&query_values[strlen(query_values)], "\'%04i-%02i-%02i %02i:%02i:%02i\'",
-											p_tm->tm_year+1900, p_tm->tm_mon+1, p_tm->tm_mday,
-											p_tm->tm_hour, p_tm->tm_min, p_tm->tm_sec);
+									sprintf(&query_values[strlen(query_values)], "%li", t);
 									/* Final */
 									strcat(query_into, ")");
 									strcat(query_values, ")");
@@ -601,22 +594,20 @@ int main(/*int argc, char** argv, char** env*/void)
 					{
 						m_pServer->m_pLog->Add(100, "[*** Keep Alive ***] System_Key: %s", json_System_Key->valuestring);
 						sprintf(query, "UPDATE TB_DOMCLOUD_ASSIGN "
-													"SET Ultimo_Update = \'%04i-%02i-%02i %02i:%02i:%02i\' "
-													"WHERE System_Key = \'%s\' AND Id = 0;",
-												p_tm->tm_year+1900, p_tm->tm_mon+1, p_tm->tm_mday,
-												p_tm->tm_hour, p_tm->tm_min, p_tm->tm_sec,
-												json_System_Key->valuestring);
+													"SET Time_Stamp = %li "
+													"WHERE System_Key = \'%s\' AND Id = 0;", 
+													t,
+													json_System_Key->valuestring);
 						m_pServer->m_pLog->Add(100, "[QUERY][%s]", query);
 						rc = pDB->Query(NULL, query);
 						m_pServer->m_pLog->Add((pDB->LastQueryTime()>1)?1:100, "[QUERY] rc= %i, time= %li [%s]", rc, pDB->LastQueryTime(), query);
 						if(rc < 0) m_pServer->m_pLog->Add(1, "[QUERY] ERROR [%s] en [%s]", pDB->m_last_error_text, query);
 						if(rc == 0)
 						{
-							sprintf(query, "INSERT INTO TB_DOMCLOUD_ASSIGN (System_Key, Id, Ultimo_Update) "
-														"VALUES (\'%s\', 0, \'%04i-%02i-%02i %02i:%02i:%02i\');",
+							sprintf(query, "INSERT INTO TB_DOMCLOUD_ASSIGN (System_Key, Id, Time_Stamp) "
+														"VALUES (\'%s\', 0, %li);",
 													json_System_Key->valuestring,
-													p_tm->tm_year+1900, p_tm->tm_mon+1, p_tm->tm_mday,
-													p_tm->tm_hour, p_tm->tm_min, p_tm->tm_sec);
+													t);
 							m_pServer->m_pLog->Add(100, "[QUERY][%s]", query);
 							rc = pDB->Query(NULL, query);
 							m_pServer->m_pLog->Add((pDB->LastQueryTime()>1)?1:100, "[QUERY] rc= %i, time= %li [%s]", rc, pDB->LastQueryTime(), query);
@@ -719,7 +710,7 @@ void DeleteNotify(CMyDB *db, const char *client_key, time_t t)
 	char query[4096];
 	m_pServer->m_pLog->Add(100, "[DeleteNotify] System_Key = [%s].", client_key);
 	sprintf(query, "DELETE FROM TB_DOMCLOUD_NOTIF "
-					"WHERE System_Key = \'%s\' AND Time_Stamp <= %lu;", client_key, t);
+					"WHERE System_Key = \'%s\' AND Time_Stamp <= %li;", client_key, t);
 	m_pServer->m_pLog->Add(100, "[QUERY][%s]", query);
 	db->Query(NULL, query);
 }

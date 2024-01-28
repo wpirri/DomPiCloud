@@ -1,7 +1,18 @@
-body { font-family: Arial, Helvetica, sans-serif; }
+body { 
+  font-family: Arial, Helvetica, sans-serif; 
+  background:black; 
+  display: flex;
+  justify-content: center;
+}
 
 /* Bordered form */
-form { border: 3px solid #f1f1f1; }
+form { 
+  border: 3px solid #f1f1f1; 
+  width: 300px; 
+  border-radius: 5px 5px 5px 5px;
+  background:white;
+  text-align: left;
+}
   
   /* Full-width inputs */
   input[type=text], input[type=password] {
@@ -27,13 +38,6 @@ form { border: 3px solid #f1f1f1; }
   /* Add a hover effect for buttons */
   button:hover {
     opacity: 0.8;
-  }
-  
-  /* Extra style for the cancel button (red) */
-  .cancelbtn {
-    width: auto;
-    padding: 10px 18px;
-    background-color: #f44336;
   }
   
   /* Center the avatar image inside this container */

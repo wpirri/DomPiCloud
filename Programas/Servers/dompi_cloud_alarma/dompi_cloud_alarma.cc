@@ -233,7 +233,7 @@ int main(/*int argc, char** argv, char** env*/void)
 							json_EstadoZona = cJSON_CreateArray();
 							sprintf(query, "SELECT Id, Entrada AS Objeto, Tipo_Entrada AS Tipo_Zona, Grupo, Activa, Estado_Entrada AS Estado "
 											"FROM TB_DOMCLOUD_ALARM_ENTRADA "
-											"WHERE Particion = %s AND System_Key = \'%s\';", json_Part_Id->valuestring, json_System_Key->valuestring);
+											"WHERE Particion = \'%s\' AND System_Key = \'%s\';", json_Part_Id->valuestring, json_System_Key->valuestring);
 							m_pServer->m_pLog->Add(100, "[QUERY][%s]", query);
 							rc = pDB->Query(json_EstadoZona, query);
 							m_pServer->m_pLog->Add((pDB->LastQueryTime()>1)?1:100, "[QUERY] rc= %i, time= %li [%s]", rc, pDB->LastQueryTime(), query);
@@ -246,7 +246,7 @@ int main(/*int argc, char** argv, char** env*/void)
 							json_EstadoSalida = cJSON_CreateArray();
 							sprintf(query, "SELECT Id, Salida AS Objeto, Tipo_Salida, Estado_Salida AS Estado "
 											"FROM TB_DOMCLOUD_ALARM_SALIDA "
-											"WHERE Particion = %s AND System_Key = \'%s\';", json_Part_Id->valuestring, json_System_Key->valuestring);
+											"WHERE Particion = \'%s\' AND System_Key = \'%s\';", json_Part_Id->valuestring, json_System_Key->valuestring);
 							m_pServer->m_pLog->Add(100, "[QUERY][%s]", query);
 							rc = pDB->Query(json_EstadoSalida, query);
 							m_pServer->m_pLog->Add((pDB->LastQueryTime()>1)?1:100, "[QUERY] rc= %i, time= %li [%s]", rc, pDB->LastQueryTime(), query);
@@ -378,8 +378,8 @@ int main(/*int argc, char** argv, char** env*/void)
 					json_Query_Result = cJSON_CreateArray();
 					sprintf(query, "SELECT E.Activa "
 										"FROM TB_DOMCLOUD_ALARM AS A, TB_DOMCLOUD_ALARM_ENTRADA AS E "
-										"WHERE A.Id = E.Particion AND A.System_Key = E.System_Key "
-										"A.System_Key = \'%s\' AND A.Particion = \'%s\' AND UPPER(E.Entrada = UPPER(\'%s\');",
+										"WHERE A.Id = E.Particion AND A.System_Key = E.System_Key AND "
+										"A.System_Key = \'%s\' AND A.Particion = \'%s\' AND UPPER(E.Entrada) = UPPER(\'%s\');",
 										json_System_Key->valuestring,
 										json_Part->valuestring,
 										json_Zona->valuestring);

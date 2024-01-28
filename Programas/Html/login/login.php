@@ -25,7 +25,26 @@ if( isset($_GET["auth_token"]) )
       $auth["Remember"] = "off";
     }
   }
-  ?>
+
+  function head_link(string $filename)
+  {
+      if( ($fm = filemtime($filename)) == false )
+      {
+          $fm = 0;
+      }
+      echo "<link href=\"".$filename."?time=".$fm."\" rel=\"stylesheet\" type=\"text/css\" />\n";
+  }
+
+  function head_script(string $filename)
+  {
+      if( ($fm = filemtime($filename)) == false )
+      {
+          $fm = 0;
+      }
+      echo "<script src=\"".$filename."?time=".$fm."\" type=\"text/javascript\"></script>\n";
+  }
+
+?>
 
   <html>
   <head>
@@ -36,7 +55,7 @@ if( isset($_GET["auth_token"]) )
   <meta name="keywords" content="SMART HOME, SYSHOME, DOMOTIC, SECURITY SYSTEM, IOT">
   <meta name="description" content="Sistema integrado de monitoreo, alarma y domotica">
   <meta name="system-build" content="2023">
-  <link href="../css/login.css" rel="stylesheet" type="text/css" />
+  <?php head_link("../css/login.css"); ?>
   </head>
   <body>
   <form action="go_login.php" method="post">

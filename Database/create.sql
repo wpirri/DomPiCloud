@@ -19,6 +19,7 @@ Other_Key varchar(256),
 Errores integer DEFAULT 0,
 Ultima_Conexion bigint DEFAULT 0,
 Estado integer DEFAULT 0,     -- 0 Disable, 1 Enable
+Time_Stamp bigint,
 PRIMARY KEY (Usuario)
 );
 
@@ -38,7 +39,7 @@ Cord_y integer DEFAULT 0,
 Coeficiente integer DEFAULT 0,
 Analog_Mult_Div integer DEFAULT 0,
 Analog_Mult_Div_Valor integer DEFAULT 1,
-Ultimo_Update varchar(32),
+Time_Stamp bigint,
 Flags integer DEFAULT 0,
 PRIMARY KEY (System_Key, Id)
 );
@@ -58,7 +59,7 @@ Particion varchar(128),
 Estado_Activacion integer,
 Estado_Memoria integer,
 Estado_Alarma integer,
-Ultimo_Update varchar(32),
+Time_Stamp bigint,
 PRIMARY KEY (System_Key, Id)
 );
 
@@ -71,7 +72,7 @@ Tipo_Entrada integer,
 Grupo integer,
 Activa integer,
 Estado_Entrada integer,
-Ultimo_Update varchar(32),
+Time_Stamp bigint,
 PRIMARY KEY (System_Key, Id, Particion)
 );
 
@@ -82,6 +83,6 @@ Particion integer,
 Salida varchar(128),
 Tipo_Salida integer,
 Estado_Salida integer,
-Ultimo_Update varchar(32),
+Time_Stamp bigint,
 PRIMARY KEY (System_Key, Id, Particion)
 );

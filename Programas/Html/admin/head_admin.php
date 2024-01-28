@@ -1,5 +1,25 @@
 <!DOCTYPE html>
 <html lang="es">
+<?php 
+    function head_link(string $filename)
+    {
+        if( ($fm = filemtime($filename)) == false )
+        {
+            $fm = 0;
+        }
+        echo "<link href=\"".$filename."?time=".$fm."\" rel=\"stylesheet\" type=\"text/css\" />\n";
+    }
+
+    function head_script(string $filename)
+    {
+        if( ($fm = filemtime($filename)) == false )
+        {
+            $fm = 0;
+        }
+        echo "<script src=\"".$filename."?time=".$fm."\" type=\"text/javascript\"></script>\n";
+    }
+
+?>
 <head>
 <meta charset="utf-8">
 <title><?php echo $TITLE; ?></title>
@@ -8,11 +28,10 @@
 <meta name="keywords" content="SMART HOME, SYSHOME, DOMOTIC, SECURITY SYSTEM, IOT">
 <meta name="description" content="Sistema integrado de monitoreo, alarma y domotica">
 <meta name="system-build" content="2023">
-<link href="../css/dompicloud.css" rel="stylesheet" type="text/css" />
-<script src="../js/ajax.js" type="text/javascript"></script>
-<script src="../js/status.js" type="text/javascript"></script>
-<script src="../js/abm.js" type="text/javascript"></script>
-<script src="../js/jquery.min.js" type="text/javascript"></script>
+<?php head_link("../css/admin.css"); ?>
+<?php head_script("../js/ajax.js"); ?>
+<?php head_script("../js/jquery.min.js"); ?>
+<?php head_script("../js/abm.js"); ?>
 </head>
 <?php
 session_start();

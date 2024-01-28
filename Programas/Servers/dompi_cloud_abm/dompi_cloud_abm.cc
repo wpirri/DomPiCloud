@@ -61,7 +61,7 @@ const char *assign_columns[] = {
 	"Coeficiente",
 	"Analog_Mult_Div",
 	"Analog_Mult_Div_Valor",
-	"Ultimo_Update",
+	"Time_Stamp",
 	"Flags",
 	0};
 
@@ -225,7 +225,7 @@ int main(/*int argc, char** argv, char** env*/void)
 				{
 					m_pServer->m_pLog->Add(50, "Estado de Objetos: [%s]", json_System_Key->valuestring);
 					json_Query_Result = cJSON_CreateArray();
-					sprintf(query, "SELECT Objeto, Estado, Ultimo_Update "
+					sprintf(query, "SELECT Objeto, Estado, Time_Stamp "
 											"FROM TB_DOMCLOUD_ASSIGN "
 											"WHERE System_Key = \'%s\' AND Id > 0;", json_System_Key->valuestring);
 					m_pServer->m_pLog->Add(100, "[QUERY][%s]", query);
@@ -424,7 +424,7 @@ int main(/*int argc, char** argv, char** env*/void)
 				if(json_un_obj)
 				{
 					json_Query_Result = cJSON_CreateArray();
-					sprintf(query, "SELECT * FROM TB_DOMCLOUD_USER WHERE Usuario = %s;", json_un_obj->valuestring);
+					sprintf(query, "SELECT * FROM TB_DOMCLOUD_USER WHERE Usuario = \'%s\';", json_un_obj->valuestring);
 					m_pServer->m_pLog->Add(100, "[QUERY][%s]", query);
 					rc = pDB->Query(json_Query_Result, query);
 					m_pServer->m_pLog->Add((pDB->LastQueryTime()>1)?1:100, "[QUERY] rc= %i, time= %li [%s]", rc, pDB->LastQueryTime(), query);
@@ -783,9 +783,35 @@ int main(/*int argc, char** argv, char** env*/void)
 
 		}
 
-		/* Borro registros viejos no reclamados */
 		t = time(&t);
+		/* Borro registros viejos no reclamados */
 		sprintf(query, "DELETE FROM TB_DOMCLOUD_NOTIF WHERE Time_Stamp < %lu;", t-60);
+		m_pServer->m_pLog->Add(100, "[QUERY][%s]", query);
+		rc = pDB->Query(NULL, query);
+		m_pServer->m_pLog->Add((pDB->LastQueryTime()>1)?1:100, "[QUERY] rc= %i, time= %li [%s]", rc, pDB->LastQueryTime(), query);
+		if(rc < 0) m_pServer->m_pLog->Add(1, "[QUERY] ERROR [%s] en [%s]", pDB->m_last_error_text, query);
+
+		/* Borro registros viejos de usuarios */
+		sprintf(query, "DELETE FROM TB_DOMCLOUD_USER WHERE Id_Sistema <> \'ADMIN\' AND Time_Stamp < %lu;", t-86400);
+		m_pServer->m_pLog->Add(100, "[QUERY][%s]", query);
+		rc = pDB->Query(NULL, query);
+		m_pServer->m_pLog->Add((pDB->LastQueryTime()>1)?1:100, "[QUERY] rc= %i, time= %li [%s]", rc, pDB->LastQueryTime(), query);
+		if(rc < 0) m_pServer->m_pLog->Add(1, "[QUERY] ERROR [%s] en [%s]", pDB->m_last_error_text, query);
+
+		/* Borro registros viejos de alarma */
+		sprintf(query, "DELETE FROM TB_DOMCLOUD_ALARM_SALIDA WHERE Time_Stamp < %lu;", t-86400);
+		m_pServer->m_pLog->Add(100, "[QUERY][%s]", query);
+		rc = pDB->Query(NULL, query);
+		m_pServer->m_pLog->Add((pDB->LastQueryTime()>1)?1:100, "[QUERY] rc= %i, time= %li [%s]", rc, pDB->LastQueryTime(), query);
+		if(rc < 0) m_pServer->m_pLog->Add(1, "[QUERY] ERROR [%s] en [%s]", pDB->m_last_error_text, query);
+
+		sprintf(query, "DELETE FROM TB_DOMCLOUD_ALARM_ENTRADA WHERE Time_Stamp < %lu;", t-86400);
+		m_pServer->m_pLog->Add(100, "[QUERY][%s]", query);
+		rc = pDB->Query(NULL, query);
+		m_pServer->m_pLog->Add((pDB->LastQueryTime()>1)?1:100, "[QUERY] rc= %i, time= %li [%s]", rc, pDB->LastQueryTime(), query);
+		if(rc < 0) m_pServer->m_pLog->Add(1, "[QUERY] ERROR [%s] en [%s]", pDB->m_last_error_text, query);
+
+		sprintf(query, "DELETE FROM TB_DOMCLOUD_ALARM WHERE Time_Stamp < %lu;", t-86400);
 		m_pServer->m_pLog->Add(100, "[QUERY][%s]", query);
 		rc = pDB->Query(NULL, query);
 		m_pServer->m_pLog->Add((pDB->LastQueryTime()>1)?1:100, "[QUERY] rc= %i, time= %li [%s]", rc, pDB->LastQueryTime(), query);
