@@ -17,17 +17,20 @@
 //  file_uploads = On
 //  upload_max_filesize=10M
 //  post_max_size=11M
-if( isset($_FILES['uploadedfile']['name']) )
+// curl --insecure -F "file=@${FILENAME};filename=${FILE}" "${HOSTNAME}/${UPLOAD_FORM}"
+if( isset($_FILES['file']['name']) )
 {
-    if ( move_uploaded_file($_FILES['uploadedfile']['tmp_name'], "clients_uploads/".$_FILES['uploadedfile']['name']) )
-    { 
+    if ( move_uploaded_file($_FILES['file']['tmp_name'], "clients_uploads/".$_FILES['file']['name']) )
+    {
         ?><p>Upload Ok</p><?php
     }
     else
-    { 
+    {
         ?><p>Upload Error</p><?php
     }
 }
+
+// var_dump($_FILES);
 
 ?>
 
