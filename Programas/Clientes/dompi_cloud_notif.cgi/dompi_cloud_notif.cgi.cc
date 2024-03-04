@@ -150,7 +150,6 @@ int main(int /*argc*/, char** /*argv*/, char** env)
     {
       syslog(LOG_DEBUG, "Call R: [%s]", (const char*)call_resp.data);
     }
-    pClient->Free(call_resp);
   }
   else
   {

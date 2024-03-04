@@ -17,13 +17,20 @@ if(isset($resp_code) && isset($resp_msg) && isset($sistema))
 
 <div class="tabs">
     <div class="tab-container">
+        <!-- -->
+        <div id="tab5" class="tab" OnClick="GetDownloadFileList();"> 
+            <a href="#tab5">Descargas</a>
+            <div class="tab-content">
+                <div class="tab-content-list" id="files-list">&nbsp</div>
+            </div>
+        </div>
+        <!-- -->
         <div id="tab4" class="tab"> 
             <a href="#tab4">Actualizar</a>
             <div class="tab-content">
                 <h2>Actualizacion del sistema</h2>
                 <div class="tab-content-form" id="upgrade-form">
                 <form enctype="multipart/form-data" action="" method="post" id="update_form" name="update_form" method="post">
-
                     <div class="abm-save-cancell">
                         <a class="menu-link" onclick="Upgrade();">Subir</a>
                         &nbsp;&nbsp;&nbsp;&nbsp;
@@ -43,6 +50,7 @@ if(isset($resp_code) && isset($resp_msg) && isset($sistema))
                 </div>
             </div>
         </div>
+        <!-- -->
         <div id="tab3" class="tab" OnClick="GetUserList();"> 
             <a href="#tab3">Usuarios</a>
             <div class="tab-content">
@@ -57,6 +65,7 @@ if(isset($resp_code) && isset($resp_msg) && isset($sistema))
                 <div class="tab-content-list" id="user-list">&nbsp</div>
             </div>
         </div>
+        <!-- -->
         <div id="tab2" class="tab" OnClick="GetClientList();">
             <a href="#tab2">Clientes</a>
             <div class="tab-content">
@@ -64,6 +73,7 @@ if(isset($resp_code) && isset($resp_msg) && isset($sistema))
                 <div class="tab-content-list" id="client-list">&nbsp</div>
             </div>
         </div> 
+        <!-- -->
         <div id="tab1" class="tab">
             <a href="#tab1">Sistema</a>
             <div class="tab-content">
@@ -81,11 +91,14 @@ if(isset($resp_code) && isset($resp_msg) && isset($sistema))
                 </div>
             </div> 
         </div> 
+        <!-- -->
     </div>
 </div>
 
 <script type="text/javascript" >
     var status_system_key = '';
+    function LoadDownloadFileList(html) { document.getElementById('files-list').innerHTML = html; }
+    function GetDownloadFileList() { newAJAXCommand('downloadfileslist.php', LoadDownloadFileList, false); }
     function LoadClientList(msg) { fillClientList(JSON.parse(msg).response, 'client-list', 'System_Key', 'GetClientStatus', 'DelClientData'); }
     function GetClientList() { newAJAXCommand('/cgi-bin/dompi_cloud_status.cgi', LoadClientList, false); }
     function LoadClientStatus(msg) { fillClientStatus(JSON.parse(msg).response, 'client-data', 'Cliente: ' + status_system_key, 'CancelClient'); }

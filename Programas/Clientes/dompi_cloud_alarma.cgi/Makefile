@@ -7,7 +7,7 @@ CXXFLAGS=-g -Wall -Wextra -MMD -O2
 LIBS=-lstdc++ -lgmshared -lgmc -lcjson -lssl -lcrypto
 OBJECTS=dompi_cloud_alarma.cgi.o config.o strfunc.o
 OUTPUT=dompi_cloud_alarma.cgi
-DEFINE=-D __NO__DEBUG__
+DEFINE=$(GENERAL_DEFINE)
 CC=g++
 
 #.cc.o:

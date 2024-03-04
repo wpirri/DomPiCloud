@@ -8,7 +8,7 @@ NO_LIBS= -lpq
 LIBS=-lgmqw -lgmshared -lstdc++ -lcjson -lssl -lcrypto `mysql_config --libs`
 OBJECTS=dompi_cloud_alarma.o config.o strfunc.o cmydb.o
 OUTPUT=dompi_cloud_alarma
-DEFINE=-D __NO__DEBUG__
+DEFINE=$(GENERAL_DEFINE)
 CC=g++
 
 #.cc.o:
@@ -36,7 +36,6 @@ clean:
 	$(RM) $(OBJECTS) $(OUTPUT) *.d
 
 install:
-	sed -i 's/\r//g' conf/*
 	$(CHMOD) +x install_server.sh
 	$(CHMOD) +x update-tables.sh
 	./install_server.sh $(INST_SBINDIR) $(OUTPUT) $(INST_VARDIR)

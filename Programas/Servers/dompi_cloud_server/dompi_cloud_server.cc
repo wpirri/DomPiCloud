@@ -91,7 +91,6 @@ int main(/*int argc, char** argv, char** env*/void)
 	char query_where[512];
 
 	time_t t;
-	struct tm *p_tm;
 	char save_client_key[256];
 
 	STRFunc Strf;
@@ -182,7 +181,6 @@ int main(/*int argc, char** argv, char** env*/void)
 			if( !strcmp(fn, "dompi_web_notif"))
 			{
 				t = time(&t);
-				p_tm = localtime(&t);
 
 				json_Message = cJSON_Parse(message);
 
