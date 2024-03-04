@@ -11,7 +11,7 @@ if(isset($resp_code) && isset($resp_msg) && isset($sistema))
 
 
 <div class="main-head">
-    <a class="menu-link" onclick="window.location.replace('../index.php');">Desloguearse</a>
+    <a class="menu-link" onclick="window.location.replace('../index.php');">Salir</a>
     &nbsp;&nbsp;&nbsp;&nbsp;
 </div>
 
@@ -32,7 +32,7 @@ if(isset($resp_code) && isset($resp_msg) && isset($sistema))
                 <div class="tab-content-form" id="upgrade-form">
                 <form enctype="multipart/form-data" action="" method="post" id="update_form" name="update_form" method="post">
                     <div class="abm-save-cancell">
-                        <a class="menu-link" onclick="Upgrade();">Subir</a>
+                        <a class="menu-link" onclick="Upgrade();">Actualizar</a>
                         &nbsp;&nbsp;&nbsp;&nbsp;
                     </div>
                     <br />
@@ -57,7 +57,7 @@ if(isset($resp_code) && isset($resp_msg) && isset($sistema))
                 <form method="post"  id="user-form">
                 <div class="tab-content-form" id="user-data">
                     <div class="abm-save-cancell">
-                        <a class="menu-link" onclick="GetUserDataNew();">Nuevo</a>
+                        <a class="menu-link" onclick="GetUserDataNew();">Usuario Nuevo</a>
                         &nbsp;&nbsp;&nbsp;&nbsp;
                     </div>
                 </div>

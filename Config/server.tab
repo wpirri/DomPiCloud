@@ -11,3 +11,4 @@ gm_transac|Administrador de transacciones|2|/usr/local/sbin/gm_transac
 dompi_cloud_server|Nube de Domotica|2|/usr/local/sbin/dompi_cloud_server
 dompi_amazon_server|Interface con AWS|2|/usr/local/sbin/dompi_amazon_server
 dompi_cloud_abm|ABM de Nube de Domotica|2|/usr/local/sbin/dompi_cloud_abm
+dompi_cloud_alarma|Control de Alarma|2|/usr/local/sbin/dompi_cloud_alarma
