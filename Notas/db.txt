@@ -1,0 +1,7 @@
+Optimizar mysql usando:
+    mysqloptimize db_name
+    mysqloptimize DB_DOMPICLOUD
+
+Veirifcar indices:
+    mysqlshow -k db_name tbl_name
+    mysqlshow -k DB_DOMPICLOUD TB_DOMCLOUD_ASSIGN

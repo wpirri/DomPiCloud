@@ -1,17 +1,24 @@
 #!/bin/sh
 
-if [ -f $1/$2 ]; then
-    $1/gmon_stop $2
-    sleep 1
-    cp $2 $1/
-    sleep 1
-    $1/gmon_start $2 || echo "Fallo"
-else
-    cp $2 $1/
-    sleep 1
-    ./update-tables.sh $3 server $1/$2 || echo "Fallo"
-    ./update-tables.sh $3 funcion || echo "Fallo"
+OBJ=$1
+TMP=$2
+SBIN=$3
+VAR=$4
 
-    gmt_pid=`ps -eaf | grep -v grep | grep $SERVER_BIN/gmt | awk '{ print $2; }'`
-    kill -HUP $gmt_pid > /dev/null 2>&1
+if [ -f $SBIN/$OBJ ]; then
+    $SBIN/gmon_stop $OBJ
+    sleep 1
+    cp $TMP/$OBJ $SBIN/
+    sleep 1
+    $SBIN/gmon_start $OBJ || echo "Fallo"
+else
+    cp $TMP/$OBJ $SBIN/
+    sleep 1
+    ./update-tables.sh $VAR server $SBIN/$OBJ || echo "Fallo"
+    ./update-tables.sh $VAR funcion || echo "Fallo"
+
+    gmt_pid=`ps -eaf | grep -v grep | grep $SBIN/gmt | awk '{ print $2; }'`
+    if [ "X${gmt_pid}" != "X" ]; then
+        kill -HUP $gmt_pid > /dev/null 2>&1
+    fi
 fi

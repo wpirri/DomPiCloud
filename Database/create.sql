@@ -44,6 +44,9 @@ Flags integer DEFAULT 0,
 PRIMARY KEY (System_Key, Id)
 );
 
+alter table TB_DOMCLOUD_ASSIGN add unique index idx_system_key_id (System_Key,Id);
+alter table TB_DOMCLOUD_ASSIGN add unique index idx_system_key_objeto_id (System_Key,Objeto,Id);
+
 CREATE TABLE TB_DOMCLOUD_NOTIF (
 System_Key varchar(256),
 Time_Stamp bigint,

@@ -3,7 +3,8 @@
 include configure.mk
 
 all:
-	find . -name "*.sh" -exec sed -i 's/\r//g' {} \;
+	dos2unix fixeol.sh
+	./fixeol.sh
 	make -C Programas
 
 clean:
