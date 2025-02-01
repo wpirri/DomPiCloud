@@ -3,8 +3,6 @@
 include configure.mk
 
 all:
-	dos2unix fixeol.sh
-	./fixeol.sh
 	make -C Programas
 
 clean:

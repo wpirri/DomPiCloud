@@ -1,0 +1,35 @@
+===============================================================================
+Instalación de cliente de whatsapp en python
+===============================================================================
+
+Instalación
+---------------------------------------
+
+apt update
+apt upgrade
+apt install git
+apt install python3-setuptools python3-pip python3-axolotl python3-protobuf python3-setuptools-protobuf
+
+mkdir -p /usr/local/whatsapp
+cd /usr/local/whatsapp
+git clone https://github.com/tgalal/yowsup.git
+cd yowsup
+python3 setup.py install
+
+
+Registración
+---------------------------------------
+
+https://en.wikipedia.org/wiki/Mobile_country_code
+--config-cc  Country Code - Argentina 54
+--config-mcc Mobile Country Code - Argentina 722
+--config-mnc Mobile Network Code - Movistar 070
+
+export PROTOCOL_BUFFERS_PYTHON_IMPLEMENTATION=python
+yowsup-cli registration --requestcode sms --config-phone 5491155813776 --config-cc 54 --config-mcc 722 --config-mnc 070
+
+Recibir código de registración por SMS
+
+yowsup-cli registration --register [código de registración] --config-phone 5491155813776
+
+

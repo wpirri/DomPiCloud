@@ -85,7 +85,7 @@ if(isset($resp_code) && isset($resp_msg) && isset($sistema))
                     <pre><?php system("df -h"); ?></pre>
                     <br />
                     <h2>Sistema Operativo</h2>
-                    <pre><?php system("top -b -n 1 -c -1 -w 512"); ?></pre>
+                    <pre><?php system("top -b -n 1 -c -1 -w 150"); ?></pre>
                     <br />
                     <br />
                 </div>

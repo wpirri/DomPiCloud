@@ -43,3 +43,33 @@ Tutorial: Build a Smart Home Skill:
 Test Account:
 test.alexa@pirri.com.ar
 t3st.4lex4@p1rr1.c0m.4r
+
+
+
+Alexa.PowerController - ON, OFF
+    LIGHT, AIR_CONDITIONER, THERMOSTAT, FAN
+Alexa.LockController - LOCK, UNLOCK
+    SMARTLOCK
+Alexa.DoorbellEventSource - 
+    DOORBELL
+Alexa.SecurityPanelController - ARMED_AWAY, ARMED_STAY, ARMED_NIGHT, DISARMED
+    SECURITY_PANEL
+Alexa.SecurityPanelController.Alert
+Alexa.TemperatureSensor - 
+Alexa.ThermostatController - 
+Alexa.SmartVision.ObjectDetectionSensor
+Alexa.SmartVision.SnapshotProvider
+
+
+
+TODO: Change report notification
+https://developer.amazon.com/en-US/docs/alexa/smarthome/state-reporting-for-a-smart-home-skill.html#report-state-with-changereport-events
+
+https://developer.amazon.com/en-US/docs/alexa/device-apis/alexa-changereport.html
+
+Alexa Event Gateway
+https://developer.amazon.com/en-US/docs/alexa/smarthome/send-events-to-the-alexa-event-gateway.html
+
+Python example
+https://github.com/alexa-samples/skill-sample-python-send-change-report
+

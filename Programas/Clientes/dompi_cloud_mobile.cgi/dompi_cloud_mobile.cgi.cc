@@ -209,6 +209,16 @@ int main(int /*argc*/, char** /*argv*/, char** env)
   {
     strcpy(funcion_call, "dompi_cloud_touch_object");
   }
+  else if( !strcmp(funcion, "difusion"))
+  {
+    strcpy(funcion_call, "dompi_cloud_difusion");
+  }
+  else
+  {
+    fputs("{ \"rc\":\"2\", \"msg\":\"SVC NOT FOUND\" }\r\n", stdout);
+    delete pClient;
+    return 0;
+  }
 
   /* Paso el objeto json a un buffer */
   cJSON_PrintPreallocated(json_obj, buffer, 4095, 0);

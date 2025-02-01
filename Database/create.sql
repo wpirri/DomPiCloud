@@ -25,7 +25,7 @@ PRIMARY KEY (Usuario)
 
 CREATE TABLE TB_DOMCLOUD_ASSIGN (
 System_Key varchar(256),
-Id integer,
+Id varchar(16),                         -- Permito Ids alfanumericos
 Objeto varchar(128),
 Tipo integer DEFAULT 0,                 -- 0=Output, 1=Input, 2=Analog, 3=Output Alarma, 4=Input Alarma, 5=Output Pulse/Analog_Mult_Div_Valor=Pulse Param, 6=Periferico, 1x=Automatizacion (3 estados)
 Estado integer DEFAULT 0,               -- 0=Apagado, 1=Encendido, 2=Automático

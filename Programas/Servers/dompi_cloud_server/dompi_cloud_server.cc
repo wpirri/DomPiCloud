@@ -48,6 +48,7 @@ const char *assign_columns[] = {
 	"System_Key",
 	"Id",
 	"ASS_Id",
+	"GRP_Id",
 	"Objeto",
 	"Tipo",
 	"Tipo_ASS",
@@ -100,6 +101,8 @@ int main(/*int argc, char** argv, char** env*/void)
     cJSON *json_un_obj;
     cJSON *json_System_Key;
     cJSON *json_AssId;
+    cJSON *json_GrpId;
+    cJSON *json_AutId;
     cJSON *json_Array_Alarma;
     cJSON *json_Alarma;
 	cJSON *json_Estado;
@@ -185,12 +188,10 @@ int main(/*int argc, char** argv, char** env*/void)
 				json_Message = cJSON_Parse(message);
 
 				json_System_Key = cJSON_GetObjectItemCaseSensitive(json_Message, "System_Key");
-				json_AssId = cJSON_GetObjectItemCaseSensitive(json_Message, "Id");
+				json_AssId = cJSON_GetObjectItemCaseSensitive(json_Message, "ASS_Id");
+				json_GrpId = cJSON_GetObjectItemCaseSensitive(json_Message, "GRP_Id");
+				json_AutId = cJSON_GetObjectItemCaseSensitive(json_Message, "AUT_Id");
 				json_Array_Alarma = cJSON_GetObjectItemCaseSensitive(json_Message, "Alarma");
-				if(!json_AssId)
-				{
-					json_AssId = cJSON_GetObjectItemCaseSensitive(json_Message, "ASS_Id");
-				}
 
 				json_User = cJSON_GetObjectItemCaseSensitive(json_Message, "Usuario_Cloud");
 				json_Password = cJSON_GetObjectItemCaseSensitive(json_Message, "Clave_Cloud");
@@ -449,7 +450,7 @@ int main(/*int argc, char** argv, char** env*/void)
 							}
 						}
 					}
-					else if(json_AssId)
+					else if(json_AssId || json_GrpId || json_AutId)
 					{
 						query[0] = 0;
 						query_into[0] = 0;
@@ -480,23 +481,42 @@ int main(/*int argc, char** argv, char** env*/void)
 												/* Armo las sentencias del UPDATE */
 												if( !strcmp(json_un_obj->string, "System_Key") ||
 													!strcmp(json_un_obj->string, "ASS_Id") ||
-													!strcmp(json_un_obj->string, "Id"))
+													!strcmp(json_un_obj->string, "GRP_Id") ||
+													!strcmp(json_un_obj->string, "AUT_Id"))
 												{
 													if(strlen(query_where) > 0)
 													{
 														strcat(query_where, " AND ");
 													}
+
 													if( !strcmp(json_un_obj->string, "ASS_Id"))
 													{
 														strcat(query_where, "Id");
+														strcat(query_where, "='A");
+														strcat(query_where, json_un_obj->valuestring);
+														strcat(query_where, "'");
+													}
+													else if( !strcmp(json_un_obj->string, "GRP_Id"))
+													{
+														strcat(query_where, "Id");
+														strcat(query_where, "='G");
+														strcat(query_where, json_un_obj->valuestring);
+														strcat(query_where, "'");
+													}
+													else if( !strcmp(json_un_obj->string, "AUT_Id"))
+													{
+														strcat(query_where, "Id");
+														strcat(query_where, "='U");
+														strcat(query_where, json_un_obj->valuestring);
+														strcat(query_where, "'");
 													}
 													else
 													{
 														strcat(query_where, json_un_obj->string);
+														strcat(query_where, "='");
+														strcat(query_where, json_un_obj->valuestring);
+														strcat(query_where, "'");
 													}
-													strcat(query_where, "='");
-													strcat(query_where, json_un_obj->valuestring);
-													strcat(query_where, "'");
 												}
 												else
 												{
@@ -527,7 +547,17 @@ int main(/*int argc, char** argv, char** env*/void)
 												{
 													strcat(query_into, ",");
 												}
-												strcat(query_into, json_un_obj->string);
+
+												if( !strcmp(json_un_obj->string, "ASS_Id") ||
+												    !strcmp(json_un_obj->string, "GRP_Id") ||
+													!strcmp(json_un_obj->string, "AUT_Id")  )
+												{
+													strcat(query_into, "Id");
+												}
+												else
+												{
+													strcat(query_into, json_un_obj->string);
+												}
 												/* Valor */
 												if(strlen(query_values) == 0)
 												{
@@ -537,9 +567,30 @@ int main(/*int argc, char** argv, char** env*/void)
 												{
 													strcat(query_values, ",");
 												}
-												strcat(query_values, "'");
-												strcat(query_values, json_un_obj->valuestring);
-												strcat(query_values, "'");
+												if( !strcmp(json_un_obj->string, "ASS_Id"))
+												{
+													strcat(query_values, "'A");
+													strcat(query_values, json_un_obj->valuestring);
+													strcat(query_values, "'");
+												}
+												else if( !strcmp(json_un_obj->string, "GRP_Id"))
+												{
+													strcat(query_values, "'G");
+													strcat(query_values, json_un_obj->valuestring);
+													strcat(query_values, "'");
+												}
+												else if( !strcmp(json_un_obj->string, "AUT_Id"))
+												{
+													strcat(query_values, "'U");
+													strcat(query_values, json_un_obj->valuestring);
+													strcat(query_values, "'");
+												}
+												else
+												{
+													strcat(query_values, "'");
+													strcat(query_values, json_un_obj->valuestring);
+													strcat(query_values, "'");
+												}
 											}
 										}
 									}
@@ -593,7 +644,7 @@ int main(/*int argc, char** argv, char** env*/void)
 						m_pServer->m_pLog->Add(100, "[*** Keep Alive ***] System_Key: %s", json_System_Key->valuestring);
 						sprintf(query, "UPDATE TB_DOMCLOUD_ASSIGN "
 													"SET Time_Stamp = %li "
-													"WHERE System_Key = \'%s\' AND Id = 0;", 
+													"WHERE System_Key = \'%s\' AND Id = \'0\';", 
 													t,
 													json_System_Key->valuestring);
 						m_pServer->m_pLog->Add(100, "[QUERY][%s]", query);

@@ -39,6 +39,11 @@ using namespace std;
 
 #define MAX_BUFFER_LEN 32767
 
+#define LEASE_TIME_OBJETOS 3600
+#define LEASE_TIME_USUARIOS 86400
+#define LEASE_TIME_ALARMA 3600
+
+
 CGMServerWait *m_pServer;
 DPConfig *pConfig;
 //CPgDB *pDB;
@@ -227,7 +232,7 @@ int main(/*int argc, char** argv, char** env*/void)
 					json_Query_Result = cJSON_CreateArray();
 					sprintf(query, "SELECT Objeto, Estado, Time_Stamp "
 											"FROM TB_DOMCLOUD_ASSIGN "
-											"WHERE System_Key = \'%s\' AND Id > 0;", json_System_Key->valuestring);
+											"WHERE System_Key = \'%s\' AND Id <> \'0\';", json_System_Key->valuestring);
 					m_pServer->m_pLog->Add(100, "[QUERY][%s]", query);
 					rc = pDB->Query(json_Query_Result, query);
 					m_pServer->m_pLog->Add((pDB->LastQueryTime()>1)?1:100, "[QUERY] rc= %i, time= %li [%s]", rc, pDB->LastQueryTime(), query);
@@ -253,7 +258,7 @@ int main(/*int argc, char** argv, char** env*/void)
 					json_Query_Result = cJSON_CreateArray();
 					sprintf(query, "SELECT System_Key "
 											"FROM TB_DOMCLOUD_ASSIGN "
-											"WHERE Id = 0;");
+											"WHERE Id = \'0\';");
 					m_pServer->m_pLog->Add(100, "[QUERY][%s]", query);
 					rc = pDB->Query(json_Query_Result, query);
 					m_pServer->m_pLog->Add((pDB->LastQueryTime()>1)?1:100, "[QUERY] rc= %i, time= %li [%s]", rc, pDB->LastQueryTime(), query);
@@ -791,27 +796,34 @@ int main(/*int argc, char** argv, char** env*/void)
 		m_pServer->m_pLog->Add((pDB->LastQueryTime()>1)?1:100, "[QUERY] rc= %i, time= %li [%s]", rc, pDB->LastQueryTime(), query);
 		if(rc < 0) m_pServer->m_pLog->Add(1, "[QUERY] ERROR [%s] en [%s]", pDB->m_last_error_text, query);
 
+		/* Borro registros viejos de objetos */
+		sprintf(query, "DELETE FROM TB_DOMCLOUD_ASSIGN WHERE Id <> \'0\' AND Time_Stamp < %lu;", t-LEASE_TIME_OBJETOS);
+		m_pServer->m_pLog->Add(100, "[QUERY][%s]", query);
+		rc = pDB->Query(NULL, query);
+		m_pServer->m_pLog->Add((pDB->LastQueryTime()>1)?1:100, "[QUERY] rc= %i, time= %li [%s]", rc, pDB->LastQueryTime(), query);
+		if(rc < 0) m_pServer->m_pLog->Add(1, "[QUERY] ERROR [%s] en [%s]", pDB->m_last_error_text, query);
+
 		/* Borro registros viejos de usuarios */
-		sprintf(query, "DELETE FROM TB_DOMCLOUD_USER WHERE Id_Sistema <> \'ADMIN\' AND Time_Stamp < %lu;", t-86400);
+		sprintf(query, "DELETE FROM TB_DOMCLOUD_USER WHERE Id_Sistema <> \'ADMIN\' AND Time_Stamp < %lu;", t-LEASE_TIME_USUARIOS);
 		m_pServer->m_pLog->Add(100, "[QUERY][%s]", query);
 		rc = pDB->Query(NULL, query);
 		m_pServer->m_pLog->Add((pDB->LastQueryTime()>1)?1:100, "[QUERY] rc= %i, time= %li [%s]", rc, pDB->LastQueryTime(), query);
 		if(rc < 0) m_pServer->m_pLog->Add(1, "[QUERY] ERROR [%s] en [%s]", pDB->m_last_error_text, query);
 
 		/* Borro registros viejos de alarma */
-		sprintf(query, "DELETE FROM TB_DOMCLOUD_ALARM_SALIDA WHERE Time_Stamp < %lu;", t-86400);
+		sprintf(query, "DELETE FROM TB_DOMCLOUD_ALARM_SALIDA WHERE Time_Stamp < %lu;", t-LEASE_TIME_ALARMA);
 		m_pServer->m_pLog->Add(100, "[QUERY][%s]", query);
 		rc = pDB->Query(NULL, query);
 		m_pServer->m_pLog->Add((pDB->LastQueryTime()>1)?1:100, "[QUERY] rc= %i, time= %li [%s]", rc, pDB->LastQueryTime(), query);
 		if(rc < 0) m_pServer->m_pLog->Add(1, "[QUERY] ERROR [%s] en [%s]", pDB->m_last_error_text, query);
 
-		sprintf(query, "DELETE FROM TB_DOMCLOUD_ALARM_ENTRADA WHERE Time_Stamp < %lu;", t-86400);
+		sprintf(query, "DELETE FROM TB_DOMCLOUD_ALARM_ENTRADA WHERE Time_Stamp < %lu;", t-LEASE_TIME_ALARMA);
 		m_pServer->m_pLog->Add(100, "[QUERY][%s]", query);
 		rc = pDB->Query(NULL, query);
 		m_pServer->m_pLog->Add((pDB->LastQueryTime()>1)?1:100, "[QUERY] rc= %i, time= %li [%s]", rc, pDB->LastQueryTime(), query);
 		if(rc < 0) m_pServer->m_pLog->Add(1, "[QUERY] ERROR [%s] en [%s]", pDB->m_last_error_text, query);
 
-		sprintf(query, "DELETE FROM TB_DOMCLOUD_ALARM WHERE Time_Stamp < %lu;", t-86400);
+		sprintf(query, "DELETE FROM TB_DOMCLOUD_ALARM WHERE Time_Stamp < %lu;", t-LEASE_TIME_ALARMA);
 		m_pServer->m_pLog->Add(100, "[QUERY][%s]", query);
 		rc = pDB->Query(NULL, query);
 		m_pServer->m_pLog->Add((pDB->LastQueryTime()>1)?1:100, "[QUERY] rc= %i, time= %li [%s]", rc, pDB->LastQueryTime(), query);
