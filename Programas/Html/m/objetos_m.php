@@ -53,10 +53,6 @@ function LoadData(msg) {
 		output += '<div class="list-head"  id="list-head4" >\n';
 		output += '<img id="icon-image4" class="icon-image" src="../images/calef1.png" >&nbsp;Clima\n';
 		output += '</div>\n';
-		<?php } else if($grupo == 4) { ?>
-		output += '<div class="list-head"  id="list-head4" >\n';
-		output += '<img id="icon-image4" class="icon-image" src="../images/calef1.png" >&nbsp;Clima\n';
-		output += '</div>\n';
 		<?php } else if($grupo == 5) { ?>
 		output += '<div class="list-head"  id="list-head5" >\n';
 		output += '<img id="icon-image5" class="icon-image" src="../images/camara.png" >&nbsp;C&aacute;maras\n';
