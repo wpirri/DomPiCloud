@@ -47,7 +47,7 @@ if( isset($_SESSION['auth_token']) )
 /*$host = $_SERVER["SERVER_NAME"];*/
 $host = "127.0.0.1";
 $script = "/cgi-bin/dompi_cloud_auth.cgi";
-$protocol = "https";
+$protocol = $_SERVER['REQUEST_SCHEME'];
 $url = $protocol."://".$host.$script;
 $result = json_decode(httpPost($url, $auth));
 //syslog(LOG_DEBUG, "AUTH: resp ".$result->response->resp_code);
