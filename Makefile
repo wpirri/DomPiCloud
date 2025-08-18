@@ -24,7 +24,7 @@ installer:
 	mkdir -p $(RUN_HOME)/html
 
 	cp -av Programas/Html/* $(RUN_HOME)/html/
-	rm $(RUN_HOME)/html/config.php
+	mv $(RUN_HOME)/html/config.php $(RUN_HOME)/html/config_sample.php
 	rm $(RUN_HOME)/html/Makefile
 	cp Programas/Clientes/dompi_cloud_abmuser.cgi/dompi_cloud_abmuser.cgi $(RUN_HOME)/cgi/
 	cp Programas/Clientes/dompi_cloud_alarma.cgi/dompi_cloud_alarma.cgi $(RUN_HOME)/cgi/
